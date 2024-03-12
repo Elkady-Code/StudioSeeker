@@ -5,7 +5,7 @@ const {
   validateUserSignUp,
   userValidation,
   validateUserSignIn,
-} = require("../middleware/validation/user");
+} = require("../validation/user");
 
 router.post("/create-user", validateUserSignUp, userValidation, createUser);
 router.post("/sign-in", validateUserSignIn, userValidation, userSignIn);
