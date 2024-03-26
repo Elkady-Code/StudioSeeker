@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-// Define the schema for the Post model
-const postSchema = new mongoose.Schema({
+const postSchema = new Schema({
   location: {type: String, required: true,},
   rentPerHour: {type: Number, required: true,},
-  images: [{type: String,required: true,},],
+  images: [{type: String,required: false,},],
   description: {type: String,required: true,},
 });
 

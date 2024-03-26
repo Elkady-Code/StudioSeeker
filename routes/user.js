@@ -4,8 +4,8 @@ const User = require("../models/user");
 const sharp = require("sharp");
 const multer = require("multer");
 const storage = multer.memoryStorage();
-const postController = require('../controllers/post');
-const Post = require ('../models/post');
+const postController = require("../controllers/post");
+const Post = require("../models/post");
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
@@ -55,8 +55,8 @@ router.post(
   }
 );
 
-router.post('/post', postController.addPost);
-router.get('/posts', postController.viewPosts);
-router.delete('/post/:postId', postController.deletePost);
+router.post("/user/post", postController.addPost);
+router.get("/posts", postController.viewPosts);
+router.delete("/post/:postId", postController.deletePost);
 
 module.exports = router;
