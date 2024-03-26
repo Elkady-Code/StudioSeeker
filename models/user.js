@@ -25,16 +25,16 @@ userSchema.pre("save", function (next) {
   }
 });
 
-userSchema.methods.comparePassword = async function (password){
+userSchema.methods.comparePassword = async function (password) {
   if (!password) throw new Error("Password is missing, can't compare");
   try {
     const result = await bcrypt.compare(password, this.password);
     return result;
   } catch (error) {
     console.log("Error while comparing password!", error.message);
-    return false; 
+    return false;
   }
-}
+};
 
 userSchema.statics.isThisEmailInUse = async function (email) {
   if (!email) throw new Error("Invalid Email");

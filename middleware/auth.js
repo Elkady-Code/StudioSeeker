@@ -18,9 +18,12 @@ exports.isAuth = async (req, res, next) => {
         return res.json({ success: false, message: "Unauthorized Access!" });
       }
       if (error.name === "TokenExpiredError") {
-        return res.json({ success: false, message: "Session Expire, kindly sign in again!" });
+        return res.json({
+          success: false,
+          message: "Session Expire, kindly sign in again!",
+        });
       }
-       res.json({ success: false, message: "Internal server error" });
+      res.json({ success: false, message: "Internal server error" });
     }
   } else {
     res.json({ success: false, message: "Unauthorized Access!" });
