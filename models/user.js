@@ -10,6 +10,7 @@ const userSchema = new Schema({
   number: { type: Number, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   address: { type: String },
+  accessToken: { type: String, default: null },
   avatar: Buffer,
 });
 

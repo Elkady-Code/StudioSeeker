@@ -49,3 +49,28 @@ exports.userSignIn = async (req, res) => {
 
   res.json({ success: true, user, token });
 };
+
+exports.userLogout = async (req, res) =>{
+  try {
+    const { username } = req.decoded;
+    let user = await User.findOne({ username });
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "User not found"
+      });
+    }
+    user.accessToken = "";
+    await user.save();
+    return res.json({
+      success: true,
+      message: "User logged out"
+    });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      success: false,
+      message: "Error logging out user"
+    });
+  }
+}
