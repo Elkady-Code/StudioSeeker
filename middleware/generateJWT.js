@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+require('dotenv').config()
+
 
 exports.isAuth = async (req, res, next) => {
   if (req.headers && req.headers.authorization) {
@@ -29,3 +31,13 @@ exports.isAuth = async (req, res, next) => {
     res.json({ success: false, message: "Unauthorized Access!" });
   }
 };
+
+exports.generateJWT = async (username)=>{
+ try {
+  const payload = {username};
+  const token = await jwt.sign(payload, process.env.JWT_SECRET, options);
+    return { error: false, token };
+ } catch (error) {
+  return { error: true };
+ }
+}

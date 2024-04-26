@@ -10,25 +10,32 @@ function generateToken(userId) {
 }
 
 exports.addPost = async (req, res) => {
-  const userId = req.user._id;
+  // const userId = req.user._id;
   const postData = {
-    desc: req.body.desc,
-    img: req.body.img,
-    userId: userId,
+    location:req.body.location,
+    rentPerHour: req.body.rentPerHour,
+    description: req.body.desc,
+    images: req.body.img,
+    userId: 1,
     createdAt: new Date(),
   };
-  try {
+  // userId: {type: Number, required: true},
+  // location: {type: String, required: true,},
+  // rentPerHour: {type: Number, required: true,},
+  // images: [{type: String,required: false,},],
+  // description: {type: String,required: true,},
+  // try {
     // Save post data to MongoDB
     const newPost = new Post(postData);
     await newPost.save(); // Save the new post
-    const token = generateToken(userId);
+    // const token = generateToken(userId);
     return res.json({
-      token,
+      // token,
       message: "Post created",
     });
-  } catch (error) {
-    return res.json({ success: false, message: "Internal server error" });
-  }
+  // } catch (error) {
+//     return res.json({ success: false, message: "Internal server error" });
+//   }
 };
 
 exports.viewPosts = async (req, res) => {

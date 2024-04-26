@@ -20,7 +20,7 @@ const {
   userValidation,
   validateUserSignIn,
 } = require("../middleware/validation/user");
-const { isAuth } = require("../middleware/auth");
+const { isAuth } = require("../middleware/generateJWT");
 
 router.post("/create-user", validateUserSignUp, userValidation, createUser);
 router.post("/sign-in", validateUserSignIn, userValidation, userSignIn);
@@ -55,8 +55,8 @@ router.post(
   }
 );
 
-router.post("/user/post", postController.addPost);
-router.get("/posts", postController.viewPosts);
-router.delete("/post/:postId", postController.deletePost);
+router.post("/user/post",isAuth ,postController.addPost);
+router.get("/posts",isAuth ,postController.viewPosts);
+router.delete("/post/:postId",isAuth , postController.deletePost);
 
 module.exports = router;
