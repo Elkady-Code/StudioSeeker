@@ -35,12 +35,35 @@ exports.validateUserSignUp = [
 ];
 
 exports.userValidation = (req, res, next) => {
-  const result = validationResult(req).array();
-  if (!result.length) return next();
+  const errors = validationResult(req);
+  if (errors.isEmpty()) {
+    return next();
+  }
 
-  const error = result[0].msg;
-  res.json({ success: false, message: error });
+  const extractedErrors = [];
+  errors.array().forEach((error) => {
+    extractedErrors.push({ [error.param]: error.msg });
+  });
+
+  // If there's a specific error for confirmPassword, send it back
+  const confirmPasswordError = extractedErrors.find(
+    (error) => Object.keys(error)[0] === "confirmPassword"
+  );
+  if (confirmPasswordError) {
+    return res.status(400).json({
+      success: false,
+      message: confirmPasswordError["confirmPassword"],
+    });
+  }
+
+  // Otherwise, send the first error encountered
+  const firstError = extractedErrors[0];
+  res.status(400).json({
+    success: false,
+    message: firstError[Object.keys(firstError)[0]],
+  });
 };
+
 
 exports.validateUserSignIn = [
   check("email").trim().isEmail().withMessage("email/password is required!"),

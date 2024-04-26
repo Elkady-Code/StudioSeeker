@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const Post = require("../models/post");
-const User = require("../controllers/user");
+const User = require("./userController");
 
 function generateToken(userId) {
   const token = jwt.sign({ userId }, process.env.JWT_TOKEN, {
