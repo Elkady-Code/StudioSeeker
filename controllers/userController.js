@@ -113,7 +113,7 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
   const resetUrl = `${req.protocol}://${req.get(
     "host"
   )}/api/v1/users/resetPassword/${resetToken}`;
-  const message = `We have received a request to reset your password.Please use the link below to create a new password:\n\n${resetUrl}\n\nThis link will expire in 10 minutes for security reasons.`;
+  const message = `You have received a request to reset your password for StudioSeeker.Please use the link below to create a new password:\n\n${resetUrl}\n\nThis link will expire in 10 minutes for security reasons.`;
 
   try {
     await sendEmail({
