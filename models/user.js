@@ -29,13 +29,14 @@ const userSchema = new Schema({
 });
 
 userSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
+  if (this.isModified("password") || this.isModified("confirmPassword")) {
     if (!this.confirmPassword) {
       const error = new Error("Please confirm your password.");
       return next(error);
     }
     try {
       this.password = await bcrypt.hash(this.password, 8);
+      this.confirmPassword = await bcrypt.hash(this.confirmPassword, 8); // Hash confirmPassword
     } catch (err) {
       return next(err);
     }
