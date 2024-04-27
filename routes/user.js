@@ -8,13 +8,8 @@ const postController = require("../controllers/post");
 const Post = require("../models/post");
 const asyncErrorHandler = require("../Utils/asyncErrorHandler");
 const userController = require("../controllers/userController");
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image")) {
-    cb(null, true);
-  } else {
-    cb("Invalid Image File, try again!", false);
-  }
-};
+const { isAuth } = require("../middleware/generateJWT");
+const UserOTPVerification = require("../models/userOTPVerification");
 const uploads = multer({ storage, fileFilter });
 const { createUser, userSignIn } = require("../controllers/userController");
 const {
@@ -22,11 +17,29 @@ const {
   userValidation,
   validateUserSignIn,
 } = require("../middleware/validation/user");
-const { isAuth } = require("../middleware/generateJWT");
-const UserOTPVerification = require("../models/userOTPVerification");
 
-router.post("/create-user", validateUserSignUp, userValidation, createUser);
-router.post("/sign-in", validateUserSignIn, userValidation, userSignIn);
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb("Invalid Image File, try again!", false);
+  }
+};
+
+router.post("/user/post", isAuth, postController.addPost); //upload up a post API
+
+router.get("/posts", isAuth, postController.viewPosts); //get a post
+
+router.delete("/post/:postId", isAuth, postController.deletePost); //delete a post
+
+router.post("/forgotPassword", userController.forgotPassword); //forgotPassword API
+
+router.patch("/resetPassword/:token", userController.resetPassword); //resetPassword API using given token in MailTrap
+
+router.post("/create-user", validateUserSignUp, userValidation, createUser); //Create-user API with authentication
+
+router.post("/sign-in", validateUserSignIn, userValidation, userSignIn); //Sign-in API with authentication
+
 router.post(
   "/upload-profile", // <-- Corrected route path
   isAuth,
@@ -56,14 +69,7 @@ router.post(
       console.log("Error uploading profile image", error.message);
     }
   }
-);
-
-router.post("/user/post", isAuth, postController.addPost);
-router.get("/posts", isAuth, postController.viewPosts);
-router.delete("/post/:postId", isAuth, postController.deletePost);
-
-router.post("/forgotPassword", userController.forgotPassword);
-router.patch("/resetPassword/:token", userController.resetPassword);
+); //uploading profile photo API
 
 /* router.post("/verifyOTP", async (req, res) => {
   try {
