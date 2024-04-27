@@ -6,6 +6,7 @@ import {
   Image,
   View,
   Text,
+  LogBox,
 } from "react-native";
 import { Button } from "react-native-paper";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -14,9 +15,12 @@ import SignIn from "./src/screens/signin";
 import SignUp from "./src/screens/signup";
 import ResetPassword from "./src/screens/ResetPassword";
 import NewPassword from "./src/screens/NewPassword";
+import Main from "./src/Home/index";
 const Stack = createStackNavigator();
 
 export default function App() {
+  LogBox.ignoreAllLogs();
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Splash">
@@ -32,6 +36,13 @@ export default function App() {
         <Stack.Screen name="SignUp" component={SignUp} />
         <Stack.Screen name="ResetPassword" component={ResetPassword} />
         <Stack.Screen name="NewPassword" component={NewPassword} />
+        <Stack.Screen
+          name="Main"
+          component={Main}
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

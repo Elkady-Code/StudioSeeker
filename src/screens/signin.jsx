@@ -1,7 +1,14 @@
 import React, { useState } from "react";
-import { TouchableOpacity, Text, StyleSheet, TextInput, Alert, View } from "react-native";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  TextInput,
+  Alert,
+  View,
+} from "react-native";
 import Parse from "parse/react-native";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -10,11 +17,11 @@ const SignIn = () => {
 
   const handleSignIn = async () => {
     try {
-      const user = await Parse.User.logIn(email, password);
+      // const user = await Parse.User.logIn(email, password);
       Alert.alert("Success", "You have signed in successfully.");
-      
+
       // Navigate to another screen (e.g., HomeScreen)
-      navigation.navigate('home'); // Replace 'HomeScreen' with the name of your home screen
+      navigation.push("Main"); // Replace 'HomeScreen' with the name of your home screen
     } catch (error) {
       // Error signing in
       Alert.alert("Error", error.message);
@@ -22,11 +29,11 @@ const SignIn = () => {
   };
 
   const handleSignUpNavigation = () => {
-    navigation.navigate('SignUp'); // Navigate to the existing SignUp screen
+    navigation.push("SignUp"); // Navigate to the existing SignUp screen
   };
 
   const handleForgotPasswordNavigation = () => {
-    navigation.navigate('ResetPassword'); // Navigate to the existing ResetPassword screen
+    navigation.navigate("ResetPassword"); // Navigate to the existing ResetPassword screen
   };
 
   return (
@@ -62,7 +69,9 @@ const SignIn = () => {
         <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
       <View style={styles.footer}>
-        <Text style={styles.footerText}>© {new Date().getFullYear()} StudioSeeker</Text>
+        <Text style={styles.footerText}>
+          © {new Date().getFullYear()} StudioSeeker
+        </Text>
       </View>
     </View>
   );
@@ -71,30 +80,30 @@ const SignIn = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingBottom: 20,
   },
   header: {
     marginTop: 40,
-    alignItems: 'center',
+    alignItems: "center",
   },
   welcomeText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   subText: {
     fontSize: 16,
     marginTop: 12,
   },
   inputContainer: {
-    width: '100%',
+    width: "100%",
   },
   input: {
     height: 40,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
@@ -109,7 +118,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontWeight: "bold",
-    textAlign: 'center',
+    textAlign: "center",
   },
   signupText: {
     color: "#C15656",
@@ -120,10 +129,10 @@ const styles = StyleSheet.create({
     color: "#C15656",
     marginTop: 10,
     fontSize: 16,
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
   },
   footer: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   footerText: {
     fontSize: 12,
