@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "StudioSeeker",
-    "slug": "StudioSeeker",
+    "name": "studioseeker",
+    "slug": "studioseeker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
