@@ -57,12 +57,11 @@ router.post(
   }
 );
 
-
 router.post("/user/post", isAuth, postController.addPost);
 router.get("/posts", isAuth, postController.viewPosts);
 router.delete("/post/:postId", isAuth, postController.deletePost);
 
 router.post("/forgotPassword", userController.forgotPassword);
-router.route("/resetPassword/:token", userController.resetPassword);
+router.patch("/resetPassword/:token", userController.resetPassword);
 
 module.exports = router;

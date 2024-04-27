@@ -8,26 +8,26 @@ const sendEmail = async (options) => {
       port: process.env.EMAIL_PORT,
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
+        pass: process.env.EMAIL_PASSWORD,
       },
       secure: false, // Disable SSL/TLS
       tls: {
-        rejectUnauthorized: false // Disable certificate validation
-      }
+        rejectUnauthorized: false, // Disable certificate validation
+      },
     });
 
     // Define email options
     const emailOptions = {
-      from: 'Cineflix support <support@cineflix.com>',
+      from: "Cineflix support <support@cineflix.com>",
       to: options.email,
       subject: options.subject,
-      text: options.message
+      text: options.message,
     };
 
     // Send email
     await transporter.sendMail(emailOptions);
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
     throw error; // Re-throw the error to be handled elsewhere if needed
   }
 };

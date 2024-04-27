@@ -26,11 +26,14 @@ exports.validateUserSignUp = [
     .trim()
     .notEmpty()
     .custom((value, { req }) => {
+      console.log("Password:", req.body.password);
+      console.log("Confirm Password:", value);
       if (value !== req.body.password) {
         throw new Error("Both passwords are not matching!");
       }
       return true;
     }),
+
   check("number").trim().not().isEmpty(),
 ];
 
@@ -63,7 +66,6 @@ exports.userValidation = (req, res, next) => {
     message: firstError[Object.keys(firstError)[0]],
   });
 };
-
 
 exports.validateUserSignIn = [
   check("email").trim().isEmail().withMessage("email/password is required!"),
