@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.1.3",
+    "@parse/react-native": "^0.0.1-alpha.18",
+    "@react-navigation/native": "^6.1.17",
+    "@react-navigation/stack": "^6.3.29",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "expo": "~50.0.8",
+    "expo": "~50.0.17",
     "expo-status-bar": "~1.11.1",
     "express": "^4.18.3",
     "express-validator": "^7.0.1",
@@ -23,12 +26,18 @@
     "mongoose": "^8.2.1",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.13",
+    "parse": "^5.0.0",
     "punycode": "^2.3.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-native": "0.73.4",
+    "react-native": "0.73.6",
+    "react-native-flags": "^1.0.0",
+    "react-native-gesture-handler": "~2.14.0",
+    "react-native-paper": "^5.12.3",
+    "react-native-picker-select": "^9.1.3",
     "react-native-web": "~0.19.6",
-    "sharp": "^0.33.2"
+    "sharp": "^0.33.2",
+    "vercel": "^34.1.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
