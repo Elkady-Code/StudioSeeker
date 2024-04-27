@@ -10,14 +10,8 @@ const asyncErrorHandler = require("../Utils/asyncErrorHandler");
 const userController = require("../controllers/userController");
 const { isAuth } = require("../middleware/generateJWT");
 const UserOTPVerification = require("../models/userOTPVerification");
-const uploads = multer({ storage, fileFilter });
 const { createUser, userSignIn } = require("../controllers/userController");
-const {
-  validateUserSignUp,
-  userValidation,
-  validateUserSignIn,
-} = require("../middleware/validation/user");
-
+const { validateUserSignUp, userValidation, validateUserSignIn,} = require("../middleware/validation/user");
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
@@ -25,6 +19,7 @@ const fileFilter = (req, file, cb) => {
     cb("Invalid Image File, try again!", false);
   }
 };
+const uploads = multer({ storage, fileFilter });
 
 router.post("/user/post", isAuth, postController.addPost); //upload up a post API
 
