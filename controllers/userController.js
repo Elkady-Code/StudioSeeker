@@ -5,6 +5,7 @@ const sendEmail = require("../Utils/email");
 const CustomError = require("../Utils/CustomError");
 const crypto = require('crypto');
 const bcrypt = require ('bcrypt');
+const UserOTPVerification = require ('../models/userOTPVerification')
 exports.createUser = async (req, res) => {
   const {
     username,
@@ -169,3 +170,40 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
   res.json({ success: true, user, loginToken });
 
 });
+
+/* const sendOTPVerificationEmail = async () => {
+  try {
+    const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const mailOptions = {
+      from: process.env.AUTH_EMAIL,
+      to: email,
+      subject: "verify your Email",
+      html: `<p> Enter <b>${otp}</b> in the app to verify your email address and complete
+      </p><p>This code <b> expires in 1 hour </b>.</p>`,
+    };
+    const saltRounds = 10;
+    const hashedOTP = await bcrypt.hash(otp, saltRounds);
+    const newOTPVerification = await new UserOTPVerification({
+      userId: _id,
+      otp: hashedOTP,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + 10 * 60 * 1000,
+    });
+    await newOTPVerification.save();
+    await transporter.sendMail(mailOptions);
+    res.json({
+      status: "Pending",
+      message: "Verification OTP Email has been sent",
+      data: {
+        userId: _id,
+        email,
+      },
+    });
+  } catch (error) {
+    res.json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+}; */

@@ -26,14 +26,11 @@ exports.validateUserSignUp = [
     .trim()
     .notEmpty()
     .custom((value, { req }) => {
-      console.log("Password:", req.body.password);
-      console.log("Confirm Password:", value);
       if (value !== req.body.password) {
         throw new Error("Both passwords are not matching!");
       }
       return true;
     }),
-
   check("number").trim().not().isEmpty(),
 ];
 

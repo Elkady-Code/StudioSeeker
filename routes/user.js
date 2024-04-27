@@ -23,6 +23,7 @@ const {
   validateUserSignIn,
 } = require("../middleware/validation/user");
 const { isAuth } = require("../middleware/generateJWT");
+const UserOTPVerification = require("../models/userOTPVerification");
 
 router.post("/create-user", validateUserSignUp, userValidation, createUser);
 router.post("/sign-in", validateUserSignIn, userValidation, userSignIn);
@@ -63,5 +64,65 @@ router.delete("/post/:postId", isAuth, postController.deletePost);
 
 router.post("/forgotPassword", userController.forgotPassword);
 router.patch("/resetPassword/:token", userController.resetPassword);
+
+/* router.post("/verifyOTP", async (req, res) => {
+  try {
+    let { userId, otp } = req.body;
+    if (!userId || !otp) {
+      throw Error("Empty otp details are not allowed");
+    } else {
+      const userOTPVerificationRecord = await UserOTPVerification.find({
+        userId,
+      });
+      if (userOTPVerificationRecord.length <= 0) {
+        throw new Error(
+          "Account record doesn't exist or has been verified already. Please sign up or log in."
+        );
+      } else {
+        const { expiresAt } = userOTPVerificationRecord[0];
+        const hashedOTP = userOTPVerificationRecord[0].otp;
+        if (expiresAt < Date.now()) {
+          UserOTPVerification.deleteMany({ userId });
+          throw new Error("Code has expired. Please request again.");
+        } else {
+          const validOTP = await bcrypt.compare(otp, hashedOTP);
+          if (!validOTP) {
+            throw new Error("Invalid code passed. Check your inbox.");
+          } else {
+            await user.updateOne({ _id: userId }, { verified: true });
+            await userOTPVerification.deleteMany({ userId });
+            res.json({
+              status: "Verified",
+              message: `User email verified successfully.`,
+            });
+          }
+        }
+      }
+    }
+  } catch (error) {
+    res.json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+});
+
+
+router.post("/resendOTPVerificationCode", async(req,res)=>{
+  try {
+    let {userId, email} = req.body;
+    if(!userID || !email){
+    throw Error("Empty user details are not allowed")
+  }else{
+    await userOTPVerification.deleteMany({userId});
+    sendOTPVerificationEmail({_id: userId, email}, res);
+  }
+  } catch (error) {
+    res.json({
+      status:"Failed",
+      message: error.message,
+    });
+  }
+}) */
 
 module.exports = router;
