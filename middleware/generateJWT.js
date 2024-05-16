@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-require('dotenv').config()
-
+require('dotenv').config();
 
 exports.isAuth = async (req, res, next) => {
   if (req.headers && req.headers.authorization) {
@@ -32,12 +31,12 @@ exports.isAuth = async (req, res, next) => {
   }
 };
 
-exports.generateJWT = async (username)=>{
- try {
-  const payload = {username};
-  const token = await jwt.sign(payload, process.env.JWT_SECRET, options);
+exports.generateJWT = async (username) => {
+  try {
+    const payload = { username };
+    const token = await jwt.sign(payload, process.env.JWT_TOKEN, { expiresIn: "30d" });
     return { error: false, token };
- } catch (error) {
-  return { error: true };
- }
+  } catch (error) {
+    return { error: true };
+  }
 }

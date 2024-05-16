@@ -9,6 +9,7 @@ app.use(userRouter);
 
 app.get("/", (req, res) => res.send("Express on Vercel"));
 
-app.listen(3000, () => console.log("Server is up and running on port 3000!"));
+const server = app.listen(3005, () => console.log("Server is up and running on " + server.address().port));
+
 
 module.exports = app;

@@ -1,166 +1,182 @@
 import React, { useState } from "react";
-import { TouchableOpacity, Text, StyleSheet, TextInput, Alert, View } from "react-native";
-import Parse from "parse/react-native";
-import { useNavigation } from '@react-navigation/native';
-import PickerSelect from 'react-native-picker-select';
-import Flag from 'react-native-flags';
-
-const countryCodes = [
-  { label: 'United States (+1)', value: '+1', flag: 'US' },
-  { label: 'United Kingdom (+44)', value: '+44', flag: 'GB' },
-  { label: 'Egypt (+20)', value: '+20', flag: 'EG' },
-  { label: 'Saudi Arabia (+966)', value: '+966', flag: 'SA' },
-  // Add more country codes as needed
-];
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  TextInput,
+  Alert,
+  View,
+  KeyboardAvoidingView,
+  Platform, // Import Platform to handle different OS behavior
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SignUp = () => {
   const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmPassword] = useState("");
   const [phonenumber, setPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("+1"); // Default country code
+  const [address, setAddress] = useState("");
   const navigation = useNavigation();
 
   const handleSignUp = async () => {
     try {
-      const user = new Parse.User();
-      user.set("username", username);
-      user.set("email", email);
-      user.set("password", password);
-      user.set("confirm password", confirmpassword);
-      user.set("phone number", countryCode + phonenumber); // Combine country code and phone number
-
-      await user.signUp();
-      
-      // Successfully signed up
-      Alert.alert("Success", "You have signed up successfully.");
-      
-      // Navigate to another screen (e.g., HomeScreen)
-      navigation.navigate('home'); // Replace 'HomeScreen' with the name of your home screen
+      const response = await fetch("http://192.168.1.9:3005/create-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          firstName,
+          lastName,
+          email,
+          password,
+          confirmPassword: confirmpassword,
+          number: phonenumber,
+          address,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        if (data.token) {
+          await AsyncStorage.setItem("authToken", data.token);
+          Alert.alert("Success", "You have signed up successfully.");
+          navigation.navigate('Main'); 
+        } else {
+          Alert.alert("Error", "An error occurred while signing up. Please try again later.");
+        }
+      } else {
+        Alert.alert("Error", data.message || "An error occurred while signing up. Please try again later.");
+      }
     } catch (error) {
-      // Error signing up
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", "An error occurred while signing up. Please try again later.");
     }
   };
+  
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Sign Up</Text>
-        <Text style={styles.subHeaderText}>Create an account to get started</Text>
-      </View>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={username}
-          onChangeText={setUsername}
-          placeholder="Username"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Password"
-          secureTextEntry
-        />
-        <TextInput
-          style={styles.input}
-          value={confirmpassword}
-          onChangeText={setConfirmPassword}
-          placeholder="Confirm password"
-          secureTextEntry
-        />
-        <View style={styles.phoneInputContainer}>
-          <View style={styles.countryCodeContainer}>
-            <PickerSelect
-              value={countryCode}
-              onValueChange={setCountryCode}
-              items={countryCodes.map(({ label, value, flag }) => ({
-                label: (
-                  <View style={styles.countryCodeOption}>
-                    <Flag code={flag} size={24} />
-                    <Text>{label}</Text>
-                  </View>
-                ),
-                value
-              }))}
-            />
-          </View>
+    <KeyboardAvoidingView
+      style={styles.keyboardAvoidingContainer}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Sign Up</Text>
+          <Text style={styles.subHeaderText}>
+            Create an account to get started
+          </Text>
+        </View>
+        <View style={styles.inputContainer}>
           <TextInput
-            style={[styles.input, styles.phoneInput]}
+            style={styles.input}
+            value={username}
+            onChangeText={setUsername}
+            placeholder="Username"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            value={firstName}
+            onChangeText={setFirstName}
+            placeholder="First Name"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            value={lastName}
+            onChangeText={setLastName}
+            placeholder="Last Name"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Password"
+            secureTextEntry
+          />
+          <TextInput
+            style={styles.input}
+            value={confirmpassword}
+            onChangeText={setConfirmPassword}
+            placeholder="Confirm password"
+            secureTextEntry
+          />
+          <TextInput
+            style={styles.input}
             value={phonenumber}
             onChangeText={setPhoneNumber}
             placeholder="Phone number"
             keyboardType="numeric"
             autoCapitalize="none"
           />
+          <TextInput
+            style={styles.input}
+            value={address}
+            onChangeText={setAddress}
+            placeholder="Address"
+            autoCapitalize="none"
+          />
+        </View>
+        <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>© 2024 StudioSeeker</Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </TouchableOpacity>
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2024 StudioSeeker</Text>
-      </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
+  keyboardAvoidingContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: 20,
+    backgroundColor: "#fff",
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
     marginBottom: 20,
   },
   headerText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   subHeaderText: {
     fontSize: 16,
   },
   inputContainer: {
-    width: '100%',
+    width: "100%",
     marginBottom: 20,
   },
   input: {
     height: 40,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
-  },
-  phoneInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center', // Align items vertically
-  },
-  phoneInput: {
-    flex: 1,
-  },
-  countryCodeContainer: {
-    width: 100, // Adjust the width as needed
-    marginRight: 10,
-  },
-  countryCodeOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: "#f9f9f9",
   },
   button: {
     backgroundColor: "#C15656",
@@ -182,8 +198,3 @@ const styles = StyleSheet.create({
 });
 
 export default SignUp;
-
-
-
-
-

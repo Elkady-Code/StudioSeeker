@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TouchableOpacity, Text, StyleSheet, TextInput, Alert, View } from "react-native";
+import { TouchableOpacity, Text, StyleSheet, TextInput, View } from "react-native";
 import Parse from "parse/react-native";
 import { useNavigation } from '@react-navigation/native';
 

@@ -1,13 +1,5 @@
 import React, { useState } from "react";
-import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  TextInput,
-  Alert,
-  View,
-} from "react-native";
-import Parse from "parse/react-native";
+import { TouchableOpacity, Text, StyleSheet, TextInput, Alert, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 const SignIn = () => {
@@ -17,23 +9,38 @@ const SignIn = () => {
 
   const handleSignIn = async () => {
     try {
-      // const user = await Parse.User.logIn(email, password);
-      Alert.alert("Success", "You have signed in successfully.");
-
-      // Navigate to another screen (e.g., HomeScreen)
-      navigation.push("Main"); // Replace 'HomeScreen' with the name of your home screen
+      const response = await fetch('http://192.168.1.9:3005/sign-in', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        // Sign in successful
+        Alert.alert("Success", "You have signed in successfully.");
+        // Navigate to another screen (e.g., HomeScreen)
+        navigation.push("Main");
+      } else {
+        // Sign in failed
+        Alert.alert("Error", data.message || "Sign in failed.");
+      }
     } catch (error) {
-      // Error signing in
-      Alert.alert("Error", error.message);
+      console.error('Error signing in:', error);
+      Alert.alert("Error", "An error occurred while signing in. Please try again later.");
     }
   };
 
   const handleSignUpNavigation = () => {
-    navigation.push("SignUp"); // Navigate to the existing SignUp screen
+    navigation.push("SignUp");
   };
 
   const handleForgotPasswordNavigation = () => {
-    navigation.navigate("ResetPassword"); // Navigate to the existing ResetPassword screen
+    navigation.navigate("ResetPassword");
   };
 
   return (
@@ -69,9 +76,7 @@ const SignIn = () => {
         <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
       <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          © {new Date().getFullYear()} StudioSeeker
-        </Text>
+        <Text style={styles.footerText}>© {new Date().getFullYear()} StudioSeeker</Text>
       </View>
     </View>
   );

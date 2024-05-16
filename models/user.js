@@ -3,40 +3,24 @@ const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   password: { type: String, required: true },
-  confirmPassword: {
-    type: String,
-    required: [true, "Please confirm your password."],
-    validate: {
-      validator: function (val) {
-        return val == this.password;
-      },
-      message: "Password & Confirm Password does not match!",
-    },
-  },
   passwordChangeAt: Date,
   passwordResetToken: String,
   passwordResetTokenExpires: Date,
   number: { type: Number, required: true, unique: true },
   email: { type: String, required: true, unique: true },
-  address: { type: String, required: false, unique: false },
+  address: { type: String },
   accessToken: { type: String, default: null },
-  avatar: Buffer,
 });
 
 userSchema.pre("save", async function (next) {
-  if (this.isModified("password") || this.isModified("confirmPassword")) {
-    if (!this.confirmPassword) {
-      const error = new Error("Please confirm your password.");
-      return next(error);
-    }
+  if (this.isModified("password")) {
     try {
       this.password = await bcrypt.hash(this.password, 8);
-      this.confirmPassword = await bcrypt.hash(this.confirmPassword, 8); // Hash confirmPassword
     } catch (err) {
       return next(err);
     }
@@ -44,12 +28,10 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-
 userSchema.methods.comparePassword = async function (password) {
   if (!password) throw new Error("Password is missing, can't compare");
   try {
-    const result = await bcrypt.compare(password, this.password);
-    return result;
+    return await bcrypt.compare(password, this.password);
   } catch (error) {
     console.log("Error while comparing password!", error.message);
     return false;
@@ -60,10 +42,9 @@ userSchema.statics.isThisEmailInUse = async function (email) {
   if (!email) throw new Error("Invalid Email");
   try {
     const user = await this.findOne({ email });
-    if (user) return false;
-    return true;
+    return !user;
   } catch (error) {
-    console.log("error inside isThisEmailInUse method", error.message);
+    console.log("Error inside isThisEmailInUse method", error.message);
     return false;
   }
 };

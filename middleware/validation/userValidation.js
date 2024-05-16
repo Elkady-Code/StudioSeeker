@@ -8,12 +8,20 @@ exports.validateUserSignUp = [
     .withMessage("Please insert a username!")
     .isString()
     .withMessage("Please insert a valid username!"),
-  check("lastName")
+  check("firstName")
     .trim()
     .not()
     .isEmpty()
+    .withMessage("Please insert a first name!")
     .isString()
-    .withMessage("Must be a valid name"),
+    .withMessage("Please enter a valid name!"),
+    check("lastName")
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage("Please insert a last name!")
+    .isString()
+    .withMessage("Please enter a valid last name!"),
   check("address").trim().not().isEmpty(),
   check("email").normalizeEmail().isEmail().withMessage("Invalid Email!"),
   check("password")
@@ -65,10 +73,11 @@ exports.userValidation = (req, res, next) => {
 };
 
 exports.validateUserSignIn = [
-  check("email").trim().isEmail().withMessage("email/password is required!"),
+  check("email").trim().isEmail().withMessage("Email is required!"),
   check("password")
     .trim()
     .not()
     .isEmpty()
-    .withMessage("email/password is required!"),
+    .withMessage("Password is required!"),
 ];
+

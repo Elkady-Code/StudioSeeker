@@ -10,8 +10,8 @@ const CardComponent = () => (
     }}
   >
     <Card.Title
-      title="Card Title"
-      subtitle="Card Subtitle"
+      // title="New Studios"
+      // subtitle="Card Subtitle"
       //   left={LeftContent}
     />
     {/* <Card.Content>

@@ -3,48 +3,76 @@ const User = require("../models/user");
 const asyncErrorHandler = require("../Utils/asyncErrorHandler");
 const sendEmail = require("../Utils/email");
 const CustomError = require("../Utils/CustomError");
-const crypto = require('crypto');
-const bcrypt = require ('bcrypt');
-const UserOTPVerification = require ('../models/userOTPVerification')
+const crypto = require("crypto");
+const bcrypt = require("bcrypt");
+const UserOTPVerification = require("../models/userOTPVerification");
+const { validationResult } = require("express-validator");
+
 exports.createUser = async (req, res) => {
+  // Check for validation errors
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
   const {
     username,
     firstName,
     lastName,
     email,
     password,
+    confirmPassword,
     number,
     address,
-    avatar,
-    confirmPassword, // Make sure confirmPassword is included in the request body
   } = req.body;
 
   // Check if email is already in use
   const isNewUser = await User.isThisEmailInUse(email);
   if (!isNewUser) {
-    return res.json({
+    return res.status(400).json({
       success: false,
       message: "This email is already in use, please try again",
     });
   }
 
-  // Create a new user instance
-  const user = new User({
-    username,
-    firstName,
-    lastName,
-    email,
-    password,
-    confirmPassword, // Make sure confirmPassword is included in the user object
-    number,
-    address,
-    avatar,
-  });
+  // Validate that password and confirmPassword match
+  if (password !== confirmPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Password and Confirm Password do not match!",
+    });
+  }
 
-  // Save the user to the database
   try {
+    // Create a new user instance
+    const user = new User({
+      username,
+      firstName,
+      lastName,
+      email,
+      password,
+      number,
+      address,
+    });
+
+    // Save the user to the database
     await user.save();
-    return res.json(user);
+
+    // Generate JWT token
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN, {
+      expiresIn: "30d",
+    });
+
+    // Assign the token to the user's accessToken field
+    user.accessToken = token;
+    await user.save();
+
+    return res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      user,
+      token, // Optionally, you can send the token in the response
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -168,7 +196,6 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
   });
 
   res.json({ success: true, user, loginToken });
-
 });
 
 /* const sendOTPVerificationEmail = async () => {

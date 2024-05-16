@@ -1,21 +1,20 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-dotenv.config();
-
 import User from "../models/user.model.js";
 
-async function validateToken(req, res, next) {
-  const auhorizationHeader = req.headers.authorization;
-  let result;
+dotenv.config();
 
-  if (!auhorizationHeader) {
+async function validateToken(req, res, next) {
+  const authorizationHeader = req.headers.authorization;
+
+  if (!authorizationHeader) {
     return res.status(401).json({
       error: true,
       message: "Access token is missing",
     });
   }
 
-  const token = req.headers.authorization.split(" ")[1];
+  const token = authorizationHeader.split(" ")[1];
 
   const options = {
     expiresIn: "24h",
@@ -27,26 +26,22 @@ async function validateToken(req, res, next) {
     });
 
     if (!user) {
-      result = {
+      return res.status(403).json({
         error: true,
         message: "Authorization error",
-      };
-
-      return res.status(403).json(result);
+      });
     }
 
-    result = jwt.verify(token, process.env.JWT_SECRET, options);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, options);
 
-    if (!user.username === result.username) {
-      result = {
+    if (user.username !== decoded.username) {
+      return res.status(401).json({
         error: true,
         message: "Invalid token",
-      };
-
-      return res.status(401).json(result);
+      });
     }
 
-    req.decoded = result;
+    req.decoded = decoded;
 
     next();
   } catch (error) {
