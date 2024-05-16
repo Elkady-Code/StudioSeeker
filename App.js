@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, SafeAreaView, Image, View, Text, LogBox } from 'react-native';
+import { StyleSheet, SafeAreaView, Image, View, Text, LogBox, StatusBar } from 'react-native';
 import { Button } from 'react-native-paper';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
@@ -16,6 +16,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
+      <StatusBar translucent backgroundColor="transparent" />
       <Stack.Navigator initialRouteName="Splash">
 {/*         <Stack.Screen options={{ headerShown: false }} name="Splash" component={SplashScreen} /> */}
         <Stack.Screen options={{ headerShown: false }} name="GetStarted" component={GetStartedScreen} />

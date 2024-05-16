@@ -5,43 +5,37 @@ import {
   ScrollView,
   View,
   KeyboardAvoidingView,
+  StatusBar,
+  StyleSheet,
 } from "react-native";
-import { Text } from "react-native-paper";
-import { Searchbar } from "react-native-paper";
+import { Text, Searchbar } from "react-native-paper";
 import Card from "../components/Card";
 
 export default function Home({ navigation }) {
   const [searchQuery, setSearchQuery] = React.useState("");
 
   return (
-    <KeyboardAvoidingView>
-      <SafeAreaView>
-        <View style={{ width: "90%", alignSelf: "center" }}>
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar translucent backgroundColor="transparent" />
+        <View style={styles.contentContainer}>
           <Searchbar
+            style={styles.searchBar}
             placeholder="Search"
             onChangeText={setSearchQuery}
             value={searchQuery}
           />
-          <ScrollView
-            contentContainerStyle={{
-              height: Dimensions.get("screen").height * 1.1,
-            }}
-          >
-            <View style={{ width: "100%" }}>
-              <View
-                style={{
-                  width: "100%",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text>New Studios</Text>
-                <Text>See all</Text>
+          <ScrollView contentContainerStyle={styles.scrollViewContent}>
+            {/* New Studios Section */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionHeaderText}>New Studios</Text>
+                <Text style={styles.seeAllText}>See all</Text>
               </View>
-              <View>
+              <View style={styles.cardsContainer}>
                 <ScrollView
                   horizontal={true}
-                  contentContainerStyle={{ gap: 18 }}
+                  contentContainerStyle={styles.cardsScrollViewContent}
                 >
                   <Card />
                   <Card />
@@ -49,21 +43,17 @@ export default function Home({ navigation }) {
                 </ScrollView>
               </View>
             </View>
-            <View style={{ width: "100%" }}>
-              <View
-                style={{
-                  width: "100%",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text>Trending Studios</Text>
-                <Text>See all</Text>
+
+            {/* Trending Studios Section */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionHeaderText}>Trending Studios</Text>
+                <Text style={styles.seeAllText}>See all</Text>
               </View>
-              <View>
+              <View style={styles.cardsContainer}>
                 <ScrollView
                   horizontal={true}
-                  contentContainerStyle={{ gap: 18 }}
+                  contentContainerStyle={styles.cardsScrollViewContent}
                 >
                   <Card />
                   <Card />
@@ -71,21 +61,17 @@ export default function Home({ navigation }) {
                 </ScrollView>
               </View>
             </View>
-            <View style={{ width: "100%" }}>
-              <View
-                style={{
-                  width: "100%",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text>Equipment</Text>
-                <Text>See all</Text>
+
+            {/* Equipment Section */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionHeaderText}>Equipment</Text>
+                <Text style={styles.seeAllText}>See all</Text>
               </View>
-              <View>
+              <View style={styles.cardsContainer}>
                 <ScrollView
                   horizontal={true}
-                  contentContainerStyle={{ gap: 18 }}
+                  contentContainerStyle={styles.cardsScrollViewContent}
                 >
                   <Card />
                 </ScrollView>
@@ -97,3 +83,48 @@ export default function Home({ navigation }) {
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  safeArea: {
+    paddingTop: StatusBar.currentHeight + 10,
+    flex: 1,
+  },
+  contentContainer: {
+    flex: 1,
+    width: "90%",
+    alignSelf: "center",
+  },
+  searchBar: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  scrollViewContent: {
+    height: Dimensions.get("screen").height * 1.1,
+  },
+  section: {
+    width: "100%",
+    marginBottom: 20,
+  },
+  sectionHeader: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  sectionHeaderText: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  seeAllText: {
+    fontSize: 16,
+    color: "blue",
+  },
+  cardsContainer: {
+    marginTop: 10,
+  },
+  cardsScrollViewContent: {
+    gap: 18,
+  },
+});
