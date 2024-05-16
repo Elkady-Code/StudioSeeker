@@ -19,12 +19,20 @@ const SignIn = () => {
           password,
         }),
       });
+      
       const data = await response.json();
+      
       if (response.ok) {
-        // Sign in successful
-        Alert.alert("Success", "You have signed in successfully.");
-        // Navigate to another screen (e.g., HomeScreen)
-        navigation.push("Main");
+        // Check if the response contains necessary data indicating successful sign-in
+        if (data.token) {
+/*           // Sign in successful
+          Alert.alert("Success", "You have signed in successfully.");
+          // Navigate to the Main screen */
+          navigation.navigate("Main");
+        } else {
+          // Unexpected response format indicating sign-in failure
+          Alert.alert("Error", "Incorrect username or password");
+        }
       } else {
         // Sign in failed
         Alert.alert("Error", data.message || "Sign in failed.");
@@ -34,7 +42,7 @@ const SignIn = () => {
       Alert.alert("Error", "An error occurred while signing in. Please try again later.");
     }
   };
-
+  
   const handleSignUpNavigation = () => {
     navigation.push("SignUp");
   };
