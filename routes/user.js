@@ -7,13 +7,12 @@ const multer = require("multer");
 const storage = multer.memoryStorage();
 const postController = require("../controllers/post");
 const Post = require("../models/post");
-const asyncErrorHandler = require("../Utils/asyncErrorHandler");
 const userController = require("../controllers/userController");
 const { isAuth } = require("../middleware/generateJWT");
 const UserOTPVerification = require("../models/userOTPVerification");
-const { createUser, userSignIn } = require("../controllers/userController");
 const { userLogout } = require("../controllers/userController");
 const { validateToken } = require("../middleware/validateToken");
+
 const {
   validateUserSignUp,
   userValidation,
@@ -36,7 +35,7 @@ router.delete("/post/:postId", isAuth, postController.deletePost); //delete a po
 
 router.post("/forgotPassword", userController.forgotPassword); //forgotPassword API
 
-router.patch("/resetPassword/:token", userController.resetPassword); //resetPassword API using given token in MailTrap
+router.patch("/resetPassword/:token", userController.resetPassword); //resetPassword API 
 
 router.post(
   "/create-user",

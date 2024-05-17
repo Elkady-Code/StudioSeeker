@@ -5,9 +5,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import SignIn from './src/screens/signin';
 import SignUp from './src/screens/signup';
-import ResetPassword from './src/screens/ResetPassword';
-import NewPassword from './src/screens/NewPassword';
 import HomeNavigator from './src/Home/index';
+import NewPassword from './src/screens/newPassword';
+import ForgotPassword from './src/screens/forgotPassword';
 
 const Stack = createStackNavigator();
 
@@ -22,7 +22,7 @@ export default function App() {
         <Stack.Screen options={{ headerShown: false }} name="GetStarted" component={GetStartedScreen} />
         <Stack.Screen name="SignIn" component={SignIn} />
         <Stack.Screen name="SignUp" component={SignUp} />
-        <Stack.Screen name="ResetPassword" component={ResetPassword} />
+        <Stack.Screen name="ResetPassword" component={ForgotPassword} />
         <Stack.Screen name="NewPassword" component={NewPassword} />
         <Stack.Screen name="Main" component={HomeNavigator} options={{ headerShown: false }} />
       </Stack.Navigator>

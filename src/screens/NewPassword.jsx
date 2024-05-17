@@ -1,41 +1,63 @@
 import React, { useState } from "react";
-import { TouchableOpacity, Text, StyleSheet, TextInput, View } from "react-native";
-import Parse from "parse/react-native";
-import { useNavigation } from '@react-navigation/native';
+import { View, TextInput, Button, Text, StyleSheet } from "react-native";
+import axios from "axios";
 
-const NewPassword = () => {
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const navigation = useNavigation();
+const NewPassword = ({ route, navigation }) => {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleChangePassword = async () => {
-    // Add logic here to change the password
-  };
+  const { token } = route.params; // Get the token from the navigation params
+
+  const handleResetPassword = async () => {
+    try {
+      // Validation
+      if (!password || !confirmPassword) {
+        setError("Please fill in all fields.");
+        return;
+      }
+  
+      if (password !== confirmPassword) {
+        setError("Passwords do not match.");
+        return;
+      }
+  
+      const response = await axios.patch(
+        `http://192.168.1.9:3005/resetPassword/${token}`,
+        { password, confirmPassword }
+      );
+      const data = response.data;
+      if (response.status === 200 && data.success) {
+        // Password reset successful
+        navigation.navigate("Login"); // Navigate to login page or any other page
+      } else {
+        // Password reset failed
+        setError(data.message || "Password reset failed.");
+      }
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      setError("An error occurred while resetting the password.");
+    }
+  };  
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Create New Password</Text>
-      </View>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={newPassword}
-          onChangeText={setNewPassword}
-          placeholder="New Password"
-          secureTextEntry
-        />
-        <TextInput
-          style={styles.input}
-          value={confirmNewPassword}
-          onChangeText={setConfirmNewPassword}
-          placeholder="Confirm New Password"
-          secureTextEntry
-        />
-      </View>
-      <TouchableOpacity style={styles.button} onPress={handleChangePassword}>
-        <Text style={styles.buttonText}>Change Password</Text>
-      </TouchableOpacity>
+      <TextInput
+        style={styles.input}
+        placeholder="New Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Confirm New Password"
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+        secureTextEntry
+      />
+      <Button title="Reset Password" onPress={handleResetPassword} />
+      {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   );
 };
@@ -43,41 +65,21 @@ const NewPassword = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-  },
-  header: {
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  inputContainer: {
-    width: '100%',
-    marginBottom: 20,
+    alignItems: "center",
+    justifyContent: "center",
   },
   input: {
+    width: "80%",
     height: 40,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
   },
-  button: {
-    backgroundColor: "#C15656",
-    paddingVertical: 15,
-    paddingHorizontal: 50,
-    borderRadius: 7,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "bold",
+  error: {
+    color: "red",
+    marginTop: 10,
   },
 });
 

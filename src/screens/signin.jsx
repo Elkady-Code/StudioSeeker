@@ -20,7 +20,7 @@ const SignIn = () => {
       
       if (response.status === 200) {
         if (data.token) {
-          await AsyncStorage.setItem("authToken", data.token); // Ensure key name consistency
+          await AsyncStorage.setItem("authToken", data.token); 
           Alert.alert("Success", "You have signed in successfully.");
           navigation.navigate("Main");
         } else {
