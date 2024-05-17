@@ -1,12 +1,12 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const asyncErrorHandler = require("../Utils/asyncErrorHandler");
-const sendEmail = require("../Utils/email");
 const CustomError = require("../Utils/CustomError");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const UserOTPVerification = require("../models/userOTPVerification");
-const { validationResult } = require('express-validator');
+const { validationResult } = require("express-validator");
+const nodemailer = require("nodemailer");
 
 // createUser function in userController.js
 exports.createUser = async (req, res) => {
@@ -112,11 +112,11 @@ exports.userLogout = async (req, res) => {
         message: "User not found",
       });
     }
-    
+
     // Invalidate the access token (remove it or mark it as expired)
     user.accessToken = ""; // Assuming accessToken is stored in the user document
     await user.save();
-    
+
     return res.json({
       success: true,
       message: "User logged out",
@@ -130,113 +130,153 @@ exports.userLogout = async (req, res) => {
   }
 };
 
-
-
 exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email });
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      status: "error",
+      message: "Email is required",
+    });
+  }
+
+  const user = await User.findOne({ email: email });
   if (!user) {
     return res.status(404).json({
       status: "error",
-      message: "User not found with given email",
+      message: "Account not linked to the given email",
     });
   }
 
+  // Generate password reset token and save it to the database
   const resetToken = user.createResetPasswordToken();
   await user.save({ validateBeforeSave: false });
 
-  const resetUrl = `${req.protocol}://${req.get(
-    "host"
-  )}/api/v1/users/resetPassword/${resetToken}`;
-  const message = `You have received a request to reset your password for StudioSeeker.Please use the link below to create a new password:\n\n${resetUrl}\n\nThis link will expire in 10 minutes for security reasons.`;
+  // Construct password reset URL
+  const resetUrl = `${req.protocol}://${req.get("host")}/resetPassword/${resetToken}`;
 
-  try {
-    await sendEmail({
-      email: user.email,
-      subject: "Password change request received",
-      message: message,
-    });
+  // Email template
+  const emailTemplate = `
+    <html>
+      <body>
+        <h1>Password Reset Request</h1>
+        <p>You have requested to reset your password. Click the link below to reset your password:</p>
+        <a href="${resetUrl}">Reset Password</a>
+        <p>If you did not request this, please ignore this email.</p>
+      </body>
+    </html>
+  `;
 
-    return res.status(200).json({
-      status: "success",
-      message: "Password reset link has been sent to your email",
-    });
-  } catch (error) {
-    user.passwordResetToken = undefined;
-    user.passwordResetTokenExpires = undefined;
-    await user.save({ validateBeforeSave: false });
+  // Create a Nodemailer transporter using SendGrid
+  const transporter = nodemailer.createTransport({
+    host: "smtp.sendgrid.net",
+    port: 587,
+    secure: false,
+    auth: {
+      user: "apikey",
+      pass: process.env.SENDGRID_API_KEY,
+    },
+    tls: {
+      rejectUnauthorized: false, // Disable certificate validation (not recommended in production)
+    },
+  });
 
-    console.error("Error sending password reset email:", error);
-    return res.status(500).json({
-      status: "error",
-      message:
-        "There was an error sending the password reset email. Please try again later",
-    });
-  }
+  // Send password reset email
+  await transporter.sendMail({
+    from: "studioseekerbusiness@gmail.com",
+    to: email,
+    subject: "Password Reset Request",
+    html: emailTemplate,
+  });
+
+  return res.status(200).json({
+    status: "success",
+    message: "Password reset link has been sent to your email",
+    resetUrl: resetUrl, // Pass the reset URL back in the response for the client to navigate
+  });
 });
 
 exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
-  //1. If user exists with given token and token has not yet been expired
-  const token = crypto
-    .createHash("sha256")
-    .update(req.params.token)
-    .digest("hex");
-  const user = await User.findOne({
-    passwordResetToken: token,
-    passwordResetTokenExpires: { $gt: Date.now() },
-  });
-  if (!user) {
-    const error = new CustomError("Token is invalid or has expire!", 400);
+  try {
+    // Extract the token from the request parameters
+    const token = req.params.token;
+
+    // If the request body contains password and confirmPassword
+    if (req.body.password && req.body.confirmPassword) {
+      // Find the user with the matching reset password token
+      const user = await User.findOne({
+        passwordResetToken: token,
+        passwordResetTokenExpires: { $gt: Date.now() },
+      });
+
+      // If user not found or token is expired, handle accordingly
+      if (!user) {
+        const error = new CustomError("Token is invalid or has expired!", 400);
+        return next(error);
+      }
+
+      // Reset the user's password
+      user.password = req.body.password;
+      user.confirmPassword = req.body.confirmPassword;
+      user.passwordResetToken = undefined;
+      user.passwordResetTokenExpires = undefined;
+      user.passwordChangeAt = Date.now();
+
+      await user.save();
+
+      // Generate a login token for the user
+      const loginToken = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN, {
+        expiresIn: "30d",
+      });
+
+      // Respond with success message and login token
+      return res.status(200).json({ success: true, message: "Password reset successfully.", loginToken });
+    }
+
+    // If the request body does not contain password and confirmPassword
+    // Render the reset password page with the token parameter
+    res.render("reset-password", { token });
+  } catch (error) {
+    // Pass the error to the error handling middleware
     next(error);
   }
-  //2. Resetting user password
-  user.password = req.body.password;
-  user.confirmPassword = req.body.confirmPassword;
-  user.passwordResetToken = undefined;
-  user.passwordResetTokenExpires = undefined;
-  user.passwordChangeAt = Date.now();
-
-  user.save();
-  //3. Login User
-  const loginToken = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN, {
-    expiresIn: "30d",
-  });
-
-  res.json({ success: true, user, loginToken });
 });
 
-/* const sendOTPVerificationEmail = async () => {
-  try {
-    const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
 
-    const mailOptions = {
-      from: process.env.AUTH_EMAIL,
-      to: email,
-      subject: "verify your Email",
-      html: `<p> Enter <b>${otp}</b> in the app to verify your email address and complete
-      </p><p>This code <b> expires in 1 hour </b>.</p>`,
-    };
-    const saltRounds = 10;
-    const hashedOTP = await bcrypt.hash(otp, saltRounds);
-    const newOTPVerification = await new UserOTPVerification({
-      userId: _id,
-      otp: hashedOTP,
-      createdAt: Date.now(),
-      expiresAt: Date.now() + 10 * 60 * 1000,
-    });
-    await newOTPVerification.save();
-    await transporter.sendMail(mailOptions);
-    res.json({
-      status: "Pending",
-      message: "Verification OTP Email has been sent",
-      data: {
+
+/* const sendOTPVerificationEmail = async () => {
+    try {
+      const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
+
+      const mailOptions = {
+        from: process.env.AUTH_EMAIL,
+        to: email,
+        subject: "verify your Email",
+        html: `<p> Enter <b>${otp}</b> in the app to verify your email address and complete
+        </p><p>This code <b> expires in 1 hour </b>.</p>`,
+      };
+      const saltRounds = 10;
+      const hashedOTP = await bcrypt.hash(otp, saltRounds);
+      const newOTPVerification = await new UserOTPVerification({
         userId: _id,
-        email,
-      },
-    });
-  } catch (error) {
-    res.json({
-      status: "Failed",
-      message: error.message,
-    });
-  }
-}; */
+        otp: hashedOTP,
+        createdAt: Date.now(),
+        expiresAt: Date.now() + 10 * 60 * 1000,
+      });
+      await newOTPVerification.save();
+      await transporter.sendMail(mailOptions);
+      res.json({
+        status: "Pending",
+        message: "Verification OTP Email has been sent",
+        data: {
+          userId: _id,
+          email,
+        },
+      });
+    } catch (error) {
+      res.json({
+        status: "Failed",
+        message: error.message,
+      });
+    }
+  }; */
