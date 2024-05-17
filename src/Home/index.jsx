@@ -2,14 +2,15 @@ import React from "react";
 import { Text } from "react-native-paper";
 import { BottomNavigation } from "react-native-paper";
 import Home from "./Home";
+import Profile from "./Profile"
 
 const HomeComponent = () => <Home />;
+
+const ProfileComponent = () => <Profile />;
 
 const AlbumsRoute = () => <Text>Albums</Text>;
 
 const RecentsRoute = () => <Text>Recents</Text>;
-
-const NotificationsRoute = () => <Text>Notifications</Text>;
 
 export default function Main({ navigation }) {
   const [index, setIndex] = React.useState(0);
@@ -34,7 +35,7 @@ export default function Main({ navigation }) {
     home: HomeComponent,
     saved: AlbumsRoute,
     favourites: RecentsRoute,
-    profile: NotificationsRoute,
+    profile: ProfileComponent,
   });
 
   return (

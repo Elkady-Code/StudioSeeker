@@ -1,13 +1,13 @@
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-import User from "../models/user.model.js";
-
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
+const dotenv = require('dotenv');
 dotenv.config();
 
-async function validateToken(req, res, next) {
+exports.validateToken = async (req, res, next) => {
   const authorizationHeader = req.headers.authorization;
 
   if (!authorizationHeader) {
+    console.log("Authorization header is missing");
     return res.status(401).json({
       error: true,
       message: "Access token is missing",
@@ -15,15 +15,17 @@ async function validateToken(req, res, next) {
   }
 
   const token = authorizationHeader.split(" ")[1];
-
-  const options = {
-    expiresIn: "24h",
-  };
+  if (!token) {
+    console.log("Token is missing from the authorization header");
+    return res.status(401).json({
+      error: true,
+      message: "Access token is missing",
+    });
+  }
 
   try {
-    let user = await User.findOne({
-      accessToken: token,
-    });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Use JWT_SECRET
+    const user = await User.findById(decoded.userId); // Find user by ID extracted from the token
 
     if (!user) {
       return res.status(403).json({
@@ -32,17 +34,8 @@ async function validateToken(req, res, next) {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET, options);
-
-    if (user.username !== decoded.username) {
-      return res.status(401).json({
-        error: true,
-        message: "Invalid token",
-      });
-    }
-
     req.decoded = decoded;
-
+    req.user = user; // Attach user object to the request for later use if needed
     next();
   } catch (error) {
     console.error(error);
@@ -59,6 +52,4 @@ async function validateToken(req, res, next) {
       message: "Authentication error",
     });
   }
-}
-
-export default validateToken;
+};

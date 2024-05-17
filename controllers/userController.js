@@ -6,8 +6,9 @@ const CustomError = require("../Utils/CustomError");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const UserOTPVerification = require("../models/userOTPVerification");
-const { validationResult } = require("express-validator");
+const { validationResult } = require('express-validator');
 
+// createUser function in userController.js
 exports.createUser = async (req, res) => {
   // Check for validation errors
   const errors = validationResult(req);
@@ -21,29 +22,21 @@ exports.createUser = async (req, res) => {
     lastName,
     email,
     password,
-    confirmPassword,
+    confirmPassword, // Make sure confirmPassword is included in the request body
     number,
     address,
   } = req.body;
 
-  // Check if email is already in use
-  const isNewUser = await User.isThisEmailInUse(email);
-  if (!isNewUser) {
-    return res.status(400).json({
-      success: false,
-      message: "This email is already in use, please try again",
-    });
-  }
-
-  // Validate that password and confirmPassword match
-  if (password !== confirmPassword) {
-    return res.status(400).json({
-      success: false,
-      message: "Password and Confirm Password do not match!",
-    });
-  }
-
   try {
+    // Check if email is already in use
+    const isNewUser = await User.isThisEmailInUse(email);
+    if (!isNewUser) {
+      return res.status(400).json({
+        success: false,
+        message: "This email is already in use, please try again",
+      });
+    }
+
     // Create a new user instance
     const user = new User({
       username,
@@ -51,12 +44,10 @@ exports.createUser = async (req, res) => {
       lastName,
       email,
       password,
+      confirmPassword, // Make sure confirmPassword is included in the user object
       number,
       address,
     });
-
-    // Save the user to the database
-    await user.save();
 
     // Generate JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN, {
@@ -64,7 +55,7 @@ exports.createUser = async (req, res) => {
     });
 
     // Assign the token to the user's accessToken field
-    user.accessToken = token;
+    user.accessToken = token; // Assign the token here
     await user.save();
 
     return res.status(201).json({
@@ -94,25 +85,38 @@ exports.userSignIn = async (req, res) => {
       message: "Email or Password is Incorrect!",
     });
 
+  // Generate JWT token
   const token = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN, {
     expiresIn: "30d",
   });
+
+  // Update the user's accessToken field
+  user.accessToken = token;
+  await user.save();
 
   res.json({ success: true, user, token });
 };
 
 exports.userLogout = async (req, res) => {
   try {
-    const { username } = req.decoded;
-    let user = await User.findOne({ username });
+    // Extract the user ID from the request body or from the authenticated user session
+    const userId = req.user._id; // Assuming you have middleware that extracts the user from the request
+
+    // Find the user by ID
+    const user = await User.findById(userId);
+
+    // Check if the user exists
     if (!user) {
       return res.json({
         success: false,
         message: "User not found",
       });
     }
-    user.accessToken = "";
+    
+    // Invalidate the access token (remove it or mark it as expired)
+    user.accessToken = ""; // Assuming accessToken is stored in the user document
     await user.save();
+    
     return res.json({
       success: true,
       message: "User logged out",
@@ -125,6 +129,8 @@ exports.userLogout = async (req, res) => {
     });
   }
 };
+
+
 
 exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });

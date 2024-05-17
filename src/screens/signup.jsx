@@ -44,9 +44,9 @@ const SignUp = () => {
       const data = await response.json();
       if (response.ok) {
         if (data.token) {
-          await AsyncStorage.setItem("authToken", data.token);
+          await AsyncStorage.setItem("authToken", data.token); // Ensure key name consistency
           Alert.alert("Success", "You have signed up successfully.");
-          navigation.navigate('Main'); 
+          navigation.navigate('Main');
         } else {
           Alert.alert("Error", "An error occurred while signing up. Please try again later.");
         }
@@ -57,6 +57,7 @@ const SignUp = () => {
       Alert.alert("Error", "An error occurred while signing up. Please try again later.");
     }
   };
+  
   
 
   return (

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
@@ -11,7 +12,13 @@ const userController = require("../controllers/userController");
 const { isAuth } = require("../middleware/generateJWT");
 const UserOTPVerification = require("../models/userOTPVerification");
 const { createUser, userSignIn } = require("../controllers/userController");
-const { validateUserSignUp, userValidation, validateUserSignIn,} = require("../middleware/validation/userValidation");
+const { userLogout } = require("../controllers/userController");
+const { validateToken } = require("../middleware/validateToken");
+const {
+  validateUserSignUp,
+  userValidation,
+  validateUserSignIn,
+} = require("../middleware/validation/userValidation");
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
@@ -31,9 +38,21 @@ router.post("/forgotPassword", userController.forgotPassword); //forgotPassword 
 
 router.patch("/resetPassword/:token", userController.resetPassword); //resetPassword API using given token in MailTrap
 
-router.post("/create-user", validateUserSignUp, userValidation, userController.createUser); //Create-user API with authentication
+router.post(
+  "/create-user",
+  validateUserSignUp,
+  userValidation,
+  userController.createUser
+); //Create-user API with authentication
 
-router.post("/sign-in", validateUserSignIn, userValidation, userController.userSignIn); //Sign-in API with authentication
+router.post(
+  "/sign-in",
+  validateUserSignIn,
+  userValidation,
+  userController.userSignIn
+); //Sign-in API with authentication
+
+router.post('/sign-out', validateToken, userLogout); //Sign-out API
 
 router.post(
   "/upload-profile", // <-- Corrected route path

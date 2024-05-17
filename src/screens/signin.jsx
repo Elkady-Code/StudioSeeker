@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { TouchableOpacity, Text, StyleSheet, TextInput, Alert, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -9,32 +11,22 @@ const SignIn = () => {
 
   const handleSignIn = async () => {
     try {
-      const response = await fetch('http://192.168.1.9:3005/sign-in', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+      const response = await axios.post('http://192.168.1.9:3005/sign-in', {
+        email,
+        password,
       });
       
-      const data = await response.json();
+      const data = response.data;
       
-      if (response.ok) {
-        // Check if the response contains necessary data indicating successful sign-in
+      if (response.status === 200) {
         if (data.token) {
-/*           // Sign in successful
+          await AsyncStorage.setItem("authToken", data.token); // Ensure key name consistency
           Alert.alert("Success", "You have signed in successfully.");
-          // Navigate to the Main screen */
           navigation.navigate("Main");
         } else {
-          // Unexpected response format indicating sign-in failure
           Alert.alert("Error", "Incorrect username or password");
         }
       } else {
-        // Sign in failed
         Alert.alert("Error", data.message || "Sign in failed.");
       }
     } catch (error) {
@@ -42,6 +34,7 @@ const SignIn = () => {
       Alert.alert("Error", "An error occurred while signing in. Please try again later.");
     }
   };
+  
   
   const handleSignUpNavigation = () => {
     navigation.push("SignUp");
