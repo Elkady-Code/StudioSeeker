@@ -56,9 +56,13 @@ userSchema.methods.createResetPasswordToken = function () {
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
-  this.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
+  this.passwordResetTokenExpires = Date.now() + 60 * 60 * 1000; // 1 hour expiration
 
-  return resetToken;
+  console.log("Generated reset token (plain):", resetToken);
+  console.log("Generated reset token (hashed):", this.passwordResetToken);
+  return resetToken; // Return plain token
 };
+
+
 
 module.exports = mongoose.model("SignUp", userSchema);

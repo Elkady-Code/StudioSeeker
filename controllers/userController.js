@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
+const User = require("../models/userModel");
 const asyncErrorHandler = require("../Utils/asyncErrorHandler");
 const CustomError = require("../Utils/CustomError");
 const crypto = require("crypto");
@@ -148,12 +148,18 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
     });
   }
 
+  // Log user document before setting the reset token
+  console.log("User before setting reset token:", user);
+
   // Generate password reset token and save it to the database
   const resetToken = user.createResetPasswordToken();
   await user.save({ validateBeforeSave: false });
 
+  // Log user document after setting the reset token
+  console.log("User after setting reset token:", user);
+
   // Construct password reset URL
-  const resetUrl = `${req.protocol}://${req.get("host")}/resetPassword/${resetToken}`;
+  const resetUrl = `http://192.168.1.9:3005/reset-password/${resetToken}`;
 
   // Email template
   const emailTemplate = `
@@ -198,46 +204,66 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
 
 exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
   try {
-    // Extract the token from the request parameters
-    const token = req.params.token;
+    const token = crypto.createHash("sha256").update(req.params.token).digest("hex");
+    const user = await User.findOne({
+      passwordResetToken: token,
+      passwordResetTokenExpires: { $gt: Date.now() }
+    });
 
-    // If the request body contains password and confirmPassword
-    if (req.body.password && req.body.confirmPassword) {
-      // Find the user with the matching reset password token
-      const user = await User.findOne({
-        passwordResetToken: token,
-        passwordResetTokenExpires: { $gt: Date.now() },
-      });
-
-      // If user not found or token is expired, handle accordingly
-      if (!user) {
-        const error = new CustomError("Token is invalid or has expired!", 400);
-        return next(error);
-      }
-
-      // Reset the user's password
-      user.password = req.body.password;
-      user.confirmPassword = req.body.confirmPassword;
-      user.passwordResetToken = undefined;
-      user.passwordResetTokenExpires = undefined;
-      user.passwordChangeAt = Date.now();
-
-      await user.save();
-
-      // Generate a login token for the user
-      const loginToken = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN, {
-        expiresIn: "30d",
-      });
-
-      // Respond with success message and login token
-      return res.status(200).json({ success: true, message: "Password reset successfully.", loginToken });
+    if (!user) {
+      const error = new CustomError("Token is invalid or expired", 400);
+      return next(error);
     }
 
-    // If the request body does not contain password and confirmPassword
-    // Render the reset password page with the token parameter
-    res.render("reset-password", { token });
+    // Check if password and confirmPassword are present
+    const { password, confirmPassword } = req.body;
+    if (!password || !confirmPassword) {
+      const error = new CustomError("Password and confirmPassword are required", 400);
+      return next(error);
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      const error = new CustomError("Passwords do not match", 400);
+      return next(error);
+    }
+
+    // Reset the user's password
+    user.password = password;
+    user.confirmPassword = confirmPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetTokenExpires = undefined;
+    user.passwordChangeAt = Date.now();
+
+    await user.save();
+
+    const loginToken = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN, {
+      expiresIn: "30d"
+    });
+
+    // Send success response with message
+    res.status(200).json({
+      status: "success",
+      message: "Password has been reset successfully",
+      token: loginToken
+    });
   } catch (error) {
-    // Pass the error to the error handling middleware
+    next(error);
+  }
+});
+
+exports.navigateResetPassword = asyncErrorHandler(async (req, res, next) => {
+  try {
+    const token = req.params.token;
+
+    res.send(`
+      <form action="/reset-password/${token}" method="POST">
+        <input type="password" name="password" placeholder="New Password" required />
+        <input type="password" name="confirmPassword" placeholder="Confirm Password" required />
+        <button type="submit">Reset Password</button>
+      </form>
+    `);
+  } catch (error) {
     next(error);
   }
 });
