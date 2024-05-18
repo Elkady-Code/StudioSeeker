@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { TouchableOpacity, Text, StyleSheet, TextInput, Alert, View } from "react-native";
+import { TouchableOpacity, Text, StyleSheet, TextInput, Alert, View, KeyboardAvoidingView, SafeAreaView, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import logo from '../imgs/logo.png';
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -35,7 +36,6 @@ const SignIn = () => {
     }
   };
   
-  
   const handleSignUpNavigation = () => {
     navigation.push("SignUp");
   };
@@ -45,74 +45,90 @@ const SignIn = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.welcomeText}>Welcome Back</Text>
-        <Text style={styles.subText}>Enter your credentials to login</Text>
-      </View>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Password"
-          secureTextEntry
-        />
-        <TouchableOpacity onPress={handleForgotPasswordNavigation}>
-          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView style={styles.container} behavior="padding">
+        <View style={styles.header}>
+          <Image source={logo} style={styles.logo} />
+          <Text style={styles.headerText}>Welcome to StudioSeeker</Text>
+          <Text style={styles.subText}>Sign in to your account</Text>
+        </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Password"
+            secureTextEntry
+          />
+          <TouchableOpacity onPress={handleForgotPasswordNavigation}>
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity style={styles.button} onPress={handleSignIn}>
+          <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
-      </View>
-      <TouchableOpacity style={styles.button} onPress={handleSignIn}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={handleSignUpNavigation}>
-        <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
-      </TouchableOpacity>
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>© {new Date().getFullYear()} StudioSeeker</Text>
-      </View>
-    </View>
+        <TouchableOpacity onPress={handleSignUpNavigation}>
+          <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
+        </TouchableOpacity>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>© {new Date().getFullYear()} StudioSeeker</Text>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+  },
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     paddingHorizontal: 20,
-    paddingBottom: 20,
   },
   header: {
-    marginTop: 40,
+    marginBottom: 10, // Reduced margin for smaller gap
     alignItems: "center",
   },
-  welcomeText: {
+  logo: {
+    width: 200,
+    height: 200,
+    marginBottom: 30, // Increased marginBottom to move the logo up
+  },
+  headerText: {
     fontSize: 24,
     fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333333",
   },
   subText: {
     fontSize: 16,
-    marginTop: 12,
+    color: "#666666",
+    marginBottom: 20, // Increased marginBottom for spacing
   },
   inputContainer: {
     width: "100%",
+    marginBottom: 20,
   },
   input: {
     height: 40,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#CCCCCC",
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
+    backgroundColor: "#F9F9F9",
   },
   button: {
     backgroundColor: "#C15656",
@@ -125,23 +141,26 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
+    fontSize: 16,
   },
   signupText: {
     color: "#C15656",
-    marginTop: 10,
     fontSize: 16,
+    marginBottom: 60, // Increased marginBottom for spacing
   },
   forgotPasswordText: {
     color: "#C15656",
-    marginTop: 10,
     fontSize: 16,
     textDecorationLine: "underline",
+    marginBottom: 50, // Increased marginBottom for spacing
   },
   footer: {
-    alignItems: "center",
+    position: "absolute",
+    bottom: 20,
   },
   footerText: {
     fontSize: 12,
+    color: "#666666",
   },
 });
 
