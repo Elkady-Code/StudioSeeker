@@ -159,7 +159,7 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
   console.log("User after setting reset token:", user);
 
   // Construct password reset URL
-  const resetUrl = `http://192.168.1.9:3005/reset-password/${resetToken}`;
+  const resetUrl = `https://studioseeker-h2vx.onrender.com/reset-password/${resetToken}`;
 
   // Email template
   const emailTemplate = `
