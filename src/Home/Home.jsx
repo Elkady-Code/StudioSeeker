@@ -9,7 +9,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { Text, Searchbar } from "react-native-paper";
-import Card from "../components/Card";
+import Card from "../Components/card";
 
 export default function Home({ navigation }) {
   const [searchQuery, setSearchQuery] = React.useState("");

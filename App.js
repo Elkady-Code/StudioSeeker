@@ -8,8 +8,8 @@ import * as Linking from 'expo-linking';
 import SignIn from './src/screens/signin';
 import SignUp from './src/screens/signup';
 import HomeNavigator from './src/Home/index';
-import NewPassword from './src/screens/newPassword';
-import ForgotPassword from './src/screens/forgotPassword';
+import NewPassword from './src/screens/newpassword';
+import ForgotPassword from './src/screens/forgotpassword';
 
 const Stack = createStackNavigator();
 

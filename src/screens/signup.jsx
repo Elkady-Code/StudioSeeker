@@ -25,7 +25,7 @@ const SignUp = () => {
 
   const handleSignUp = async () => {
     try {
-      const response = await fetch("http://192.168.1.9:3005/create-user", {
+      const response = await fetch("https://studioseeker-h2vx.onrender.com/create-user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
