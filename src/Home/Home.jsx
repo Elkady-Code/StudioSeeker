@@ -8,7 +8,7 @@ import {
   StatusBar,
   StyleSheet,
 } from "react-native";
-import { Text, Searchbar } from "react-native-paper";
+import { Text, Searchbar, Button } from "react-native-paper";
 import Card from "../Components/card";
 
 export default function Home({ navigation }) {
@@ -25,6 +25,17 @@ export default function Home({ navigation }) {
             onChangeText={setSearchQuery}
             value={searchQuery}
           />
+          <View style={styles.buttonContainer}>
+            <Button mode="outlined" style={styles.button}>
+              New
+            </Button>
+            <Button mode="outlined" style={styles.button}>
+              Trending
+            </Button>
+            <Button mode="outlined" style={styles.button}>
+              Instruments
+            </Button>
+          </View>
           <ScrollView contentContainerStyle={styles.scrollViewContent}>
             {/* New Studios Section */}
             <View style={styles.section}>
@@ -101,8 +112,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
   scrollViewContent: {
-    height: Dimensions.get("screen").height * 1.1,
+    paddingBottom: 20,
   },
   section: {
     width: "100%",
@@ -128,3 +148,4 @@ const styles = StyleSheet.create({
     gap: 18,
   },
 });
+
