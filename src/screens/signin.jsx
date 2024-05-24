@@ -12,7 +12,7 @@ const SignIn = () => {
 
   const handleSignIn = async () => {
     try {
-      const response = await axios.post('http://192.168.1.9:3005/sign-in', {
+      const response = await axios.post('https://studioseeker-h2vx.onrender.com/sign-in', {
         email,
         password,
       });

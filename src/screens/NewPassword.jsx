@@ -24,7 +24,7 @@ const NewPassword = ({ route, navigation }) => {
       }
 
       const response = await axios.patch(
-        `http://192.168.1.9:3005/reset-password/${token}`,
+        `https://studioseeker-h2vx.onrender.com/reset-password/${token}`,
         { password, confirmPassword }
       );
 

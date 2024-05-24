@@ -31,7 +31,7 @@ const ForgotPassword = () => {
 
       // Send request with email
       const response = await axios.post(
-        "http://192.168.1.9:3005/forgotPassword",
+        "hhttps://studioseeker-h2vx.onrender.com/forgotPassword",
         { email }
       );
       const data = response.data;
