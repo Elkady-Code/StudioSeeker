@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const UserOTPVerification = require("../models/userOTPVerification");
 const { validationResult } = require("express-validator");
 const nodemailer = require("nodemailer");
+const Role = require('../models/role');
 
 // createUser function in userController.js
 exports.createUser = async (req, res) => {
@@ -22,9 +23,10 @@ exports.createUser = async (req, res) => {
     lastName,
     email,
     password,
-    confirmPassword, // Make sure confirmPassword is included in the request body
+    confirmPassword, // confirmPassword is included in the request body
     number,
     address,
+    role,
   } = req.body;
 
   try {
@@ -44,9 +46,10 @@ exports.createUser = async (req, res) => {
       lastName,
       email,
       password,
-      confirmPassword, // Make sure confirmPassword is included in the user object
+      confirmPassword, // confirmPassword is included in the user object
       number,
       address,
+      role,
     });
 
     // Generate JWT token

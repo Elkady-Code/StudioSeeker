@@ -3,6 +3,8 @@ const path = require("path");
 const app = express();
 const User = require("./models/userModel");
 const userRouter = require("./routes/userRouter");
+const recordsController = require('./controllers/userController');
+const rbacMiddleware = require('./middleware/validation/rbacMiddleware');
 require("dotenv").config();
 require("./models/db");
 

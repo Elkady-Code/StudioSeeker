@@ -13,6 +13,7 @@ const UserOTPVerification = require("../models/userOTPVerification");
 const { userLogout } = require("../controllers/userController");
 const { validateToken } = require("../middleware/validateToken");
 const navigateResetPassword = require ("../controllers/userController")
+const rbacMiddleware = require('../middleware/validation/rbacMiddleware');
 
 const {
   validateUserSignUp,

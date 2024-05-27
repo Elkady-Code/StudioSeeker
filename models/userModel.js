@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const passportLocalMongoose = require('passport-local-mongoose');
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 
@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   address: { type: String },
   accessToken: { type: String, default: null },
+  role: String,
 });
 
 userSchema.pre("save", async function (next) {
@@ -63,6 +64,6 @@ userSchema.methods.createResetPasswordToken = function () {
   return resetToken; // Return plain token
 };
 
-
+userSchema.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model("SignUp", userSchema);
