@@ -15,7 +15,7 @@ exports.validateUserSignUp = [
     .withMessage("Please insert a first name!")
     .isString()
     .withMessage("Please enter a valid name!"),
-    check("lastName")
+  check("lastName")
     .trim()
     .not()
     .isEmpty()
@@ -78,6 +78,6 @@ exports.validateUserSignIn = [
     .trim()
     .not()
     .isEmpty()
+
     .withMessage("Password is required!"),
 ];
-
