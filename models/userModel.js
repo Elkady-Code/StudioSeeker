@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
   address: { type: String },
   accessToken: { type: String, default: null },
   role: String,
+  avatar: { type: String }, // Ensure this field is present
 });
 
 userSchema.pre("save", async function (next) {

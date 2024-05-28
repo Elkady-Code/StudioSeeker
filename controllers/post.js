@@ -24,7 +24,7 @@ exports.addPost = async (req, res) => {
   // rentPerHour: {type: Number, required: true,},
   // images: [{type: String,required: false,},],
   // description: {type: String,required: true,},
-  // try {
+  try {
     // Save post data to MongoDB
     const newPost = new Post(postData);
     await newPost.save(); // Save the new post
@@ -33,9 +33,9 @@ exports.addPost = async (req, res) => {
       // token,
       message: "Post created",
     });
-  // } catch (error) {
-//     return res.json({ success: false, message: "Internal server error" });
-//   }
+  } catch (error) {
+    return res.json({ success: false, message: "Internal server error" });
+  }
 };
 
 exports.viewPosts = async (req, res) => {

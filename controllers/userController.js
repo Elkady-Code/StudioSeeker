@@ -7,7 +7,9 @@ const bcrypt = require("bcrypt");
 const UserOTPVerification = require("../models/userOTPVerification");
 const { validationResult } = require("express-validator");
 const nodemailer = require("nodemailer");
-const Role = require('../models/role');
+const Role = require("../models/role");
+const sharp = require("sharp");
+const cloudinary = require("../helper/imageUpload");
 
 // createUser function in userController.js
 exports.createUser = async (req, res) => {
@@ -27,6 +29,7 @@ exports.createUser = async (req, res) => {
     number,
     address,
     role,
+    avatar,
   } = req.body;
 
   try {
@@ -50,6 +53,7 @@ exports.createUser = async (req, res) => {
       number,
       address,
       role,
+      avatar,
     });
 
     // Generate JWT token
@@ -98,6 +102,38 @@ exports.userSignIn = async (req, res) => {
   await user.save();
 
   res.json({ success: true, user, token });
+};
+
+exports.uploadProfileImage = async (req, res) => {
+  const { user } = req;
+  if (!user)
+    return res
+      .status(401)
+      .json({ success: false, message: "Unauthorized Access!" });
+  try {
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      public_id: `${user._id}_profile`,
+      width: 500,
+      height: 500,
+      crop: "fill",
+    });
+
+    await User.findByIdAndUpdate(user._id, { avatar:result.url });
+
+    // Generate the profile image URL
+    const profileImageUrl = `/profile-images/${user._id}`; // Adjust this URL as per your application's setup
+
+    res.status(201).json({
+      success: true,
+      message: "Your profile image has been updated",
+      profileImageUrl: profileImageUrl, // Include the profile image URL in the response
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Server error, try again later" });
+    console.log("Error uploading profile image", error.message);
+  }
 };
 
 exports.userLogout = async (req, res) => {
@@ -207,10 +243,13 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
 
 exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
   try {
-    const token = crypto.createHash("sha256").update(req.params.token).digest("hex");
+    const token = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
     const user = await User.findOne({
       passwordResetToken: token,
-      passwordResetTokenExpires: { $gt: Date.now() }
+      passwordResetTokenExpires: { $gt: Date.now() },
     });
 
     if (!user) {
@@ -221,7 +260,10 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
     // Check if password and confirmPassword are present
     const { password, confirmPassword } = req.body;
     if (!password || !confirmPassword) {
-      const error = new CustomError("Password and confirmPassword are required", 400);
+      const error = new CustomError(
+        "Password and confirmPassword are required",
+        400
+      );
       return next(error);
     }
 
@@ -241,14 +283,14 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
     await user.save();
 
     const loginToken = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN, {
-      expiresIn: "30d"
+      expiresIn: "30d",
     });
 
     // Send success response with message
     res.status(200).json({
       status: "success",
       message: "Password has been reset successfully",
-      token: loginToken
+      token: loginToken,
     });
   } catch (error) {
     next(error);
@@ -270,8 +312,6 @@ exports.navigateResetPassword = asyncErrorHandler(async (req, res, next) => {
     next(error);
   }
 });
-
-
 
 /* const sendOTPVerificationEmail = async () => {
     try {

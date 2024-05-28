@@ -1,162 +1,68 @@
-require("dotenv").config();
+require('dotenv').config();
 const express = require("express");
 const router = express.Router();
 const User = require("../models/userModel");
-const sharp = require("sharp");
 const multer = require("multer");
-const storage = multer.memoryStorage();
+const storage = multer.diskStorage({});
 const postController = require("../controllers/post");
-const Post = require("../models/post");
 const userController = require("../controllers/userController");
 const { isAuth } = require("../middleware/generateJWT");
-const UserOTPVerification = require("../models/userOTPVerification");
-const { userLogout } = require("../controllers/userController");
-const { validateToken } = require("../middleware/validateToken");
-const navigateResetPassword = require("../controllers/userController");
-const rbacMiddleware = require("../middleware/validation/rbacMiddleware");
 
 const {
   validateUserSignUp,
   userValidation,
   validateUserSignIn,
 } = require("../middleware/validation/userValidation");
+
+// Middleware to filter file types for uploads
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
-    cb(null, true);
+    cb(null, true); // Accept image files
   } else {
-    cb("Invalid Image File, try again!", false);
+    cb("Invalid Image File, try again!", false); 
   }
 };
+
+// Multer configuration for file uploads
 const uploads = multer({ storage, fileFilter });
 
-router.post(
-  "/user/post",
-  isAuth,
-  rbacMiddleware.checkPermission("create_record"),
-  postController.addPost
-); //upload up a post API
+// Route for adding a new post
+router.post("/user/post", isAuth, postController.addPost); // Handles adding a new post
 
-router.get("/posts", isAuth, postController.viewPosts); //get a post
+// Route for viewing all posts
+router.get("/posts", isAuth, postController.viewPosts); // Handles viewing all posts
 
-router.delete("/post/:postId", isAuth, postController.deletePost); //delete a post
+// Route for deleting a post by ID
+router.delete("/post/:postId", isAuth, postController.deletePost); // Handles deleting a post
 
-router.post("/forgotPassword", userController.forgotPassword); //forgotPassword API
+// Route for initiating the forgot password process
+router.post("/forgotPassword", userController.forgotPassword); // Handles initiating forgot password process
 
-router.post("/request-password-reset", userController.forgotPassword);
-router.patch("/reset-password/:token", userController.resetPassword);
+// Route for requesting password reset
+router.post('/request-password-reset', userController.forgotPassword); // Handles requesting password reset
 
-router.get("/reset-password/:token", (req, res) => {
+// Route for resetting password
+router.patch('/reset-password/:token', userController.resetPassword); // Handles resetting password
+
+// Route for rendering the reset password page
+router.get('/reset-password/:token', (req, res) => {
   const { token } = req.params;
-  res.render("reset-password", { token });
+  res.render('reset-password', { token }); 
 });
 
-router.post("/reset-password/:token", userController.resetPassword);
+// Route for updating password after reset
+router.post('/reset-password/:token', userController.resetPassword); // Handles updating password after reset
 
-router.post(
-  "/create-user",
-  validateUserSignUp,
-  userValidation,
-  userController.createUser
-); //Create-user API with authentication
+// Route for creating a new user
+router.post("/create-user", validateUserSignUp, userValidation, userController.createUser); // Handles creating a new user
 
-router.post(
-  "/sign-in",
-  validateUserSignIn,
-  userValidation,
-  userController.userSignIn
-); //Sign-in API with authentication
+// Route for user sign-in
+router.post("/sign-in", validateUserSignIn, userValidation, userController.userSignIn); // Handles user sign-in
 
-router.post("/sign-out", validateToken, userLogout); //Sign-out API
+// Route for user sign-out
+router.post('/sign-out', isAuth, userController.userLogout); // Handles user sign-out
 
-router.post(
-  "/upload-profile", // <-- Corrected route path
-  isAuth,
-  uploads.single("profile"),
-  async (req, res) => {
-    const { user } = req;
-    if (!user)
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized Access!" });
-
-    try {
-      const profileBuffer = req.file.buffer;
-      const { width, height } = await sharp(profileBuffer).metadata();
-      const avatar = await sharp(profileBuffer)
-        .resize(Math.round(width * 0.5), Math.round(height * 0.5))
-        .toBuffer();
-      await User.findByIdAndUpdate(user._id, { avatar });
-      res.status(201).json({
-        success: true,
-        message: "Your profile image has been updated",
-      });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, message: "Server error, try again later" });
-      console.log("Error uploading profile image", error.message);
-    }
-  }
-); //uploading profile photo API
-
-/* router.post("/verifyOTP", async (req, res) => {
-  try {
-    let { userId, otp } = req.body;
-    if (!userId || !otp) {
-      throw Error("Empty otp details are not allowed");
-    } else {
-      const userOTPVerificationRecord = await UserOTPVerification.find({
-        userId,
-      });
-      if (userOTPVerificationRecord.length <= 0) {
-        throw new Error(
-          "Account record doesn't exist or has been verified already. Please sign up or log in."
-        );
-      } else {
-        const { expiresAt } = userOTPVerificationRecord[0];
-        const hashedOTP = userOTPVerificationRecord[0].otp;
-        if (expiresAt < Date.now()) {
-          UserOTPVerification.deleteMany({ userId });
-          throw new Error("Code has expired. Please request again.");
-        } else {
-          const validOTP = await bcrypt.compare(otp, hashedOTP);
-          if (!validOTP) {
-            throw new Error("Invalid code passed. Check your inbox.");
-          } else {
-            await user.updateOne({ _id: userId }, { verified: true });
-            await userOTPVerification.deleteMany({ userId });
-            res.json({
-              status: "Verified",
-              message: `User email verified successfully.`,
-            });
-          }
-        }
-      }
-    }
-  } catch (error) {
-    res.json({
-      status: "Failed",
-      message: error.message,
-    });
-  }
-});
-
-
-router.post("/resendOTPVerificationCode", async(req,res)=>{
-  try {
-    let {userId, email} = req.body;
-    if(!userID || !email){
-    throw Error("Empty user details are not allowed")
-  }else{
-    await userOTPVerification.deleteMany({userId});
-    sendOTPVerificationEmail({_id: userId, email}, res);
-  }
-  } catch (error) {
-    res.json({
-      status:"Failed",
-      message: error.message,
-    });
-  }
-}) */
+// Route for uploading profile picture
+router.post("/upload-profile", isAuth, uploads.single("profile"), userController.uploadProfileImage); // Handles uploading profile picture
 
 module.exports = router;
