@@ -14,12 +14,12 @@ const { userLogout } = require("../controllers/userController");
 const { validateToken } = require("../middleware/validateToken");
 const navigateResetPassword = require ("../controllers/userController")
 const rbacMiddleware = require('../middleware/validation/rbacMiddleware');
-
 const {
   validateUserSignUp,
   userValidation,
   validateUserSignIn,
 } = require("../middleware/validation/userValidation");
+
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
@@ -67,32 +67,30 @@ router.post(
 router.post('/sign-out', validateToken, userLogout); //Sign-out API
 
 router.post(
-  "/upload-profile", // <-- Corrected route path
+  "/upload-profile",
   isAuth,
   uploads.single("profile"),
   async (req, res) => {
     const { user } = req;
-    if (!user)
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized Access!" });
-
+    if (!user) {
+      return res.status(401).json({ success: false, message: "Unauthorized access" });
+    }
     try {
       const profileBuffer = req.file.buffer;
       const { width, height } = await sharp(profileBuffer).metadata();
       const avatar = await sharp(profileBuffer)
         .resize(Math.round(width * 0.5), Math.round(height * 0.5))
         .toBuffer();
+
       await User.findByIdAndUpdate(user._id, { avatar });
       res.status(201).json({
         success: true,
-        message: "Your profile image has been updated",
+        message: "Profile image updated successfully",
+        profileImage: `data:image/png;base64,${avatar.toString('base64')}`
       });
     } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, message: "Server error, try again later" });
-      console.log("Error uploading profile image", error.message);
+      res.status(500).json({ success: false, message: "Server error, try again later" });
+      console.error("Error uploading profile image:", error.message);
     }
   }
 ); //uploading profile photo API

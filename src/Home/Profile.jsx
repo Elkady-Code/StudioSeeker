@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
   KeyboardAvoidingView,
@@ -13,9 +13,35 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
 
 const Profile = () => {
+  const [username, setUsername] = useState("");
+  const [profileImage, setProfileImage] = useState(
+    "https://example.com/default-avatar.png"
+  );
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const storedUsername = await AsyncStorage.getItem("username");
+        const storedProfileImage = await AsyncStorage.getItem("profileImage");
+
+        if (storedUsername) {
+          setUsername(storedUsername);
+        }
+
+        if (storedProfileImage) {
+          setProfileImage(storedProfileImage);
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   const logOut = async () => {
     try {
@@ -43,6 +69,8 @@ const Profile = () => {
         if (data.success) {
           Alert.alert("Success", "You have signed out successfully.");
           await AsyncStorage.removeItem("authToken");
+          await AsyncStorage.removeItem("username");
+          await AsyncStorage.removeItem("profileImage");
           navigation.navigate("SignIn");
         } else {
           Alert.alert("Error", "Failed to sign out.");
@@ -59,16 +87,64 @@ const Profile = () => {
     }
   };
 
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const localUri = result.assets[0].uri;
+      const filename = localUri.split("/").pop();
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : `image`;
+
+      const formData = new FormData();
+      formData.append("profileImage", { uri: localUri, name: filename, type });
+
+      const authToken = await AsyncStorage.getItem("authToken");
+
+      try {
+        const response = await axios.post(
+          "https://studioseeker-h2vx.onrender.com/upload-profile",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          const { profileImage } = response.data;
+          setProfileImage(profileImage);
+          await AsyncStorage.setItem("profileImage", profileImage);
+          Alert.alert("Success", "Profile image updated successfully.");
+        } else {
+          Alert.alert("Error", "Failed to upload image.");
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        Alert.alert(
+          "Error",
+          "An error occurred while uploading the image. Please try again later."
+        );
+      }
+    }
+  };
+
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <SafeAreaView style={styles.safeArea}>
         <StatusBar translucent backgroundColor="transparent" />
         <View style={styles.profileContainer}>
-          <Image
-            source={{ uri: "https://example.com/user-avatar.png" }}
-            style={styles.avatar}
-          />
-          <Text style={styles.username}>User Name</Text>
+          <TouchableOpacity style={styles.avatarContainer} onPress={pickImage}>
+            <Image source={{ uri: profileImage }} style={styles.avatar} />
+          </TouchableOpacity>
+          <Text style={styles.username}>{username || "User Name"}</Text>
         </View>
         <View style={styles.menuContainer}>
           <TouchableOpacity style={styles.menuItem}>
@@ -101,13 +177,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
+  avatarContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+  },
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
   },
   username: {
-    marginTop: 10,
     fontSize: 18,
     fontWeight: "bold",
   },

@@ -22,6 +22,7 @@ const SignIn = () => {
       if (response.status === 200) {
         if (data.token) {
           await AsyncStorage.setItem("authToken", data.token); 
+          await AsyncStorage.setItem("username", data.user.username); // Storing the username
           Alert.alert("Success", "You have signed in successfully.");
           navigation.navigate("Main");
         } else {
@@ -35,7 +36,7 @@ const SignIn = () => {
       Alert.alert("Error", "An error occurred while signing in. Please try again later.");
     }
   };
-  
+
   const handleSignUpNavigation = () => {
     navigation.push("SignUp");
   };
