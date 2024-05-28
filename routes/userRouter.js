@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 const User = require("../models/userModel");
@@ -12,8 +12,8 @@ const { isAuth } = require("../middleware/generateJWT");
 const UserOTPVerification = require("../models/userOTPVerification");
 const { userLogout } = require("../controllers/userController");
 const { validateToken } = require("../middleware/validateToken");
-const navigateResetPassword = require ("../controllers/userController")
-const rbacMiddleware = require('../middleware/validation/rbacMiddleware');
+const navigateResetPassword = require("../controllers/userController");
+const rbacMiddleware = require("../middleware/validation/rbacMiddleware");
 
 const {
   validateUserSignUp,
@@ -29,8 +29,12 @@ const fileFilter = (req, file, cb) => {
 };
 const uploads = multer({ storage, fileFilter });
 
-
-router.post("/user/post", isAuth, postController.addPost); //upload up a post API
+router.post(
+  "/user/post",
+  isAuth,
+  rbacMiddleware.checkPermission("create_record"),
+  postController.addPost
+); //upload up a post API
 
 router.get("/posts", isAuth, postController.viewPosts); //get a post
 
@@ -38,17 +42,15 @@ router.delete("/post/:postId", isAuth, postController.deletePost); //delete a po
 
 router.post("/forgotPassword", userController.forgotPassword); //forgotPassword API
 
-router.post('/request-password-reset', userController.forgotPassword);
-router.patch('/reset-password/:token', userController.resetPassword);
+router.post("/request-password-reset", userController.forgotPassword);
+router.patch("/reset-password/:token", userController.resetPassword);
 
-router.get('/reset-password/:token', (req, res) => {
+router.get("/reset-password/:token", (req, res) => {
   const { token } = req.params;
-  res.render('reset-password', { token });
+  res.render("reset-password", { token });
 });
 
-router.post('/reset-password/:token', userController.resetPassword);
-
-
+router.post("/reset-password/:token", userController.resetPassword);
 
 router.post(
   "/create-user",
@@ -64,7 +66,7 @@ router.post(
   userController.userSignIn
 ); //Sign-in API with authentication
 
-router.post('/sign-out', validateToken, userLogout); //Sign-out API
+router.post("/sign-out", validateToken, userLogout); //Sign-out API
 
 router.post(
   "/upload-profile", // <-- Corrected route path
