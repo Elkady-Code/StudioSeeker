@@ -4,7 +4,8 @@
           "name": "user",
           "permissions": [
             "create_record",
-            "read_record"
+            "read_record",
+            "delete_record"
           ]
         },
       {
