@@ -1,30 +1,44 @@
 import React, { useState } from "react";
-import { TouchableOpacity, Text, StyleSheet, TextInput, Alert, View, KeyboardAvoidingView, SafeAreaView, Image } from "react-native";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  TextInput,
+  Alert,
+  View,
+  KeyboardAvoidingView,
+  SafeAreaView,
+  Image,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import logo from '../imgs/logo.png';
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import logo from "../imgs/logo.png";
+import * as SecureStore from "expo-secure-store";
 
-const SignIn = () => {
+const SignIn = ({ login }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
 
   const handleSignIn = async () => {
     try {
-      const response = await axios.post('https://studioseeker-h2vx.onrender.com/sign-in', {
+      const response = await axios.post("http://localhost:3005/sign-in", {
         email,
         password,
       });
-      
+
       const data = response.data;
-      
+
       if (response.status === 200) {
         if (data.token) {
-          await AsyncStorage.setItem("authToken", data.token); 
-          await AsyncStorage.setItem("username", data.user.username); // Storing the username
-          Alert.alert("Success", "You have signed in successfully.");
-          navigation.navigate("Main");
+          // console.log(data);
+          await SecureStore.setItemAsync("userToken", data.token);
+          await SecureStore.setItemAsync("username", data.user.username);
+          login();
+          // Storing the username
+          // Alert.alert("Success", "You have signed in successfully.");
+          // navigation.navigate("Main");
         } else {
           Alert.alert("Error", "Incorrect username or password");
         }
@@ -32,8 +46,11 @@ const SignIn = () => {
         Alert.alert("Error", data.message || "Sign in failed.");
       }
     } catch (error) {
-      console.error('Error signing in:', error);
-      Alert.alert("Error", "An error occurred while signing in. Please try again later.");
+      console.error("Error signing in:", error);
+      Alert.alert(
+        "Error",
+        "An error occurred while signing in. Please try again later.",
+      );
     }
   };
 
@@ -80,7 +97,9 @@ const SignIn = () => {
           <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
         </TouchableOpacity>
         <View style={styles.footer}>
-          <Text style={styles.footerText}>© {new Date().getFullYear()} StudioSeeker</Text>
+          <Text style={styles.footerText}>
+            © {new Date().getFullYear()} StudioSeeker
+          </Text>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

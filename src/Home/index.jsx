@@ -1,7 +1,7 @@
 import React from "react";
 import { Text } from "react-native-paper";
 import { BottomNavigation } from "react-native-paper";
-import Home from "./home";
+import Home from "./Home";
 import Profile from "./Profile";
 import FavoriteStudios from "./Favourites"; // Import the new screen
 import BookingPage from "./booked"; // Import the BookingPage component

@@ -3,14 +3,14 @@ import { Avatar, Button, Card, Text } from "react-native-paper";
 
 const LeftContent = props => <Avatar.Icon {...props} icon="folder" />;
 
-const CardComponent = () => (
+const CardComponent = ({ desc }) => (
   <Card
     style={{
       width: 300,
     }}
   >
     <Card.Title
-      // title="New Studios"
+      title={desc}
       // subtitle="Card Subtitle"
       //   left={LeftContent}
     />
