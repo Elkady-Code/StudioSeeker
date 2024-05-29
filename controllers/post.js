@@ -39,24 +39,11 @@ exports.addPost = async (req, res) => {
 };
 
 exports.viewPosts = async (req, res) => {
-  // const userId = req.user._id;
-  // try {
-  // Fetch posts from MongoDB
   try {
-    // Fetch posts from MongoDB
     const posts = await Post.find({});
-    console.log(posts);
-
-    // If user ID is not needed for generating the token, you can skip the token generation part
-    // Otherwise, ensure req.user is properly set up by middleware or adjust the logic accordingly
-
-    // If you still need to generate a token, you might consider using a static or default user ID
-    // const userId = "defaultUserId"; // Replace with actual logic if needed
-    // const token = generateToken(userId);
 
     return res.json({
       success: true,
-      // token, // Include this only if you are generating a token
       data: posts,
     });
   } catch (error) {
@@ -65,9 +52,19 @@ exports.viewPosts = async (req, res) => {
       .status(500)
       .json({ success: false, message: "Internal server error" });
   }
-  // } catch (error) {
-  //   return res.json({ success: false, message: "Internal server error" });
-  // }
+};
+
+exports.algoliaViewPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({});
+
+    return res.json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
 };
 
 exports.deletePost = async (req, res) => {
