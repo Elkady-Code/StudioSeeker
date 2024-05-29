@@ -31,6 +31,7 @@ router.post("/user/post", isAuth, postController.addPost); // Handles adding a n
 
 // Route for viewing all posts
 router.get("/posts", isAuth, postController.viewPosts); // Handles viewing all posts
+router.get("/algolia-posts", postController.algoliaViewPosts); // Handles viewing all posts
 
 // Route for deleting a post by ID
 router.delete("/post/:postId", isAuth, postController.deletePost); // Handles deleting a post
