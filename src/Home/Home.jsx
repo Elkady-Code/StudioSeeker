@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   SafeAreaView,
@@ -9,10 +9,29 @@ import {
   StyleSheet,
 } from "react-native";
 import { Text, Searchbar, Button } from "react-native-paper";
-import Card from "../Components/card";
+import Card from "../Components/Card";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
 
 export default function Home({ navigation }) {
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [posts, setPosts] = useState([]);
+
+  const getAllPosts = async () => {
+    var token = await SecureStore.getItemAsync("userToken");
+    console.log(token);
+
+    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+    axios.get("http://localhost:3005/posts").then(response => {
+      console.log(response.data.data[0]);
+      setPosts(response.data.data);
+    });
+  };
+
+  useEffect(() => {
+    getAllPosts();
+  }, []);
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
@@ -48,9 +67,9 @@ export default function Home({ navigation }) {
                   horizontal={true}
                   contentContainerStyle={styles.cardsScrollViewContent}
                 >
-                  <Card />
-                  <Card />
-                  <Card />
+                  {posts.map(post => {
+                    return <Card key={post._id} desc={post.description} />;
+                  })}
                 </ScrollView>
               </View>
             </View>
@@ -148,4 +167,3 @@ const styles = StyleSheet.create({
     gap: 18,
   },
 });
-

@@ -14,14 +14,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
+import * as SecureStore from "expo-secure-store";
 
 const Profile = () => {
   const [username, setUsername] = useState("");
   const [profile, setProfile] = useState(
-    "https://example.com/default-avatar.png"
+    "https://example.com/default-avatar.png",
   );
   const navigation = useNavigation();
-  
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -44,9 +45,8 @@ const Profile = () => {
   }, []);
 
   const logOut = async () => {
+    const authToken = await SecureStore.deleteItemAsync("userToken");
     try {
-      const authToken = await AsyncStorage.getItem("authToken");
-
       if (!authToken) {
         Alert.alert("Error", "Access token not found. Please sign in.");
         return;
@@ -60,7 +60,7 @@ const Profile = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-        }
+        },
       );
 
       const data = response.data;
@@ -82,7 +82,7 @@ const Profile = () => {
       console.error("Error signing out:", error);
       Alert.alert(
         "Error",
-        "An error occurred while signing out. Please try again later."
+        "An error occurred while signing out. Please try again later.",
       );
     }
   };
@@ -95,26 +95,26 @@ const Profile = () => {
         aspect: [1, 1],
         quality: 1,
       });
-  
+
       if (result.cancelled) {
         console.log("Image picker cancelled");
         return;
       }
-  
+
       console.log("Image picker result:", result);
-  
+
       const localUri = result.assets[0].uri;
       const filename = localUri.split("/").pop();
       const match = /\.(\w+)$/.exec(filename);
       const type = match ? `image/${match[1]}` : `image`;
-  
+
       const formData = new FormData();
       formData.append("profile", { uri: localUri, name: filename, type });
-  
+
       console.log("FormData:", formData);
-  
+
       const authToken = await AsyncStorage.getItem("authToken");
-  
+
       const response = await axios.post(
         "https://studioseeker-h2vx.onrender.com/upload-profile",
         formData,
@@ -123,20 +123,23 @@ const Profile = () => {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${authToken}`,
           },
-        }
+        },
       );
-  
+
       console.log("Response data:", response.data);
-  
+
       if (response.status === 201 && response.data.success) {
         const profile = response.data.profileImageUrl;
-  
+
         if (!profile) {
-          console.error("Profile URL is undefined in response data:", response.data);
+          console.error(
+            "Profile URL is undefined in response data:",
+            response.data,
+          );
           Alert.alert("Error", "Failed to upload image.");
           return;
         }
-  
+
         console.log("Updated profile URL:", profile);
         setProfile(profile);
         await AsyncStorage.setItem("profile", profile);
@@ -153,11 +156,11 @@ const Profile = () => {
       }
       Alert.alert(
         "Error",
-        "An error occurred while uploading the image. Please try again later."
+        "An error occurred while uploading the image. Please try again later.",
       );
     }
   };
-  
+
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <SafeAreaView style={styles.safeArea}>
@@ -201,7 +204,7 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     width: 100,
-       height: 100,
+    height: 100,
     borderRadius: 50,
     backgroundColor: "#ccc",
     justifyContent: "center",
@@ -235,4 +238,3 @@ const styles = StyleSheet.create({
 });
 
 export default Profile;
-
