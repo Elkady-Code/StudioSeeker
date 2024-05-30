@@ -27,7 +27,7 @@ const BookingPage = () => {
       const userId = 'USER_ID'; // Replace with the actual user ID
       const duration = 2; // Example duration
 
-      const response = await axios.post('https://yourapi.com/api/bookings/create-booking', {
+      const response = await axios.post('https://studioseeker-h2vx.onrender.com/create-booking', {
         userId,
         postId: studioId,
         duration,
