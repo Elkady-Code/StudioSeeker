@@ -10,7 +10,6 @@ const nodemailer = require("nodemailer");
 const Role = require("../models/role");
 const sharp = require("sharp");
 const cloudinary = require("../helper/imageUpload");
-const Booking = require("../models/bookingModel");
 
 // createUser function in userController.js
 exports.createUser = async (req, res) => {
@@ -137,20 +136,6 @@ exports.uploadProfileImage = async (req, res) => {
   }
 };
 
-exports.Favorites = (req, res) => {
-  // Logic to add the item to the user's favorites
-  // You can access the data from the request body using req.body
-  try {
-    // Perform the "add to favorites" logic here
-    res.status(200).json({ message: "Item added to favorites" });
-  } catch (error) {
-    res.status(400).json({
-      message: "Error adding item to favorites",
-      error: error.message,
-    });
-  }
-};
-
 exports.userLogout = async (req, res) => {
   try {
     // Extract the user ID from the request body or from the authenticated user session
@@ -181,55 +166,6 @@ exports.userLogout = async (req, res) => {
       success: false,
       message: "Error logging out user",
     });
-  }
-};
-
-exports.createBooking = async (req, res) => {
-  try {
-    const { userId, postId, duration } = req.body;
-
-    // Validate ObjectId
-    if (
-      !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(postId)
-    ) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid userId or postId" });
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
-    }
-
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Post not found" });
-    }
-
-    const newBooking = new Booking({ userId, postId, duration });
-    await newBooking.save();
-
-    return res
-      .status(201)
-      .json({
-        success: true,
-        message: "Booking created successfully",
-        booking: newBooking,
-      });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error creating booking",
-        error: error.message,
-      });
   }
 };
 
@@ -376,6 +312,69 @@ exports.navigateResetPassword = asyncErrorHandler(async (req, res, next) => {
     next(error);
   }
 });
+
+exports.createBooking = async (req, res) => {
+  try {
+    const { userId, postId, duration } = req.body;
+
+    // Validate ObjectId
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(postId)
+    ) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid userId or postId" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
+    }
+
+    const newBooking = new Booking({ userId, postId, duration });
+    await newBooking.save();
+
+    return res
+      .status(201)
+      .json({
+        success: true,
+        message: "Booking created successfully",
+        booking: newBooking,
+      });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "Error creating booking",
+        error: error.message,
+      });
+  }
+};
+
+exports.Favorites = (req, res) => {
+  // Logic to add the item to the user's favorites
+  // You can access the data from the request body using req.body
+  try {
+    // Perform the "add to favorites" logic here
+    res.status(200).json({ message: "Item added to favorites" });
+  } catch (error) {
+    res.status(400).json({
+      message: "Error adding item to favorites",
+      error: error.message,
+    });
+  }
+};
 
 /* const sendOTPVerificationEmail = async () => {
     try {
