@@ -138,28 +138,36 @@ exports.uploadProfileImage = async (req, res) => {
 
 exports.userLogout = async (req, res) => {
   try {
+<<<<<<< Updated upstream
     const userId = req.user._id; // Assuming you have middleware that extracts the user from the request
 
+=======
+    const userId = req.user._id; // Ensure this middleware extracts and verifies the token correctly
+>>>>>>> Stashed changes
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.json({
+      return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
 
+<<<<<<< Updated upstream
     // Invalidate the access token by setting it to null
     user.accessToken = null;
+=======
+    user.accessToken = ""; // Invalidate the token
+>>>>>>> Stashed changes
     await user.save();
 
     return res.json({
       success: true,
-      message: "User logged out",
+      message: "User logged out successfully",
     });
   } catch (error) {
-    console.error(error);
-    return res.json({
+    console.error("Error logging out user:", error);
+    return res.status(500).json({
       success: false,
       message: "Error logging out user",
     });
