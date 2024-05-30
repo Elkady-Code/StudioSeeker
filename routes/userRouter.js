@@ -28,6 +28,8 @@ const uploads = multer({ storage, fileFilter });
 
 // Route for adding a new post
 router.post("/user/post", isAuth, postController.addPost); // Handles adding a new post
+// route for adding a post to your favorites
+router.post("/favorites", isAuth, postController.favorites);
 
 // Route for viewing all posts
 router.get("/posts", isAuth, postController.viewPosts); // Handles viewing all posts
@@ -59,7 +61,7 @@ router.post(
   "/create-user",
   validateUserSignUp,
   userValidation,
-  userController.createUser,
+  userController.createUser
 ); // Handles creating a new user
 
 // Route for user sign-in
@@ -67,7 +69,7 @@ router.post(
   "/sign-in",
   validateUserSignIn,
   userValidation,
-  userController.userSignIn,
+  userController.userSignIn
 ); // Handles user sign-in
 
 // Route for user sign-out
@@ -78,7 +80,7 @@ router.post(
   "/upload-profile",
   isAuth,
   uploads.single("profile"),
-  userController.uploadProfileImage,
+  userController.uploadProfileImage
 ); // Handles uploading profile picture
 
 module.exports = router;

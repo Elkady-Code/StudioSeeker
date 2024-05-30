@@ -3,8 +3,10 @@ const path = require("path");
 const app = express();
 const User = require("./models/userModel");
 const userRouter = require("./routes/userRouter");
-const recordsController = require('./controllers/userController');
-const rbacMiddleware = require('./middleware/validation/rbacMiddleware');
+const recordsController = require("./controllers/userController");
+const rbacMiddleware = require("./middleware/validation/rbacMiddleware");
+const { default: mongoose } = require("mongoose");
+
 require("dotenv").config();
 require("./models/db");
 
@@ -14,23 +16,26 @@ app.use(express.urlencoded({ extended: true }));
 
 // Use the user router
 app.use(userRouter);
+app.use("/favorites");
 
 // Set up the view engine and views directory
-app.set('views', path.join(__dirname, '/src/screens'));
-app.set('view engine', 'ejs');
+app.set("views", path.join(__dirname, "/src/screens"));
+app.set("view engine", "ejs");
 
 // Define a simple route
 app.get("/", (req, res) => res.send("Express on Vercel"));
 
 // Route to render the reset password form
-app.get('/reset-password/:token', (req, res) => {
-    const { token } = req.params;
-    res.render('reset-password', { token });
+app.get("/reset-password/:token", (req, res) => {
+  const { token } = req.params;
+  res.render("reset-password", { token });
 });
 
-console.log(app.get('views'));
+console.log(app.get("views"));
 
 // Start the server
-const server = app.listen(3005, () => console.log("Server is up and running on " + server.address().port));
+const server = app.listen(3005, () =>
+  console.log("Server is up and running on " + server.address().port)
+);
 
 module.exports = app;
