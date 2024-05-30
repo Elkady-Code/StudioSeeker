@@ -9,10 +9,7 @@ const { validationResult } = require("express-validator");
 const nodemailer = require("nodemailer");
 const Role = require("../models/role");
 const sharp = require("sharp");
-const uploadcare = require("uploadcare")(
-  process.env.UPLOADCARE_PUBLIC_KEY,
-  process.env.UPLOADCARE_SECRET_KEY
-);
+const cloudinary = require("../helper/imageUpload");
 
 // createUser function in userController.js
 exports.createUser = async (req, res) => {
@@ -114,21 +111,22 @@ exports.uploadProfileImage = async (req, res) => {
       .status(401)
       .json({ success: false, message: "Unauthorized Access!" });
   try {
-    const file = req.file;
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      public_id: `${user._id}_profile`,
+      width: 500,
+      height: 500,
+      crop: "fill",
+    });
 
-    // Upload image to Uploadcare
-    const uploadedFile = await uploadcare.file.upload(file.path);
+    await User.findByIdAndUpdate(user._id, { avatar:result.url });
 
-    // Construct the profile image URL
-    const profileImageUrl = uploadedFile.cdnUrl;
-
-    // Update the user's avatar field with the profile image URL
-    await User.findByIdAndUpdate(user._id, { avatar: profileImageUrl });
+    // Generate the profile image URL
+    const profileImageUrl = `/profile-images/${user._id}`; // Adjust this URL as per your application's setup
 
     res.status(201).json({
       success: true,
       message: "Your profile image has been updated",
-      profileImageUrl: profileImageUrl,
+      profileImageUrl: profileImageUrl, // Include the profile image URL in the response
     });
   } catch (error) {
     res
@@ -137,7 +135,6 @@ exports.uploadProfileImage = async (req, res) => {
     console.log("Error uploading profile image", error.message);
   }
 };
-
 
 exports.userLogout = async (req, res) => {
   try {
