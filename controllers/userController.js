@@ -10,6 +10,7 @@ const nodemailer = require("nodemailer");
 const Role = require("../models/role");
 const sharp = require("sharp");
 const cloudinary = require("../helper/imageUpload");
+const Booking = require ('../models/bookingModel')
 
 // createUser function in userController.js
 exports.createUser = async (req, res) => {
@@ -166,6 +167,29 @@ exports.userLogout = async (req, res) => {
       success: false,
       message: "Error logging out user",
     });
+  }
+};
+
+exports.createBooking = async (req, res) => {
+  try {
+    const { userId, postId, duration } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ success: false, message: 'Post not found' });
+    }
+
+    const newBooking = new Booking({ userId, postId, duration });
+    await newBooking.save();
+
+    return res.status(201).json({ success: true, message: 'Booking created successfully', booking: newBooking });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Error creating booking', error: error.message });
   }
 };
 
