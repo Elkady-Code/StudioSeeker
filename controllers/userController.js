@@ -118,7 +118,7 @@ exports.uploadProfileImage = async (req, res) => {
       crop: "fill",
     });
 
-    await User.findByIdAndUpdate(user._id, { avatar:result.url });
+    await User.findByIdAndUpdate(user._id, { avatar: result.url });
 
     // Generate the profile image URL
     const profileImageUrl = `/profile-images/${user._id}`; // Adjust this URL as per your application's setup
@@ -138,13 +138,10 @@ exports.uploadProfileImage = async (req, res) => {
 
 exports.userLogout = async (req, res) => {
   try {
-    // Extract the user ID from the request body or from the authenticated user session
     const userId = req.user._id; // Assuming you have middleware that extracts the user from the request
 
-    // Find the user by ID
     const user = await User.findById(userId);
 
-    // Check if the user exists
     if (!user) {
       return res.json({
         success: false,
@@ -152,8 +149,8 @@ exports.userLogout = async (req, res) => {
       });
     }
 
-    // Invalidate the access token (remove it or mark it as expired)
-    user.accessToken = ""; // Assuming accessToken is stored in the user document
+    // Invalidate the access token by setting it to null
+    user.accessToken = null;
     await user.save();
 
     return res.json({
@@ -358,21 +355,17 @@ exports.createBooking = async (req, res) => {
     const newBooking = new Booking({ userId, postId, duration });
     await newBooking.save();
 
-    return res
-      .status(201)
-      .json({
-        success: true,
-        message: "Booking created successfully",
-        booking: newBooking,
-      });
+    return res.status(201).json({
+      success: true,
+      message: "Booking created successfully",
+      booking: newBooking,
+    });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error creating booking",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Error creating booking",
+      error: error.message,
+    });
   }
 };
 
