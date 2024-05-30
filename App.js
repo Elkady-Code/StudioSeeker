@@ -95,79 +95,30 @@ export default function App() {
     () => ({
       signIn: async (data) => {
         try {
-<<<<<<< Updated upstream
-          const response = await fetch('https://your-backend-api.com/api/signin', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          });
-
-          if (!response.ok) {
-            throw new Error('Sign in failed');
-          }
-
-          const result = await response.json();
-          const token = result.token; // Assuming the token is in the response
-
-          await SecureStore.setItemAsync('userToken', token);
-          dispatch({ type: 'SIGN_IN', token });
-        } catch (error) {
-          console.error(error);
-=======
           // Assume login API call here that returns a token
           const token = "dummy-auth-token";
           await SecureStore.setItemAsync("userToken", token);
           dispatch({ type: "SIGN_IN", token });
         } catch (e) {
           console.error("Error during sign-in:", e);
->>>>>>> Stashed changes
         }
       },
       signOut: async () => {
         try {
           await SecureStore.deleteItemAsync("userToken");
           dispatch({ type: "SIGN_OUT" });
-<<<<<<< Updated upstream
-        } catch (error) {
-          console.error(error);
-=======
         } catch (e) {
           console.error("Error during sign-out:", e);
->>>>>>> Stashed changes
         }
       },
       signUp: async (data) => {
         try {
-<<<<<<< Updated upstream
-          const response = await fetch('https://your-backend-api.com/api/signup', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          });
-
-          if (!response.ok) {
-            throw new Error('Sign up failed');
-          }
-
-          const result = await response.json();
-          const token = result.token; // Assuming the token is in the response
-
-          await SecureStore.setItemAsync('userToken', token);
-          dispatch({ type: 'SIGN_IN', token });
-        } catch (error) {
-          console.error(error);
-=======
           // Assume sign-up API call here that returns a token
           const token = "dummy-auth-token";
           await SecureStore.setItemAsync("userToken", token);
           dispatch({ type: "SIGN_IN", token });
         } catch (e) {
           console.error("Error during sign-up:", e);
->>>>>>> Stashed changes
         }
       },
     }),

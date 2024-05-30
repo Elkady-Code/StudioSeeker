@@ -138,12 +138,7 @@ exports.uploadProfileImage = async (req, res) => {
 
 exports.userLogout = async (req, res) => {
   try {
-<<<<<<< Updated upstream
-    const userId = req.user._id; // Assuming you have middleware that extracts the user from the request
-
-=======
     const userId = req.user._id; // Ensure this middleware extracts and verifies the token correctly
->>>>>>> Stashed changes
     const user = await User.findById(userId);
 
     if (!user) {
@@ -153,12 +148,7 @@ exports.userLogout = async (req, res) => {
       });
     }
 
-<<<<<<< Updated upstream
-    // Invalidate the access token by setting it to null
-    user.accessToken = null;
-=======
     user.accessToken = ""; // Invalidate the token
->>>>>>> Stashed changes
     await user.save();
 
     return res.json({
