@@ -1,43 +1,87 @@
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 const Post = require("../models/post");
-const User = require("./userController");
-const post = require("../models/post");
 
 function generateToken(userId) {
-  const token = jwt.sign({ userId }, process.env.JWT_TOKEN, {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
-  return token;
 }
 
 exports.addPost = async (req, res) => {
-  // const userId = req.user._id;
+  const userId = req.user._id; // Extract userId from authenticated user session
+  const { location, rentPerHour, desc: description, img: images } = req.body;
+
   const postData = {
-    location: req.body.location,
-    rentPerHour: req.body.rentPerHour,
-    description: req.body.desc,
-    images: req.body.img,
-    userId: 1,
+    location,
+    rentPerHour,
+    description,
+    images,
+    userId: mongoose.Types.ObjectId(userId), // Ensure userId is ObjectId
     createdAt: new Date(),
   };
-  // userId: {type: Number, required: true},
-  // location: {type: String, required: true,},
-  // rentPerHour: {type: Number, required: true,},
-  // images: [{type: String,required: false,},],
-  // description: {type: String,required: true,},
+
   try {
-    // Save post data to MongoDB
     const newPost = new Post(postData);
-    await newPost.save(); // Save the new post
-    // const token = generateToken(userId);
+    await newPost.save();
+
+    const token = generateToken(userId);
+
     return res.json({
-      // token,
+      success: true,
+      token,
       message: "Post created",
+      post: newPost,
     });
   } catch (error) {
-    return res.json({ success: false, message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };
+
+exports.viewPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({});
+    return res.json({
+      success: true,
+      data: posts,
+    });
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+exports.deletePost = async (req, res) => {
+  const userId = req.user._id; // Ensure userId is extracted from authenticated user session
+  try {
+    const result = await Post.deleteOne({
+      _id: mongoose.Types.ObjectId(req.params.postId),
+      userId: mongoose.Types.ObjectId(userId),
+    });
+    if (result.deletedCount > 0) {
+      const token = generateToken(userId);
+      return res.json({
+        success: true,
+        token,
+        message: "Post deleted!",
+      });
+    } else {
+      return res
+        .status(403)
+        .json({ success: false, message: "You can't delete this post" });
+    }
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
 exports.Favorites = (req, res) => {
   // Logic to add the item to the user's favorites
   // You can access the data from the request body using req.body
@@ -52,22 +96,6 @@ exports.Favorites = (req, res) => {
   }
 };
 
-exports.viewPosts = async (req, res) => {
-  try {
-    const posts = await Post.find({});
-
-    return res.json({
-      success: true,
-      data: posts,
-    });
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
-  }
-};
-
 exports.algoliaViewPosts = async (req, res) => {
   try {
     const posts = await Post.find({});
@@ -78,27 +106,5 @@ exports.algoliaViewPosts = async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
-  }
-};
-
-exports.deletePost = async (req, res) => {
-  const userId = req.user._id;
-  try {
-    // Delete post from MongoDB
-    const result = await Post.deleteOne({
-      _id: req.params.postId,
-      userId: userId,
-    });
-    if (result.deletedCount > 0) {
-      const token = generateToken(userId);
-      return res.json({
-        token,
-        message: "Post deleted!",
-      });
-    } else {
-      return res.json("You can't delete this post");
-    }
-  } catch (error) {
-    return res.json({ success: false, message: "Internal server error" });
   }
 };
