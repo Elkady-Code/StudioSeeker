@@ -30,7 +30,7 @@ const uploads = multer({ storage, fileFilter });
 // Route for adding a new post
 router.post("/user/post", isAuth, postController.addPost); // Handles adding a new post
 // route for adding a post to your favorites
-router.post("/favorites", isAuth, postController.favorites);
+router.post("/favorites", isAuth, userController.Favorites);
 
 // Route for viewing all posts
 router.get("/posts", isAuth, postController.viewPosts); // Handles viewing all posts
