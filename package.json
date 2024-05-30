@@ -17,7 +17,10 @@
     "@react-navigation/bottom-tabs": "^6.5.20",
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/stack": "^6.3.29",
-    "axios": "^1.6.8",
+    "@uploadcare/blocks": "0.41.1",
+    "@uploadcare/react-uploader": "^0.5.1",
+    "@uploadcare/react-widget": "^2.4.5",
+    "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.2.0",
     "cors": "^2.8.5",
@@ -56,6 +59,7 @@
     "react-native-web": "~0.19.6",
     "react-router-dom": "^6.23.1",
     "sharp": "^0.33.2",
+    "uploadcare": "^0.4.8",
     "vercel": "^34.1.3"
   },
   "devDependencies": {

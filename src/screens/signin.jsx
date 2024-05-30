@@ -23,7 +23,7 @@ const SignIn = ({ login }) => {
 
   const handleSignIn = async () => {
     try {
-      const response = await axios.post("http://localhost:3005/sign-in", {
+      const response = await axios.post("https://studioseeker-h2vx.onrender.com/sign-in", {
         email,
         password,
       });
