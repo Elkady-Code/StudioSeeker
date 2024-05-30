@@ -131,12 +131,13 @@ exports.uploadProfileImage = async (req, res) => {
       profileImageUrl: profileImageUrl,
     });
   } catch (error) {
-    console.error("Error uploading profile image:", error);
     res
       .status(500)
       .json({ success: false, message: "Server error, try again later" });
+    console.log("Error uploading profile image", error.message);
   }
 };
+
 
 exports.userLogout = async (req, res) => {
   try {

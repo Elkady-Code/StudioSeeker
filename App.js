@@ -16,7 +16,7 @@ import * as Linking from "expo-linking";
 import SignIn from "./src/screens/signin";
 import SignUp from "./src/screens/signup";
 import HomeNavigator from "./src/Home/index";
-import NewPassword from "./src/screens/newpassword";
+import NewPassword from "./src/screens/NewPassword";
 import ForgotPassword from "./src/screens/forgotpassword";
 import * as SecureStore from "expo-secure-store";
 
