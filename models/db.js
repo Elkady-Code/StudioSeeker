@@ -7,7 +7,7 @@ mongoose
     console.log("MongoDB database connection established successfully");
   })
   .catch((err) => {
-    console.error("Error connecting to MongoDB:", err.message);
+    console.error("Error connecting to MongoDB Because:", err.message);
   });
 
 module.exports = mongoose;
