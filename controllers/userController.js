@@ -174,6 +174,11 @@ exports.createBooking = async (req, res) => {
   try {
     const { userId, postId, duration } = req.body;
 
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(postId)) {
+      return res.status(400).json({ success: false, message: 'Invalid userId or postId' });
+    }
+
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -320,20 +325,6 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
     next(error);
   }
 });
-
-exports.Favorites = (req, res) => {
-  // Logic to add the item to the user's favorites
-  // You can access the data from the request body using req.body
-  try {
-    // Perform the "add to favorites" logic here
-    res.status(200).json({ message: "Item added to favorites" });
-  } catch (error) {
-    res.status(400).json({
-      message: "Error adding item to favorites",
-      error: error.message,
-    });
-  }
-};
 
 exports.navigateResetPassword = asyncErrorHandler(async (req, res, next) => {
   try {
