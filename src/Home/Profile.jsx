@@ -16,7 +16,6 @@ import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import * as SecureStore from "expo-secure-store";
 
-
 const Profile = () => {
   const [username, setUsername] = useState("");
   const [profile, setProfile] = useState(
@@ -97,8 +96,8 @@ const Profile = () => {
         quality: 1,
       });
 
-      if (result.canceled) {
-        console.log("Image picker canceled");
+      if (result.cancelled) {
+        console.log("Image picker cancelled");
         return;
       }
 
