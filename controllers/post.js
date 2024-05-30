@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const Post = require("../models/post");
 const User = require("./userController");
+const post = require("../models/post");
 
 function generateToken(userId) {
   const token = jwt.sign({ userId }, process.env.JWT_TOKEN, {
@@ -35,6 +36,19 @@ exports.addPost = async (req, res) => {
     });
   } catch (error) {
     return res.json({ success: false, message: "Internal server error" });
+  }
+};
+exports.Favorites = (req, res) => {
+  // Logic to add the item to the user's favorites
+  // You can access the data from the request body using req.body
+  try {
+    // Perform the "add to favorites" logic here
+    res.status(200).json({ message: "Item added to favorites" });
+  } catch (error) {
+    res.status(400).json({
+      message: "Error adding item to favorites",
+      error: error.message,
+    });
   }
 };
 
