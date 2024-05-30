@@ -45,13 +45,13 @@ const Profile = () => {
   }, []);
 
   const logOut = async () => {
-    const authToken = await SecureStore.deleteItemAsync("userToken");
     try {
+      const authToken = await SecureStore.getItemAsync("userToken");
       if (!authToken) {
         Alert.alert("Error", "Access token not found. Please sign in.");
         return;
       }
-
+  
       const response = await axios.post(
         "https://studioseeker-h2vx.onrender.com/sign-out",
         {},
@@ -62,30 +62,24 @@ const Profile = () => {
           },
         },
       );
-
+  
       const data = response.data;
-
-      if (response.status === 200) {
-        if (data.success) {
-          Alert.alert("Success", "You have signed out successfully.");
-          await AsyncStorage.removeItem("authToken");
-          await AsyncStorage.removeItem("username");
-          await AsyncStorage.removeItem("profile");
-          navigation.navigate("SignIn");
-        } else {
-          Alert.alert("Error", "Failed to sign out.");
-        }
+  
+      if (response.status === 200 && data.success) {
+        Alert.alert("Success", "You have signed out successfully.");
+        await SecureStore.deleteItemAsync("userToken");
+        await AsyncStorage.removeItem("username");
+        await AsyncStorage.removeItem("profile");
+        navigation.navigate("SignIn");
       } else {
-        Alert.alert("Error", data.message || "Sign out failed.");
+        Alert.alert("Error", data.message || "Failed to sign out.");
       }
     } catch (error) {
       console.error("Error signing out:", error);
-      Alert.alert(
-        "Error",
-        "An error occurred while signing out. Please try again later.",
-      );
+      Alert.alert("Error", "An error occurred while signing out. Please try again later.");
     }
   };
+  
 
   const pickImage = async () => {
     try {
