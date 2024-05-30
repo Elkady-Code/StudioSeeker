@@ -8,6 +8,7 @@ const postController = require("../controllers/post");
 const userController = require("../controllers/userController");
 const { isAuth } = require("../middleware/generateJWT");
 
+
 const {
   validateUserSignUp,
   userValidation,
@@ -46,6 +47,8 @@ router.post("/request-password-reset", userController.forgotPassword); // Handle
 
 // Route for resetting password
 router.patch("/reset-password/:token", userController.resetPassword); // Handles resetting password
+
+router.post('/create-booking', isAuth, userController.createBooking);
 
 // Route for rendering the reset password page
 router.get("/reset-password/:token", (req, res) => {
