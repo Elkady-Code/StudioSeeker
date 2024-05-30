@@ -82,19 +82,7 @@ exports.deletePost = async (req, res) => {
   }
 };
 
-exports.Favorites = (req, res) => {
-  // Logic to add the item to the user's favorites
-  // You can access the data from the request body using req.body
-  try {
-    // Perform the "add to favorites" logic here
-    res.status(200).json({ message: "Item added to favorites" });
-  } catch (error) {
-    res.status(400).json({
-      message: "Error adding item to favorites",
-      error: error.message,
-    });
-  }
-};
+
 
 exports.algoliaViewPosts = async (req, res) => {
   try {
