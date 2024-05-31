@@ -44,7 +44,6 @@ export default function App() {
       },
     },
   };
-
   const [state, dispatch] = React.useReducer(
     (prevState, action) => {
       switch (action.type) {
@@ -74,17 +73,21 @@ export default function App() {
       userToken: null,
     }
   );
-
   React.useEffect(() => {
+    // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
       let userToken;
 
       try {
         userToken = await SecureStore.getItemAsync("userToken");
       } catch (e) {
-        console.error(e);
+        // Restoring token failed
       }
 
+      // After restoring token, we may need to validate it in production apps
+
+      // This will switch to the App screen or Auth screen and this loading
+      // screen will be unmounted and thrown away.
       dispatch({ type: "RESTORE_TOKEN", token: userToken });
     };
 
@@ -144,8 +147,11 @@ export default function App() {
                   return (
                     <SignIn
                       navigation={navigation}
-                      login={async (data) => {
-                        await authContext.signIn(data);
+                      login={() => {
+                        dispatch({
+                          type: "SIGN_IN",
+                          token: "dummy-auth-token",
+                        });
                       }}
                     />
                   );
