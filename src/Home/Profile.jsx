@@ -80,6 +80,7 @@ const Profile = () => {
     }
   };
   
+  
 
   const pickImage = async () => {
     try {

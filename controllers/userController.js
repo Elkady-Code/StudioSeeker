@@ -138,7 +138,7 @@ exports.uploadProfileImage = async (req, res) => {
 
 exports.userLogout = async (req, res) => {
   try {
-    const userId = req.user._id; // Ensure this middleware extracts and verifies the token correctly
+    const userId = req.user._id;
     const user = await User.findById(userId);
 
     if (!user) {
@@ -148,7 +148,7 @@ exports.userLogout = async (req, res) => {
       });
     }
 
-    user.accessToken = ""; // Invalidate the token
+    user.accessToken = "";
     await user.save();
 
     return res.json({
@@ -163,6 +163,7 @@ exports.userLogout = async (req, res) => {
     });
   }
 };
+
 
 exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
   const { email } = req.body;
