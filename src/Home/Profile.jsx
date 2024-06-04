@@ -51,7 +51,7 @@ const Profile = () => {
         Alert.alert("Error", "Access token not found. Please sign in.");
         return;
       }
-  
+
       const response = await axios.post(
         "https://studioseeker-h2vx.onrender.com/sign-out",
         {},
@@ -62,9 +62,9 @@ const Profile = () => {
           },
         },
       );
-  
+
       const data = response.data;
-  
+
       if (response.status === 200 && data.success) {
         Alert.alert("Success", "You have signed out successfully.");
         await SecureStore.deleteItemAsync("userToken");
@@ -79,8 +79,6 @@ const Profile = () => {
       Alert.alert("Error", "An error occurred while signing out. Please try again later.");
     }
   };
-  
-  
 
   const pickImage = async () => {
     try {

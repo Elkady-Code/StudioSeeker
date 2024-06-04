@@ -172,7 +172,6 @@ export default function App() {
     () => ({
       signIn: async (data) => {
         try {
-          // Assume login API call here that returns a token
           const response = await axios.post(
             "https://studioseeker-h2vx.onrender.com/sign-in",
             data
@@ -180,6 +179,7 @@ export default function App() {
 
           const token = response.data.token;
           await SecureStore.setItemAsync("userToken", token);
+          await AsyncStorage.setItem("username", response.data.user.username); // Store username in AsyncStorage
           dispatch({ type: "SIGN_IN", token });
         } catch (e) {
           console.error("Error during sign-in:", e);
@@ -195,7 +195,6 @@ export default function App() {
       },
       signUp: async (data) => {
         try {
-          // Assume sign-up API call here that returns a token
           const response = await axios.post(
             "https://studioseeker-h2vx.onrender.com/sign-up",
             data
@@ -203,6 +202,7 @@ export default function App() {
 
           const token = response.data.token;
           await SecureStore.setItemAsync("userToken", token);
+          await AsyncStorage.setItem("username", response.data.user.username); // Store username in AsyncStorage
           dispatch({ type: "SIGN_IN", token });
         } catch (e) {
           console.error("Error during sign-up:", e);
@@ -216,7 +216,7 @@ export default function App() {
     <AuthContext.Provider value={authContext}>
       <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
         <StatusBar translucent backgroundColor="transparent" />
-        <Stack.Navigator initialRouteName="AddStudioScreen">
+        <Stack.Navigator initialRouteName="GetStartedScreen">
           {state.userToken == null ? (
             <>
               <Stack.Screen
