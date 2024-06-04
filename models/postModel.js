@@ -9,4 +9,5 @@ const postSchema = new Schema({
   description: {type: String,required: true,},
 });
 
-module.exports = mongoose.model("Post", postSchema);
+const post = mongoose.model("Post", postSchema);
+module.exports = post;

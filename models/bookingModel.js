@@ -8,4 +8,5 @@ const bookingSchema = new Schema({
   duration: { type: Number, required: true }, // Duration in hours
 });
 
-module.exports = mongoose.model('Booking', bookingSchema);
+const Booking = mongoose.model('Booking', bookingSchema);
+module.exports = Booking;

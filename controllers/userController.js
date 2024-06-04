@@ -10,6 +10,9 @@ const nodemailer = require("nodemailer");
 const Role = require("../models/role");
 const sharp = require("sharp");
 const cloudinary = require("../helper/imageUpload");
+const mongoose = require('mongoose');
+const Booking = require("../models/bookingModel");
+const Post = require("../models/postModel"); // Corrected import statement
 
 // createUser function in userController.js
 exports.createUser = async (req, res) => {
@@ -25,7 +28,7 @@ exports.createUser = async (req, res) => {
     lastName,
     email,
     password,
-    confirmPassword, // confirmPassword is included in the request body
+    confirmPassword,
     number,
     address,
     role,
@@ -33,7 +36,6 @@ exports.createUser = async (req, res) => {
   } = req.body;
 
   try {
-    // Check if email is already in use
     const isNewUser = await User.isThisEmailInUse(email);
     if (!isNewUser) {
       return res.status(400).json({
@@ -42,34 +44,31 @@ exports.createUser = async (req, res) => {
       });
     }
 
-    // Create a new user instance
     const user = new User({
       username,
       firstName,
       lastName,
       email,
       password,
-      confirmPassword, // confirmPassword is included in the user object
+      confirmPassword,
       number,
       address,
       role,
       avatar,
     });
 
-    // Generate JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN, {
       expiresIn: "30d",
     });
 
-    // Assign the token to the user's accessToken field
-    user.accessToken = token; // Assign the token here
+    user.accessToken = token;
     await user.save();
 
     return res.status(201).json({
       success: true,
       message: "User created successfully",
       user,
-      token, // Optionally, you can send the token in the response
+      token,
     });
   } catch (error) {
     return res.status(500).json({
@@ -92,12 +91,10 @@ exports.userSignIn = async (req, res) => {
       message: "Email or Password is Incorrect!",
     });
 
-  // Generate JWT token
   const token = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN, {
     expiresIn: "30d",
   });
 
-  // Update the user's accessToken field
   user.accessToken = token;
   await user.save();
 
@@ -120,13 +117,12 @@ exports.uploadProfileImage = async (req, res) => {
 
     await User.findByIdAndUpdate(user._id, { avatar: result.url });
 
-    // Generate the profile image URL
-    const profileImageUrl = `/profile-images/${user._id}`; // Adjust this URL as per your application's setup
+    const profileImageUrl = `/profile-images/${user._id}`;
 
     res.status(201).json({
       success: true,
       message: "Your profile image has been updated",
-      profileImageUrl: profileImageUrl, // Include the profile image URL in the response
+      profileImageUrl: profileImageUrl,
     });
   } catch (error) {
     res
@@ -164,7 +160,6 @@ exports.userLogout = async (req, res) => {
   }
 };
 
-
 exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
   const { email } = req.body;
 
@@ -183,20 +178,15 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
     });
   }
 
-  // Log user document before setting the reset token
   console.log("User before setting reset token:", user);
 
-  // Generate password reset token and save it to the database
   const resetToken = user.createResetPasswordToken();
   await user.save({ validateBeforeSave: false });
 
-  // Log user document after setting the reset token
   console.log("User after setting reset token:", user);
 
-  // Construct password reset URL
   const resetUrl = `https://studioseeker-h2vx.onrender.com/reset-password/${resetToken}`;
 
-  // Email template
   const emailTemplate = `
     <html>
       <body>
@@ -208,7 +198,6 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
     </html>
   `;
 
-  // Create a Nodemailer transporter using SendGrid
   const transporter = nodemailer.createTransport({
     host: "smtp.sendgrid.net",
     port: 587,
@@ -218,11 +207,10 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
       pass: process.env.SENDGRID_API_KEY,
     },
     tls: {
-      rejectUnauthorized: false, // Disable certificate validation (not recommended in production)
+      rejectUnauthorized: false,
     },
   });
 
-  // Send password reset email
   await transporter.sendMail({
     from: "studioseekerbusiness@gmail.com",
     to: email,
@@ -233,7 +221,7 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
   return res.status(200).json({
     status: "success",
     message: "Password reset link has been sent to your email",
-    resetUrl: resetUrl, // Pass the reset URL back in the response for the client to navigate
+    resetUrl: resetUrl,
   });
 });
 
@@ -253,7 +241,6 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
       return next(error);
     }
 
-    // Check if password and confirmPassword are present
     const { password, confirmPassword } = req.body;
     if (!password || !confirmPassword) {
       const error = new CustomError(
@@ -263,13 +250,11 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
       return next(error);
     }
 
-    // Check if passwords match
     if (password !== confirmPassword) {
       const error = new CustomError("Passwords do not match", 400);
       return next(error);
     }
 
-    // Reset the user's password
     user.password = password;
     user.confirmPassword = confirmPassword;
     user.passwordResetToken = undefined;
@@ -282,7 +267,6 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
       expiresIn: "30d",
     });
 
-    // Send success response with message
     res.status(200).json({
       status: "success",
       message: "Password has been reset successfully",
@@ -310,10 +294,7 @@ exports.navigateResetPassword = asyncErrorHandler(async (req, res, next) => {
 });
 
 exports.Favorites = (req, res) => {
-  // Logic to add the item to the user's favorites
-  // You can access the data from the request body using req.body
   try {
-    // Perform the "add to favorites" logic here
     res.status(200).json({ message: "Item added to favorites" });
   } catch (error) {
     res.status(400).json({
@@ -323,36 +304,37 @@ exports.Favorites = (req, res) => {
   }
 };
 
-exports.createBooking = async (req, res) => {
+exports.createBooking = asyncErrorHandler(async (req, res, next) => {
   try {
     const { userId, postId, duration } = req.body;
 
-    // Validate ObjectId
-    if (
-      !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(postId)
-    ) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid userId or postId" });
+    console.log('Received data:', { userId, postId, duration });
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      console.log('Invalid userId:', userId);
+      return res.status(400).json({ success: false, message: "Invalid userId" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+      console.log('Invalid postId:', postId);
+      return res.status(400).json({ success: false, message: "Invalid postId" });
     }
 
     const user = await User.findById(userId);
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      console.log('User not found:', userId);
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId); // Corrected variable naming
     if (!post) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Post not found" });
+      console.log('Post not found:', postId);
+      return res.status(404).json({ success: false, message: "Post not found" });
     }
 
     const newBooking = new Booking({ userId, postId, duration });
     await newBooking.save();
+
+    console.log('Booking created successfully:', newBooking);
 
     return res.status(201).json({
       success: true,
@@ -360,13 +342,15 @@ exports.createBooking = async (req, res) => {
       booking: newBooking,
     });
   } catch (error) {
+    console.error('Error creating booking:', error);
     return res.status(500).json({
       success: false,
       message: "Error creating booking",
       error: error.message,
     });
   }
-};
+});
+
 
 /* const sendOTPVerificationEmail = async () => {
     try {
