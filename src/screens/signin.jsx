@@ -32,13 +32,9 @@ const SignIn = ({ login }) => {
 
       if (response.status === 200) {
         if (data.token) {
-          // console.log(data);
           await SecureStore.setItemAsync("userToken", data.token);
-          await SecureStore.setItemAsync("username", data.user.username);
+          await AsyncStorage.setItem("username", data.user.username); // Store username in AsyncStorage
           login();
-          // Storing the username
-          // Alert.alert("Success", "You have signed in successfully.");
-          // navigation.navigate("Main");
         } else {
           Alert.alert("Error", "Incorrect username or password");
         }
