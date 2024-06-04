@@ -5,6 +5,8 @@ import Home from "./Home";
 import Profile from "./Profile";
 import FavoriteStudios from "./Favourites"; // Import the new screen
 import BookingPage from "./booked"; // Import the BookingPage component
+import SignIn from "../screens/signin";
+
 
 const HomeComponent = () => <Home />;
 
@@ -39,7 +41,6 @@ export default function Main() {
     favourites: FavoriteStudiosComponent,
     profile: ProfileComponent,
   });
-
   return (
     <BottomNavigation
       navigationState={{ index, routes }}
