@@ -20,6 +20,9 @@ import SignUp from "./src/screens/signup";
 import HomeNavigator from "./src/Home/index";
 import NewPassword from "./src/screens/NewPassword";
 import ForgotPassword from "./src/screens/forgotpassword";
+import AddInstrumentScreen from "./src/screens/addInstrument";
+import AddStudioScreen from "./src/screens/addStudio";
+import StudioDetailsScreen from "./src/screens/studioDetails";
 
 const Stack = createStackNavigator();
 const AuthContext = createContext();
@@ -213,9 +216,24 @@ export default function App() {
     <AuthContext.Provider value={authContext}>
       <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
         <StatusBar translucent backgroundColor="transparent" />
-        <Stack.Navigator initialRouteName="GetStarted">
+        <Stack.Navigator initialRouteName="StudioDetailsScreen">
           {state.userToken == null ? (
             <>
+              <Stack.Screen
+                name="AddInstrumentScreen"
+                component={AddInstrumentScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="AddStudioScreen"
+                component={AddStudioScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="StudioDetailsScreen"
+                component={StudioDetailsScreen}
+                options={{ headerShown: false }}
+              />
               <Stack.Screen
                 options={{ headerShown: false }}
                 name="GetStarted"
