@@ -306,7 +306,9 @@ exports.Favorites = (req, res) => {
 
 exports.createBooking = asyncErrorHandler(async (req, res, next) => {
   try {
-    const { userId, postId, duration } = req.body;
+    const userId = req.user._id; // Extract the user ID from the authenticated user
+
+    const { postId, duration } = req.body;
 
     console.log('Received data:', { userId, postId, duration });
 
@@ -319,13 +321,17 @@ exports.createBooking = asyncErrorHandler(async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Invalid postId" });
     }
 
+    // Assuming you have User and Post models imported and defined
+    // const User = require('../models/userModel');
+    // const Post = require('../models/postModel');
+
     const user = await User.findById(userId);
     if (!user) {
       console.log('User not found:', userId);
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const post = await Post.findById(postId); // Corrected variable naming
+    const post = await Post.findById(postId);
     if (!post) {
       console.log('Post not found:', postId);
       return res.status(404).json({ success: false, message: "Post not found" });
@@ -351,6 +357,20 @@ exports.createBooking = asyncErrorHandler(async (req, res, next) => {
   }
 });
 
+exports.getUserBookings = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ success: false, message: "Invalid userId" });
+    }
+
+    const bookings = await Booking.find({ userId }).populate('postId');
+    res.status(200).json({ success: true, bookings });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching bookings", error: error.message });
+  }
+};
 
 /* const sendOTPVerificationEmail = async () => {
     try {

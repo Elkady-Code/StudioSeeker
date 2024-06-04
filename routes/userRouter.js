@@ -7,7 +7,7 @@ const storage = multer.diskStorage({});
 const postController = require("../controllers/post");
 const userController = require("../controllers/userController");
 const { isAuth } = require("../middleware/generateJWT");
-
+const settingsController = require ("../controllers/settingsController");
 
 const {
   validateUserSignUp,
@@ -49,6 +49,12 @@ router.post("/request-password-reset", userController.forgotPassword); // Handle
 router.patch("/reset-password/:token", userController.resetPassword); // Handles resetting password
 
 router.post('/create-booking', isAuth, userController.createBooking);
+router.get("/user-bookings/:userId", userController.getUserBookings);
+
+router.post('/email', settingsController.updateEmail);
+router.post('/phone', settingsController.updatePhoneNumber);
+router.post('/address', settingsController.updateAddress);
+router.delete('/address', settingsController.deleteAddress);
 
 // Route for rendering the reset password page
 router.get("/reset-password/:token", (req, res) => {

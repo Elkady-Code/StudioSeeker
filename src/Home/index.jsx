@@ -3,18 +3,13 @@ import { Text } from "react-native-paper";
 import { BottomNavigation } from "react-native-paper";
 import Home from "./Home";
 import Profile from "./Profile";
-import FavoriteStudios from "./Favourites"; // Import the new screen
-import BookingPage from "./booked"; // Import the BookingPage component
-import SignIn from "../screens/signin";
-
+import FavoriteStudios from "./Favourites";
+import BookingPage from "./booked";
 
 const HomeComponent = () => <Home />;
-
 const ProfileComponent = () => <Profile />;
-
-const BookedComponent = () => <BookingPage />; // Define the new component for booking
-
-const FavoriteStudiosComponent = () => <FavoriteStudios />; // Define the new component
+const BookedComponent = () => <BookingPage />;
+const FavoriteStudiosComponent = () => <FavoriteStudios />;
 
 export default function Main() {
   const [index, setIndex] = React.useState(0);
@@ -25,19 +20,18 @@ export default function Main() {
       focusedIcon: "home",
       unfocusedIcon: "home-outline",
     },
-    { key: "booked", title: "Booked", focusedIcon: "bookmark" }, // Updated key to match
+    { key: "booked", title: "Booked", focusedIcon: "bookmark" },
     { key: "favourites", title: "Favourites", focusedIcon: "heart" },
     {
       key: "profile",
       title: "Profile",
       focusedIcon: "head",
-      // unfocusedIcon: "user-outline",
     },
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
     home: HomeComponent,
-    booked: BookedComponent, // Updated key to match
+    booked: BookedComponent,
     favourites: FavoriteStudiosComponent,
     profile: ProfileComponent,
   });

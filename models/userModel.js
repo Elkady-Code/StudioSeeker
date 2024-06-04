@@ -62,7 +62,7 @@ userSchema.methods.createResetPasswordToken = function () {
 
   console.log("Generated reset token (plain):", resetToken);
   console.log("Generated reset token (hashed):", this.passwordResetToken);
-  return resetToken; // Return plain token
+  return resetToken; 
 };
 
 userSchema.plugin(passportLocalMongoose);
