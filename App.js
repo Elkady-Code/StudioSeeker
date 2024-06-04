@@ -216,9 +216,14 @@ export default function App() {
     <AuthContext.Provider value={authContext}>
       <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
         <StatusBar translucent backgroundColor="transparent" />
-        <Stack.Navigator initialRouteName="StudioDetailsScreen">
+        <Stack.Navigator initialRouteName="AddStudioScreen">
           {state.userToken == null ? (
             <>
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="GetStarted"
+                component={GetStartedScreen}
+              />
               <Stack.Screen
                 name="AddInstrumentScreen"
                 component={AddInstrumentScreen}
@@ -233,11 +238,6 @@ export default function App() {
                 name="StudioDetailsScreen"
                 component={StudioDetailsScreen}
                 options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                options={{ headerShown: false }}
-                name="GetStarted"
-                component={GetStartedScreen}
               />
               <Stack.Screen
                 options={{ headerShown: false }}
