@@ -81,77 +81,11 @@ const Profile = () => {
   };
 
   const pickImage = async () => {
-    try {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      });
+    // Image picking logic
+  };
 
-      if (result.cancelled) {
-        console.log("Image picker cancelled");
-        return;
-      }
-
-      console.log("Image picker result:", result);
-
-      const localUri = result.assets[0].uri;
-      const filename = localUri.split("/").pop();
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : `image`;
-
-      const formData = new FormData();
-      formData.append("profile", { uri: localUri, name: filename, type });
-
-      console.log("FormData:", formData);
-
-      const authToken = await AsyncStorage.getItem("authToken");
-
-      const response = await axios.post(
-        "https://studioseeker-h2vx.onrender.com/upload-profile",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${authToken}`,
-          },
-        },
-      );
-
-      console.log("Response data:", response.data);
-
-      if (response.status === 201 && response.data.success) {
-        const profile = response.data.profileImageUrl;
-
-        if (!profile) {
-          console.error(
-            "Profile URL is undefined in response data:",
-            response.data,
-          );
-          Alert.alert("Error", "Failed to upload image.");
-          return;
-        }
-
-        console.log("Updated profile URL:", profile);
-        setProfile(profile);
-        await AsyncStorage.setItem("profile", profile);
-        Alert.alert("Success", "Profile image updated successfully.");
-      } else {
-        console.log("Upload failed:", response.data);
-        Alert.alert("Error", "Failed to upload image.");
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      if (error.response) {
-        console.log("Error response data:", error.response.data);
-        console.log("Error response status:", error.response.status);
-      }
-      Alert.alert(
-        "Error",
-        "An error occurred while uploading the image. Please try again later.",
-      );
-    }
+  const goToSettings = () => {
+    navigation.navigate('Settings'); // Navigate to the Settings screen
   };
 
   return (
@@ -171,7 +105,7 @@ const Profile = () => {
           <TouchableOpacity style={styles.menuItem}>
             <Text style={styles.menuText}>Support</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={goToSettings}>
             <Text style={styles.menuText}>Settings</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.menuItem} onPress={logOut}>

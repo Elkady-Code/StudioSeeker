@@ -11,33 +11,29 @@ function generateToken(userId) {
 }
 
 exports.addPost = async (req, res) => {
-  // const userId = req.user._id;
-  const postData = {
-    location: req.body.location,
-    rentPerHour: req.body.rentPerHour,
-    description: req.body.desc,
-    images: req.body.img,
-    userId: 1,
-    createdAt: new Date(),
-  };
-  // userId: {type: Number, required: true},
-  // location: {type: String, required: true,},
-  // rentPerHour: {type: Number, required: true,},
-  // images: [{type: String,required: false,},],
-  // description: {type: String,required: true,},
   try {
-    // Save post data to MongoDB
-    const newPost = new Post(postData);
-    await newPost.save(); // Save the new post
-    // const token = generateToken(userId);
+    const userId = req.user._id;
+
+    const newPost = new Post({
+      userId: userId,
+      location: req.body.location,
+      rentPerHour: req.body.rentPerHour,
+      description: req.body.desc,
+      images: req.body.img,
+      createdAt: new Date(),
+    });
+
+    // Save the new post
+    await newPost.save();
+
     return res.json({
-      // token,
       message: "Post created",
     });
   } catch (error) {
-    return res.json({ success: false, message: "Internal server error" });
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
 
 exports.viewPosts = async (req, res) => {
   try {
@@ -47,19 +43,6 @@ exports.viewPosts = async (req, res) => {
       success: true,
       data: posts,
     });
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
-  }
-};
-
-exports.algoliaViewPosts = async (req, res) => {
-  try {
-    const posts = await Post.find({});
-
-    return res.json(posts);
   } catch (error) {
     console.error("Error fetching posts:", error);
     return res
@@ -87,5 +70,18 @@ exports.deletePost = async (req, res) => {
     }
   } catch (error) {
     return res.json({ success: false, message: "Internal server error" });
+  }
+};
+
+exports.algoliaViewPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({});
+
+    return res.json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };

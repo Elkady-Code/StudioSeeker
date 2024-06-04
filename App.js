@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useMemo, createContext } from "react";
+import React from "react";
 import {
   StyleSheet,
   SafeAreaView,
@@ -12,9 +12,8 @@ import { Button } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Ionicons } from "@expo/vector-icons";
-import * as Linking from "expo-linking";
 import * as SecureStore from "expo-secure-store";
-import axios from "axios";
+import * as Linking from "expo-linking";
 import SignIn from "./src/screens/signin";
 import SignUp from "./src/screens/signup";
 import HomeNavigator from "./src/Home/index";
@@ -23,9 +22,10 @@ import ForgotPassword from "./src/screens/forgotpassword";
 import AddInstrumentScreen from "./src/screens/addInstrument";
 import AddStudioScreen from "./src/screens/addStudio";
 import StudioDetailsScreen from "./src/screens/studioDetails";
+import Settings from "./src/screens/settings";
 
 const Stack = createStackNavigator();
-const AuthContext = createContext();
+const AuthContext = React.createContext();
 
 const BackButton = ({ onPress }) => {
   return (
@@ -34,6 +34,175 @@ const BackButton = ({ onPress }) => {
     </TouchableOpacity>
   );
 };
+
+export default function App() {
+  const linking = {
+    prefixes: [Linking.createURL("/")],
+    config: {
+      screens: {
+        SignIn: "sign-in",
+        SignUp: "sign-up",
+        ResetPassword: "reset-password/:token",
+        Main: "main",
+        GetStarted: "get-started",
+      },
+    },
+  };
+  const [state, dispatch] = React.useReducer(
+    (prevState, action) => {
+      switch (action.type) {
+        case "RESTORE_TOKEN":
+          return {
+            ...prevState,
+            userToken: action.token,
+            isLoading: false,
+          };
+        case "SIGN_IN":
+          return {
+            ...prevState,
+            isSignout: false,
+            userToken: action.token,
+          };
+        case "SIGN_OUT":
+          return {
+            ...prevState,
+            isSignout: true,
+            userToken: null,
+          };
+      }
+    },
+    {
+      isLoading: true,
+      isSignout: false,
+      userToken: null,
+    }
+  );
+  React.useEffect(() => {
+    // Fetch the token from storage then navigate to our appropriate place
+    const bootstrapAsync = async () => {
+      let userToken;
+
+      try {
+        userToken = await SecureStore.getItemAsync("userToken");
+      } catch (e) {
+        // Restoring token failed
+      }
+
+      // After restoring token, we may need to validate it in production apps
+
+      // This will switch to the App screen or Auth screen and this loading
+      // screen will be unmounted and thrown away.
+      dispatch({ type: "RESTORE_TOKEN", token: userToken });
+    };
+
+    bootstrapAsync();
+  }, []);
+
+  const authContext = React.useMemo(
+    () => ({
+      signIn: async (data) => {
+        dispatch({ type: "SIGN_IN", token: "dummy-auth-token" });
+      },
+      signOut: () => dispatch({ type: "SIGN_OUT" }),
+      signUp: async (data) => {
+        dispatch({ type: "SIGN_IN", token: "dummy-auth-token" });
+      },
+    }),
+    []
+  );
+
+  return (
+    <AuthContext.Provider value={authContext}>
+      <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
+        <StatusBar translucent backgroundColor="transparent" />
+        <Stack.Navigator initialRouteName="GetStartedScreen">
+          {state.userToken == null ? (
+            <>
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="GetStarted"
+                component={GetStartedScreen}
+              />
+              <Stack.Screen
+                name="AddInstrumentScreen"
+                component={AddInstrumentScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="AddStudioScreen"
+                component={AddStudioScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="StudioDetailsScreen"
+                component={StudioDetailsScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Settings"
+                component={Settings}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="SignIn"
+                component={({ navigation }) => {
+                  return (
+                    <SignIn
+                      navigation={navigation}
+                      login={() => {
+                        dispatch({
+                          type: "SIGN_IN",
+                          token: "dummy-auth-token",
+                        });
+                      }}
+                    />
+                  );
+                }}
+              />
+              <Stack.Screen
+                name="SignUp"
+                component={SignUp}
+                options={({ navigation }) => ({
+                  headerLeft: () => (
+                    <BackButton onPress={() => navigation.navigate("SignIn")} />
+                  ),
+                  title: "",
+                })}
+              />
+              <Stack.Screen
+                name="ResetPassword"
+                component={ForgotPassword}
+                options={({ navigation }) => ({
+                  headerLeft: () => (
+                    <BackButton onPress={() => navigation.navigate("SignIn")} />
+                  ),
+                  title: "",
+                })}
+              />
+              <Stack.Screen
+                name="NewPassword"
+                component={NewPassword}
+                options={({ navigation }) => ({
+                  headerLeft: () => (
+                    <BackButton onPress={() => navigation.navigate("SignIn")} />
+                  ),
+                  title: "",
+                })}
+              />
+            </>
+          ) : (
+            <Stack.Screen
+              options={{ headerShown: false }}
+              name="Main"
+              component={HomeNavigator}
+            />
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AuthContext.Provider>
+  );
+}
 
 const GetStartedScreen = ({ navigation }) => {
   const handlePress = () => {
@@ -87,210 +256,3 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 });
-
-export default function App() {
-  const linking = {
-    prefixes: [Linking.createURL("/")],
-    config: {
-      screens: {
-        SignIn: "sign-in",
-        SignUp: "sign-up",
-        ResetPassword: "reset-password/:token",
-        Main: "main",
-        GetStarted: "get-started",
-      },
-    },
-  };
-
-  const [state, dispatch] = useReducer(
-    (prevState, action) => {
-      switch (action.type) {
-        case "RESTORE_TOKEN":
-          return {
-            ...prevState,
-            userToken: action.token,
-            isLoading: false,
-          };
-        case "SIGN_IN":
-          return {
-            ...prevState,
-            isSignout: false,
-            userToken: action.token,
-          };
-        case "SIGN_OUT":
-          return {
-            ...prevState,
-            isSignout: true,
-            userToken: null,
-          };
-        default:
-          return prevState;
-      }
-    },
-    {
-      isLoading: true,
-      isSignout: false,
-      userToken: null,
-    }
-  );
-
-  useEffect(() => {
-    const bootstrapAsync = async () => {
-      let userToken;
-
-      try {
-        userToken = await SecureStore.getItemAsync("userToken");
-
-        if (userToken) {
-          // Validate token
-          const response = await axios.get(
-            "https://studioseeker-h2vx.onrender.com/validate-token",
-            {
-              headers: {
-                Authorization: `Bearer ${userToken}`,
-              },
-            }
-          );
-
-          if (response.status !== 200 || !response.data.valid) {
-            userToken = null;
-            await SecureStore.deleteItemAsync("userToken");
-          }
-        }
-      } catch (e) {
-        console.error("Error restoring token:", e);
-        userToken = null;
-      }
-
-      dispatch({ type: "RESTORE_TOKEN", token: userToken });
-    };
-
-    bootstrapAsync();
-  }, []);
-
-  const authContext = useMemo(
-    () => ({
-      signIn: async (data) => {
-        try {
-          const response = await axios.post(
-            "https://studioseeker-h2vx.onrender.com/sign-in",
-            data
-          );
-
-          const token = response.data.token;
-          await SecureStore.setItemAsync("userToken", token);
-          await AsyncStorage.setItem("username", response.data.user.username); // Store username in AsyncStorage
-          dispatch({ type: "SIGN_IN", token });
-        } catch (e) {
-          console.error("Error during sign-in:", e);
-        }
-      },
-      signOut: async () => {
-        try {
-          await SecureStore.deleteItemAsync("userToken");
-          dispatch({ type: "SIGN_OUT" });
-        } catch (e) {
-          console.error("Error during sign-out:", e);
-        }
-      },
-      signUp: async (data) => {
-        try {
-          const response = await axios.post(
-            "https://studioseeker-h2vx.onrender.com/sign-up",
-            data
-          );
-
-          const token = response.data.token;
-          await SecureStore.setItemAsync("userToken", token);
-          await AsyncStorage.setItem("username", response.data.user.username); // Store username in AsyncStorage
-          dispatch({ type: "SIGN_IN", token });
-        } catch (e) {
-          console.error("Error during sign-up:", e);
-        }
-      },
-    }),
-    []
-  );
-
-  return (
-    <AuthContext.Provider value={authContext}>
-      <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
-        <StatusBar translucent backgroundColor="transparent" />
-        <Stack.Navigator initialRouteName="GetStartedScreen">
-          {state.userToken == null ? (
-            <>
-              <Stack.Screen
-                options={{ headerShown: false }}
-                name="GetStarted"
-                component={GetStartedScreen}
-              />
-              <Stack.Screen
-                name="AddInstrumentScreen"
-                component={AddInstrumentScreen}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="AddStudioScreen"
-                component={AddStudioScreen}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="StudioDetailsScreen"
-                component={StudioDetailsScreen}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                options={{ headerShown: false }}
-                name="SignIn"
-                component={({ navigation }) => (
-                  <SignIn
-                    navigation={navigation}
-                    login={() => {
-                      dispatch({ type: "SIGN_IN", token: "dummy-auth-token" });
-                    }}
-                  />
-                )}
-              />
-              <Stack.Screen
-                name="SignUp"
-                component={SignUp}
-                options={({ navigation }) => ({
-                  headerLeft: () => (
-                    <BackButton onPress={() => navigation.navigate("SignIn")} />
-                  ),
-                  title: "",
-                })}
-              />
-              <Stack.Screen
-                name="ResetPassword"
-                component={ForgotPassword}
-                options={({ navigation }) => ({
-                  headerLeft: () => (
-                    <BackButton onPress={() => navigation.navigate("SignIn")} />
-                  ),
-                  title: "",
-                })}
-              />
-              <Stack.Screen
-                name="NewPassword"
-                component={NewPassword}
-                options={({ navigation }) => ({
-                  headerLeft: () => (
-                    <BackButton onPress={() => navigation.navigate("SignIn")} />
-                  ),
-                  title: "",
-                })}
-              />
-            </>
-          ) : (
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="Main"
-              component={HomeNavigator}
-            />
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
-    </AuthContext.Provider>
-  );
-}
