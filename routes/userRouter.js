@@ -7,7 +7,7 @@ const storage = multer.diskStorage({});
 const postController = require("../controllers/post");
 const userController = require("../controllers/userController");
 const { isAuth } = require("../middleware/generateJWT");
-const settingsController = require ("../controllers/settingsController");
+const settingsController = require("../controllers/settingsController");
 
 const {
   validateUserSignUp,
@@ -29,11 +29,14 @@ const uploads = multer({ storage, fileFilter });
 
 // Route for adding a new post
 router.post("/user/post", isAuth, postController.addPost); // Handles adding a new post
+router.post("/createNewInstrument", postController.createNewInstrument);
 // route for adding a post to your favorites
-router.post("/favorites", isAuth, userController.Favorites);
+router.post("/favorites", isAuth, postController.Favorites);
 
 // Route for viewing all posts
-router.get("/posts", isAuth, postController.viewPosts); // Handles viewing all posts
+router.get("/viewNewStudios", isAuth, postController.viewNewStudios); // Handles viewing all posts
+router.get("/viewTrendingStudios", isAuth, postController.viewTrendingStudios); // Handles viewing all posts
+router.get("/viewNewInstruments", isAuth, postController.viewNewInstruments); // Handles viewing all posts
 router.get("/algolia-posts", postController.algoliaViewPosts); // Handles viewing all posts
 
 // Route for deleting a post by ID
@@ -48,13 +51,14 @@ router.post("/request-password-reset", userController.forgotPassword); // Handle
 // Route for resetting password
 router.patch("/reset-password/:token", userController.resetPassword); // Handles resetting password
 
-router.post('/create-booking', isAuth, userController.createBooking);
+router.post("/create-booking", isAuth, userController.createBooking);
 router.get("/user-bookings/:userId", userController.getUserBookings);
 
-router.post('/email', settingsController.updateEmail);
-router.post('/phone', settingsController.updatePhoneNumber);
-router.post('/address', settingsController.updateAddress);
-router.delete('/address', settingsController.deleteAddress);
+//Settings API
+router.post("/email", settingsController.updateEmail);
+router.post("/phone", settingsController.updatePhoneNumber);
+router.post("/address", settingsController.updateAddress);
+router.delete("/address", settingsController.deleteAddress);
 
 // Route for rendering the reset password page
 router.get("/reset-password/:token", (req, res) => {
