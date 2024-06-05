@@ -7,6 +7,8 @@ const postSchema = new Schema({
   rentPerHour: { type: Number, required: true },
   images: [{ type: String, required: false }],
   description: { type: String, required: true },
+}, {
+  timestamps: true // This adds `createdAt` and `updatedAt` fields
 });
 
 const Post = mongoose.model("Post", postSchema);
