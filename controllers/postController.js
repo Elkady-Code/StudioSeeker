@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const Post = require("../models/postModel");
+const Post = require("../models/studioModel");
 const User = require("./userController");
 const NewInstrument = require("../models/newInstruments");
 const { body, validationResult } = require("express-validator");
@@ -16,14 +16,19 @@ exports.addPost = async (req, res) => {
   try {
     const userId = req.user._id;
 
+    console.log('Request Body:', req.body); // Debug log
+
     const newPost = new Post({
       userId: userId,
+      name: req.body.name,
       location: req.body.location,
       rentPerHour: req.body.rentPerHour,
       description: req.body.desc,
       images: req.body.img,
       createdAt: new Date(),
     });
+
+    console.log('New Post:', newPost); // Debug log
 
     // Save the new post
     await newPost.save();
@@ -32,11 +37,13 @@ exports.addPost = async (req, res) => {
       message: "Post created",
     });
   } catch (error) {
+    console.error('Error:', error); // Debug log
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
   }
 };
+
 
 exports.viewNewStudios = async (req, res) => {
   try {

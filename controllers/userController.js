@@ -12,7 +12,7 @@ const sharp = require("sharp");
 const cloudinary = require("../helper/imageUpload");
 const mongoose = require('mongoose');
 const Booking = require("../models/bookingModel");
-const Post = require("../models/postModel"); // Corrected import statement
+const studioModel = require("../models/studioModel"); // Corrected import statement
 
 // createUser function in userController.js
 exports.createUser = async (req, res) => {

@@ -1,4 +1,5 @@
 // app.js
+
 import React from "react";
 import {
   StyleSheet,
@@ -21,10 +22,11 @@ import HomeNavigator from "./src/Home/index";
 import NewPassword from "./src/screens/NewPassword";
 import ForgotPassword from "./src/screens/forgotpassword";
 import AddInstrumentScreen from "./src/screens/addInstrument";
-import AddStudioScreen from "./src/screens/addStudio";
+import addStudio from "./src/screens/addStudio";
 import StudioDetailsScreen from "./src/screens/studioDetails";
 import Settings from "./src/screens/settings";
 import AuthContext from "./Utils/AuthContext"; 
+import HomeComponent from "./src/Home/Home";
 
 const Stack = createStackNavigator();
 
@@ -81,6 +83,7 @@ export default function App() {
       isSignout: false,
       userToken: null,
       userId: null,
+      studios: [],
     }
   );
 
@@ -117,6 +120,9 @@ export default function App() {
         await SecureStore.setItemAsync("userId", userId); // Store userId
         dispatch({ type: "SIGN_IN", token: "dummy-auth-token", userId });
       },
+      addStudio: (studio) => {
+        dispatch({ type: "ADD_STUDIO", studio });
+      },
     }),
     []
   );
@@ -125,7 +131,7 @@ export default function App() {
     <AuthContext.Provider value={authContext}>
       <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
         <StatusBar translucent backgroundColor="transparent" />
-        <Stack.Navigator initialRouteName="GetStartedScreen">
+        <Stack.Navigator initialRouteName="addStudio">
           {state.userToken == null ? (
             <>
               <Stack.Screen
@@ -134,13 +140,18 @@ export default function App() {
                 component={GetStartedScreen}
               />
               <Stack.Screen
+                options={{ headerShown: false }}
+                name="Home"
+                component={HomeComponent}
+              />
+              <Stack.Screen
                 name="AddInstrumentScreen"
                 component={AddInstrumentScreen}
                 options={{ headerShown: false }}
               />
               <Stack.Screen
-                name="AddStudioScreen"
-                component={AddStudioScreen}
+                name="addStudio"
+                component={addStudio}
                 options={{ headerShown: false }}
               />
               <Stack.Screen

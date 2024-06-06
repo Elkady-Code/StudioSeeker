@@ -3,12 +3,13 @@ const Schema = mongoose.Schema;
 
 const postSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  name: { type: String, required: true },
   location: { type: String, required: true },
   rentPerHour: { type: Number, required: true },
   images: [{ type: String, required: false }],
   description: { type: String, required: true },
 }, {
-  timestamps: true // This adds `createdAt` and `updatedAt` fields
+  timestamps: true 
 });
 
 const Post = mongoose.model("Post", postSchema);
