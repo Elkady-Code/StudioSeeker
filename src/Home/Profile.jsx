@@ -1,3 +1,4 @@
+// Profile.jsx
 import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
@@ -12,16 +13,14 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import * as SecureStore from "expo-secure-store";
 
-const Profile = () => {
+const Profile = ({ navigation, signOut, userId }) => {
   const [username, setUsername] = useState("");
   const [profile, setProfile] = useState(
-    "https://example.com/default-avatar.png",
+    "https://example.com/default-avatar.png"
   );
-  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -60,7 +59,7 @@ const Profile = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-        },
+        }
       );
 
       const data = response.data;
@@ -70,13 +69,17 @@ const Profile = () => {
         await SecureStore.deleteItemAsync("userToken");
         await AsyncStorage.removeItem("username");
         await AsyncStorage.removeItem("profile");
-        navigation.navigate("SignIn");
+        signOut(); // Dispatch SIGN_OUT action
+        navigation.navigate("SignIn"); // Navigate to SignIn screen
       } else {
         Alert.alert("Error", data.message || "Failed to sign out.");
       }
     } catch (error) {
       console.error("Error signing out:", error);
-      Alert.alert("Error", "An error occurred while signing out. Please try again later.");
+      Alert.alert(
+        "Error",
+        "An error occurred while signing out. Please try again later."
+      );
     }
   };
 
@@ -85,7 +88,7 @@ const Profile = () => {
   };
 
   const goToSettings = () => {
-    navigation.navigate('Settings'); // Navigate to the Settings screen
+    navigation.navigate("Settings"); // Navigate to the Settings screen with userId
   };
 
   return (

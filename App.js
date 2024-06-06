@@ -1,3 +1,4 @@
+// app.js
 import React from "react";
 import {
   StyleSheet,
@@ -23,9 +24,9 @@ import AddInstrumentScreen from "./src/screens/addInstrument";
 import AddStudioScreen from "./src/screens/addStudio";
 import StudioDetailsScreen from "./src/screens/studioDetails";
 import Settings from "./src/screens/settings";
+import AuthContext from "./Utils/AuthContext"; 
 
 const Stack = createStackNavigator();
-const AuthContext = React.createContext();
 
 const BackButton = ({ onPress }) => {
   return (
@@ -48,6 +49,7 @@ export default function App() {
       },
     },
   };
+
   const [state, dispatch] = React.useReducer(
     (prevState, action) => {
       switch (action.type) {
@@ -55,6 +57,7 @@ export default function App() {
           return {
             ...prevState,
             userToken: action.token,
+            userId: action.userId,
             isLoading: false,
           };
         case "SIGN_IN":
@@ -62,12 +65,14 @@ export default function App() {
             ...prevState,
             isSignout: false,
             userToken: action.token,
+            userId: action.userId,
           };
         case "SIGN_OUT":
           return {
             ...prevState,
             isSignout: true,
             userToken: null,
+            userId: null,
           };
       }
     },
@@ -75,24 +80,22 @@ export default function App() {
       isLoading: true,
       isSignout: false,
       userToken: null,
+      userId: null,
     }
   );
+
   React.useEffect(() => {
-    // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
-      let userToken;
+      let userToken, userId;
 
       try {
         userToken = await SecureStore.getItemAsync("userToken");
+        userId = await SecureStore.getItemAsync("userId");
       } catch (e) {
         // Restoring token failed
       }
 
-      // After restoring token, we may need to validate it in production apps
-
-      // This will switch to the App screen or Auth screen and this loading
-      // screen will be unmounted and thrown away.
-      dispatch({ type: "RESTORE_TOKEN", token: userToken });
+      dispatch({ type: "RESTORE_TOKEN", token: userToken, userId });
     };
 
     bootstrapAsync();
@@ -101,11 +104,18 @@ export default function App() {
   const authContext = React.useMemo(
     () => ({
       signIn: async (data) => {
-        dispatch({ type: "SIGN_IN", token: "dummy-auth-token" });
+        const userId = "user-id-from-signin"; // Replace with actual userId
+        await SecureStore.setItemAsync("userId", userId); // Store userId
+        dispatch({ type: "SIGN_IN", token: "dummy-auth-token", userId });
       },
-      signOut: () => dispatch({ type: "SIGN_OUT" }),
+      signOut: () => {
+        SecureStore.deleteItemAsync("userId");
+        dispatch({ type: "SIGN_OUT" });
+      },
       signUp: async (data) => {
-        dispatch({ type: "SIGN_IN", token: "dummy-auth-token" });
+        const userId = "user-id-from-signup"; // Replace with actual userId
+        await SecureStore.setItemAsync("userId", userId); // Store userId
+        dispatch({ type: "SIGN_IN", token: "dummy-auth-token", userId });
       },
     }),
     []
@@ -195,7 +205,7 @@ export default function App() {
             <Stack.Screen
               options={{ headerShown: false }}
               name="Main"
-              component={HomeNavigator}
+              component={(props) => <HomeNavigator {...props} userId={state.userId} />}
             />
           )}
         </Stack.Navigator>
