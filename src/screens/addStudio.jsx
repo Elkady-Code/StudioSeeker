@@ -1,43 +1,109 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
 
-const addStudio = () => {
+const Addstudio = () => {
+  const [studioName, setStudioName] = useState('');
+  const [description, setDescription] = useState('');
+  const [image, setImage] = useState(null);
+
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("You've refused to allow this app to access your photos!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.uri);
+    }
+  };
+
+  const uploadImage = async () => {
+    const token = await SecureStore.getItemAsync("userToken");
+
+    let formData = new FormData();
+    formData.append('profileImage', {
+      uri: image,
+      name: 'profile.jpg',
+      type: 'image/jpeg',
+    });
+
+    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+    try {
+      const response = await axios.post("https://studioseeker-h2vx.onrender.com/upload-profile", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log(response.data);
+      alert('Profile image uploaded successfully!');
+    } catch (error) {
+      console.error(error);
+      alert('Failed to upload profile image');
+    }
+  };
+
+  const handleAddStudio = () => {
+    if (image) {
+      uploadImage();
+    }
+    // Add further functionality to handle studio addition
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
-        <View style={styles.card}>
-          <View style={styles.imagePlaceholder}>
-            <Text style={styles.imageText}>Image Placeholder</Text>
-          </View>
-          <Text style={styles.title}>Add Your Studio/Instrument</Text>
-          <View style={styles.infoPlaceholder}>
-            <Text style={styles.infoText}>Additional Info</Text>
-          </View>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Start</Text>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
+          <Text style={styles.headerText}>This will take a moment</Text>
         </View>
-        <View style={styles.navBar}>
-          <TouchableOpacity>
-            <Ionicons name="home-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="book-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="scan-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="heart-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="person-outline" size={24} color="black" />
-          </TouchableOpacity>
+        <Text style={styles.subHeaderText}>Please fill out the following you want to add.</Text>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Studio</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Name"
+            value={studioName}
+            onChangeText={setStudioName}
+          />
         </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Description</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Description"
+            value={description}
+            onChangeText={setDescription}
+          />
+        </View>
+
+        <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
+          <Text style={styles.photoButtonText}>Add Photo for Studio</Text>
+        </TouchableOpacity>
+        {image && <Image source={{ uri: image }} style={styles.previewImage} />}
+
+        <TouchableOpacity style={styles.addButton} onPress={handleAddStudio}>
+          <Text style={styles.addButtonText}>Post</Text>
+        </TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -51,65 +117,67 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  card: {
-    width: '90%',
     padding: 20,
-    borderRadius: 10,
-    borderColor: '#000',
-    borderWidth: 1,
-    alignItems: 'center',
-    backgroundColor: '#fff',
   },
-  imagePlaceholder: {
-    width: 150,
-    height: 150,
-    backgroundColor: '#d3d3d3',
-    justifyContent: 'center',
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 10,
     marginBottom: 20,
   },
-  imageText: {
-    color: '#888',
-    fontSize: 18,
+  backButton: {
+    marginRight: 10,
   },
-  title: {
+  headerText: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 20,
   },
-  infoPlaceholder: {
-    width: '100%',
-    height: 20,
-    backgroundColor: '#d3d3d3',
-    marginBottom: 20,
-  },
-  infoText: {
-    color: '#888',
+  subHeaderText: {
     fontSize: 14,
+    marginBottom: 20,
   },
-  button: {
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 16,
+  },
+  photoButton: {
     backgroundColor: '#d9534f',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
+    marginBottom: 20,
+    alignItems: 'center',
   },
-  buttonText: {
+  photoButtonText: {
     color: '#fff',
     fontSize: 16,
   },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    position: 'absolute',
-    bottom: 0,
-    padding: 10,
-    backgroundColor: '#f0f0f0',
+  addButton: {
+    backgroundColor: '#d9534f',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  previewImage: {
+    width: 100,
+    height: 100,
+    marginBottom: 20,
+    alignSelf: 'center',
   },
 });
 
-export default addStudio;
+export default Addstudio;
