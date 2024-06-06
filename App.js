@@ -131,7 +131,7 @@ export default function App() {
     <AuthContext.Provider value={authContext}>
       <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
         <StatusBar translucent backgroundColor="transparent" />
-        <Stack.Navigator initialRouteName="addStudio">
+        <Stack.Navigator initialRouteName="GetStarted">
           {state.userToken == null ? (
             <>
               <Stack.Screen

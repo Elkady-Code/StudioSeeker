@@ -6,7 +6,6 @@ import Home from "./Home";
 import Profile from "./Profile";
 import FavoriteStudios from "./Favourites";
 import BookingPage from "./booked";
-import AddStudio from "../screens/addStudio"; // Import the AddStudio component
 import AuthContext from "../../Utils/AuthContext"; // Import AuthContext
 
 const HomeComponent = (props) => <Home {...props} />;
@@ -25,7 +24,6 @@ export default function Main({ navigation, userId }) {
       unfocusedIcon: "home-outline",
     },
     { key: "booked", title: "Booked", focusedIcon: "bookmark" },
-    { key: "addStudio", title: "Add Studio", focusedIcon: "plus" }, // Add addStudio route
     { key: "favourites", title: "Favourites", focusedIcon: "heart" },
     {
       key: "profile",
@@ -43,7 +41,6 @@ export default function Main({ navigation, userId }) {
       />
     ),
     booked: BookedComponent,
-    addStudio: AddStudio, // Render the AddStudio component
     favourites: FavoriteStudiosComponent,
     profile: (props) => (
       <ProfileComponent

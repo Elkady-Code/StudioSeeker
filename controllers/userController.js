@@ -7,12 +7,9 @@ const bcrypt = require("bcrypt");
 const UserOTPVerification = require("../models/userOTPVerification");
 const { validationResult } = require("express-validator");
 const nodemailer = require("nodemailer");
-const Role = require("../models/role");
-const sharp = require("sharp");
 const cloudinary = require("../helper/imageUpload");
 const mongoose = require('mongoose');
 const Booking = require("../models/bookingModel");
-const studioModel = require("../models/studioModel"); // Corrected import statement
 
 // createUser function in userController.js
 exports.createUser = async (req, res) => {
@@ -108,6 +105,7 @@ exports.uploadProfileImage = async (req, res) => {
       .status(401)
       .json({ success: false, message: "Unauthorized Access!" });
   try {
+    // Upload image to Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path, {
       public_id: `${user._id}_profile`,
       width: 500,
@@ -115,6 +113,7 @@ exports.uploadProfileImage = async (req, res) => {
       crop: "fill",
     });
 
+    // Update user's avatar in MongoDB
     await User.findByIdAndUpdate(user._id, { avatar: result.url });
 
     const profileImageUrl = `/profile-images/${user._id}`;
@@ -292,8 +291,6 @@ exports.navigateResetPassword = asyncErrorHandler(async (req, res, next) => {
     next(error);
   }
 });
-
-
 
 exports.createBooking = asyncErrorHandler(async (req, res, next) => {
   try {
