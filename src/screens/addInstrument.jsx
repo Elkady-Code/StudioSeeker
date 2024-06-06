@@ -1,8 +1,67 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
 
 const AddInstrumentScreen = () => {
+  const [instrumentName, setInstrumentName] = useState('');
+  const [description, setDescription] = useState('');
+  const [image, setImage] = useState(null);
+
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("You've refused to allow this app to access your photos!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.uri);
+    }
+  };
+
+  const uploadImage = async () => {
+    const token = await SecureStore.getItemAsync("userToken");
+
+    let formData = new FormData();
+    formData.append('profileImage', {
+      uri: image,
+      name: 'instrument.jpg',
+      type: 'image/jpeg',
+    });
+
+    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+    try {
+      const response = await axios.post("https://studioseeker-h2vx.onrender.com/upload-profile", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log(response.data);
+      alert('Instrument image uploaded successfully!');
+    } catch (error) {
+      console.error(error);
+      alert('Failed to upload instrument image');
+    }
+  };
+
+  const handleAddInstrument = () => {
+    if (image) {
+      uploadImage();
+    }
+    // Add further functionality to handle instrument addition
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -19,39 +78,32 @@ const AddInstrumentScreen = () => {
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Instrument</Text>
-          <TextInput style={styles.input} placeholder="Name" />
+          <TextInput
+            style={styles.input}
+            placeholder="Name"
+            value={instrumentName}
+            onChangeText={setInstrumentName}
+          />
         </View>
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Description</Text>
-          <TextInput style={styles.input} placeholder="Description" />
+          <TextInput
+            style={styles.input}
+            placeholder="Description"
+            value={description}
+            onChangeText={setDescription}
+          />
         </View>
 
-        <TouchableOpacity style={styles.photoButton}>
+        <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
           <Text style={styles.photoButtonText}>Add Photo for Instrument</Text>
         </TouchableOpacity>
+        {image && <Image source={{ uri: image }} style={styles.previewImage} />}
 
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>Add</Text>
+        <TouchableOpacity style={styles.addButton} onPress={handleAddInstrument}>
+          <Text style={styles.addButtonText}>post</Text>
         </TouchableOpacity>
-
-        <View style={styles.navBar}>
-          <TouchableOpacity>
-            <Ionicons name="home-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="book-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="scan-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="heart-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="person-outline" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -120,14 +172,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
   },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    position: 'absolute',
-    bottom: 0,
-    padding: 10,
-    backgroundColor: '#f0f0f0',
+  previewImage: {
+    width: 100,
+    height: 100,
+    marginBottom: 20,
+    alignSelf: 'center',
   },
 });
 
