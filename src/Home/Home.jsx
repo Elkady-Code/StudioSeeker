@@ -23,7 +23,7 @@ export default function Home({ navigation }) {
 
     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 
-    axios.get("https://studioseeker-h2vx.onrender.com/posts").then(response => {
+    axios.get("https://studioseeker-h2vx.onrender.com/viewNewStudios").then(response => {
       console.log(response.data.data[0]);
       setPosts(response.data.data);
     });
