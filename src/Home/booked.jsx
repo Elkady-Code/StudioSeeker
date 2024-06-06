@@ -49,6 +49,28 @@ const BookingPage = () => {
     setSearchQuery(query);
   };
 
+  const handleBooking = async (studioId) => {
+    try {
+      const userId = 'USER_ID'; // Replace with the actual user ID
+      const duration = 2; // Example duration
+
+      const response = await axios.post('https://studioseeker-h2vx.onrender.com/create-booking', {
+        userId,
+        postId: studioId,
+        duration,
+      });
+
+      if (response.data) {
+        Alert.alert('Booking Successful', `You have booked ${studioId} successfully`);
+      } else {
+        Alert.alert('Booking Failed', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error booking studio:', error);
+      Alert.alert('Booking Error', 'There was an error booking the studio. Please try again.');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Appbar.Header>
