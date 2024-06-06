@@ -16,6 +16,8 @@ import * as SecureStore from "expo-secure-store";
 export default function Home({ navigation }) {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [posts, setPosts] = useState([]);
+  const [trendingPosts, setTrendingPosts] = useState([]);
+  const [instruments, setInstruments] = useState([]);
 
   const getAllPosts = async () => {
     var token = await SecureStore.getItemAsync("userToken");
@@ -29,8 +31,34 @@ export default function Home({ navigation }) {
     });
   };
 
+  const getTrendingPosts = async () => {
+    var token = await SecureStore.getItemAsync("userToken");
+    console.log(token);
+
+    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+    axios.get("https://studioseeker-h2vx.onrender.com/viewTrendingStudios").then(response => {
+      console.log(response.data.data[0]);
+      setTrendingPosts(response.data.data);
+    });
+  };
+
+  const getInstruments = async () => {
+    var token = await SecureStore.getItemAsync("userToken");
+    console.log(token);
+
+    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+    axios.get("https://studioseeker-h2vx.onrender.com/viewNewInstruments").then(response => {
+      console.log(response.data.data[0]);
+      setInstruments(response.data.data);
+    });
+  };
+
   useEffect(() => {
     getAllPosts();
+    getTrendingPosts();
+    getInstruments();
   }, []);
 
   return (
@@ -85,9 +113,9 @@ export default function Home({ navigation }) {
                   horizontal={true}
                   contentContainerStyle={styles.cardsScrollViewContent}
                 >
-                  <Card />
-                  <Card />
-                  <Card />
+                  {trendingPosts.map(post => {
+                    return <Card key={post._id} desc={post.description} />;
+                  })}
                 </ScrollView>
               </View>
             </View>
@@ -103,7 +131,9 @@ export default function Home({ navigation }) {
                   horizontal={true}
                   contentContainerStyle={styles.cardsScrollViewContent}
                 >
-                  <Card />
+                  {instruments.map(instrument => {
+                    return <Card key={instrument._id} desc={instrument.description} />;
+                  })}
                 </ScrollView>
               </View>
             </View>
