@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
@@ -47,19 +47,37 @@ const Addstudio = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log(response.data);
-      alert('Profile image uploaded successfully!');
+      return response.data.imageUrl; // Assuming the API returns the URL of the uploaded image
     } catch (error) {
       console.error(error);
       alert('Failed to upload profile image');
+      return null;
     }
   };
 
-  const handleAddStudio = () => {
+  const handleAddStudio = async () => {
+    let imageUrl = null;
     if (image) {
-      uploadImage();
+      imageUrl = await uploadImage();
+      if (!imageUrl) return;
     }
-    // Add further functionality to handle studio addition
+
+    const token = await SecureStore.getItemAsync("userToken");
+    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+    try {
+      const response = await axios.post('https://studioseeker-h2vx.onrender.com/user/post', {
+        name: studioName,
+        description: description,
+        imageUrl: imageUrl,
+      });
+
+      alert('Studio added successfully!');
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+      alert('Failed to add studio');
+    }
   };
 
   return (

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
@@ -47,19 +47,38 @@ const AddInstrumentScreen = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log(response.data);
-      alert('Instrument image uploaded successfully!');
+      return response.data.imageUrl;  // Assuming the API returns the URL of the uploaded image
     } catch (error) {
       console.error(error);
       alert('Failed to upload instrument image');
+      return null;
     }
   };
 
-  const handleAddInstrument = () => {
+  const handleAddInstrument = async () => {
+    let imageUrl = null;
     if (image) {
-      uploadImage();
+      imageUrl = await uploadImage();
     }
-    // Add further functionality to handle instrument addition
+
+    if (!imageUrl) return;
+
+    const token = await SecureStore.getItemAsync("userToken");
+    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+    try {
+      const response = await axios.post('https://studioseeker-h2vx.onrender.com/createNewInstrument', {
+        name: instrumentName,
+        description: description,
+        imageUrl: imageUrl,
+      });
+
+      alert('Instrument added successfully!');
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+      alert('Failed to add instrument');
+    }
   };
 
   return (

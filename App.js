@@ -27,7 +27,9 @@ import StudioDetailsScreen from "./src/screens/studioDetails";
 import Settings from "./src/screens/settings";
 import AuthContext from "./Utils/AuthContext"; 
 import HomeComponent from "./src/Home/Home";
-
+import Equipment from "./src/Home/seeallinstruments"
+import NewStudios from "./src/Home/seeallnewstudios";
+import TrendingStudios from "./src/Home/seealltrendingstudios"
 const Stack = createStackNavigator();
 
 const BackButton = ({ onPress }) => {
@@ -159,6 +161,23 @@ export default function App() {
                 component={StudioDetailsScreen}
                 options={{ headerShown: false }}
               />
+               <Stack.Screen
+                name="Equipment"
+                component={Equipment}
+                options={{ headerShown: false }}
+              />
+              
+               <Stack.Screen
+                name="NewStudios"
+                component={NewStudios}
+                options={{ headerShown: false }}
+              />
+               <Stack.Screen
+                name="TrendingStudios"
+                component={TrendingStudios}
+                options={{ headerShown: false }}
+              />
+              
               <Stack.Screen
                 name="Settings"
                 component={Settings}
