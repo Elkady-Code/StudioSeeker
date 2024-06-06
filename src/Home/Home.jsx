@@ -18,6 +18,7 @@ export default function Home({ navigation }) {
   const [posts, setPosts] = useState([]);
   const [trendingPosts, setTrendingPosts] = useState([]);
   const [instruments, setInstruments] = useState([]);
+  const [algoliaPosts, setAlgoliaPosts] = useState([]);
 
   const getAllPosts = async () => {
     var token = await SecureStore.getItemAsync("userToken");
@@ -55,10 +56,23 @@ export default function Home({ navigation }) {
     });
   };
 
+  const getAlgoliaPosts = async () => {
+    var token = await SecureStore.getItemAsync("userToken");
+    console.log(token);
+
+    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+    axios.get("https://studioseeker-h2vx.onrender.com/algolia-posts").then(response => {
+      console.log(response.data.data[0]);
+      setAlgoliaPosts(response.data.data);
+    });
+  };
+
   useEffect(() => {
     getAllPosts();
     getTrendingPosts();
     getInstruments();
+    getAlgoliaPosts();
   }, []);
 
   return (
@@ -137,6 +151,25 @@ export default function Home({ navigation }) {
                 </ScrollView>
               </View>
             </View>
+
+            {/* Algolia Posts Section */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionHeaderText}>Algolia Posts</Text>
+                <Text style={styles.seeAllText}>See all</Text>
+              </View>
+              <View style={styles.cardsContainer}>
+                <ScrollView
+                  horizontal={true}
+                  contentContainerStyle={styles.cardsScrollViewContent}
+                >
+                  {algoliaPosts.map(post => {
+                    return <Card key={post._id} desc={post.description} />;
+                  })}
+                </ScrollView>
+              </View>
+            </View>
+
           </ScrollView>
         </View>
       </SafeAreaView>
