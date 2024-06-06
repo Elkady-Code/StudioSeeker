@@ -1,79 +1,98 @@
 import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
   SafeAreaView,
   ScrollView,
   View,
   KeyboardAvoidingView,
   StatusBar,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
-import { Text, Searchbar, Button } from "react-native-paper";
+import { Text, Searchbar } from "react-native-paper";
 import Card from "../Components/Card";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
-export default function Home({ navigation }) {
-  const [searchQuery, setSearchQuery] = React.useState("");
+const HomeComponent = ({ navigation }) => {
+  const [searchQuery, setSearchQuery] = useState("");
   const [posts, setPosts] = useState([]);
   const [trendingPosts, setTrendingPosts] = useState([]);
   const [instruments, setInstruments] = useState([]);
-  const [algoliaPosts, setAlgoliaPosts] = useState([]);
+
+  const searchPosts = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("userToken");
+      axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+      const response = await axios.get(
+        `https://studioseeker-h2vx.onrender.com/algolia-posts?query=${searchQuery}`
+      );
+
+      const searchData = response.data.data;
+      setPosts(searchData); // Replace current posts with search results
+    } catch (error) {
+      console.error("Error searching posts:", error);
+    }
+  };
 
   const getAllPosts = async () => {
-    var token = await SecureStore.getItemAsync("userToken");
-    console.log(token);
+    try {
+      const token = await SecureStore.getItemAsync("userToken");
+      axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 
-    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+      const response = await axios.get(
+        "https://studioseeker-h2vx.onrender.com/viewNewStudios"
+      );
 
-    axios.get("https://studioseeker-h2vx.onrender.com/viewNewStudios").then(response => {
-      console.log(response.data.data[0]);
       setPosts(response.data.data);
-    });
+    } catch (error) {
+      console.error("Error fetching new posts:", error);
+    }
   };
 
   const getTrendingPosts = async () => {
-    var token = await SecureStore.getItemAsync("userToken");
-    console.log(token);
+    try {
+      const token = await SecureStore.getItemAsync("userToken");
+      axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 
-    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+      const response = await axios.get(
+        "https://studioseeker-h2vx.onrender.com/viewTrendingStudios"
+      );
 
-    axios.get("https://studioseeker-h2vx.onrender.com/viewTrendingStudios").then(response => {
-      console.log(response.data.data[0]);
       setTrendingPosts(response.data.data);
-    });
+    } catch (error) {
+      console.error("Error fetching trending posts:", error);
+    }
   };
 
   const getInstruments = async () => {
-    var token = await SecureStore.getItemAsync("userToken");
-    console.log(token);
+    try {
+      const token = await SecureStore.getItemAsync("userToken");
+      axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 
-    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+      const response = await axios.get(
+        "https://studioseeker-h2vx.onrender.com/viewNewInstruments"
+      );
 
-    axios.get("https://studioseeker-h2vx.onrender.com/viewNewInstruments").then(response => {
-      console.log(response.data.data[0]);
       setInstruments(response.data.data);
-    });
-  };
-
-  const getAlgoliaPosts = async () => {
-    var token = await SecureStore.getItemAsync("userToken");
-    console.log(token);
-
-    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-
-    axios.get("https://studioseeker-h2vx.onrender.com/algolia-posts").then(response => {
-      console.log(response.data.data[0]);
-      setAlgoliaPosts(response.data.data);
-    });
+    } catch (error) {
+      console.error("Error fetching instruments:", error);
+    }
   };
 
   useEffect(() => {
     getAllPosts();
     getTrendingPosts();
     getInstruments();
-    getAlgoliaPosts();
   }, []);
+
+  useEffect(() => {
+    searchPosts();
+  }, [searchQuery]);
+
+  const navigateToaddStudio = () => {
+    navigation.navigate("addStudio");
+  };
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
@@ -85,8 +104,19 @@ export default function Home({ navigation }) {
             placeholder="Search"
             onChangeText={setSearchQuery}
             value={searchQuery}
+            onSubmitEditing={searchPosts}
           />
-         
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={navigateToaddStudio}
+            >
+              <Text style={styles.buttonText}>Add Studio</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button}>
+              <Text style={styles.buttonText}>Add Instrument</Text>
+            </TouchableOpacity>
+          </View>
           <ScrollView contentContainerStyle={styles.scrollViewContent}>
             {/* New Studios Section */}
             <View style={styles.section}>
@@ -99,9 +129,11 @@ export default function Home({ navigation }) {
                   horizontal={true}
                   contentContainerStyle={styles.cardsScrollViewContent}
                 >
-                  {posts.map(post => {
-                    return <Card key={post._id} desc={post.description} />;
-                  })}
+                  {posts &&
+                    posts.length > 0 &&
+                    posts.map((post) => {
+                      return <Card key={post._id} info={post.name} />;
+                    })}
                 </ScrollView>
               </View>
             </View>
@@ -117,9 +149,11 @@ export default function Home({ navigation }) {
                   horizontal={true}
                   contentContainerStyle={styles.cardsScrollViewContent}
                 >
-                  {trendingPosts.map(post => {
-                    return <Card key={post._id} desc={post.description} />;
-                  })}
+                  {trendingPosts &&
+                    trendingPosts.length > 0 &&
+                    trendingPosts.map((post) => {
+                      return <Card key={post._id} info={post.name} />;
+                    })}
                 </ScrollView>
               </View>
             </View>
@@ -135,37 +169,22 @@ export default function Home({ navigation }) {
                   horizontal={true}
                   contentContainerStyle={styles.cardsScrollViewContent}
                 >
-                  {instruments.map(instrument => {
-                    return <Card key={instrument._id} desc={instrument.description} />;
-                  })}
+                  {instruments &&
+                    instruments.length > 0 &&
+                    instruments.map((instrument) => {
+                      return (
+                        <Card key={instrument._id} info={instrument.name} />
+                      );
+                    })}
                 </ScrollView>
               </View>
             </View>
-
-            {/* Algolia Posts Section */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionHeaderText}>Algolia Posts</Text>
-                <Text style={styles.seeAllText}>See all</Text>
-              </View>
-              <View style={styles.cardsContainer}>
-                <ScrollView
-                  horizontal={true}
-                  contentContainerStyle={styles.cardsScrollViewContent}
-                >
-                  {algoliaPosts.map(post => {
-                    return <Card key={post._id} desc={post.description} />;
-                  })}
-                </ScrollView>
-              </View>
-            </View>
-
           </ScrollView>
         </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -192,6 +211,11 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     marginHorizontal: 5,
+    borderWidth: 1,
+    borderColor: "#fff",
+    borderRadius: 15,
+    padding: 10,
+    backgroundColor: "#C15656",
   },
   scrollViewContent: {
     paddingBottom: 20,
@@ -219,5 +243,10 @@ const styles = StyleSheet.create({
   cardsScrollViewContent: {
     gap: 18,
   },
+  buttonText: {
+    color: "white",
+    textAlign: "center",
+  },
 });
-  
+
+export default HomeComponent;
