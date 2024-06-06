@@ -1,8 +1,32 @@
-import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
 
 const StudioDetailsScreen = () => {
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const toggleFavorite = async () => {
+    const token = await SecureStore.getItemAsync("userToken");
+    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+    try {
+      if (isFavorite) {
+        await axios.delete('https://studioseeker-h2vx.onrender.com/favorites', { data: { studioId: 1 } });
+        setIsFavorite(false);
+        Alert.alert('Removed from favorites');
+      } else {
+        await axios.post('https://studioseeker-h2vx.onrender.com/favorites', { studioId: 1 });
+        setIsFavorite(true);
+        Alert.alert('Added to favorites');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Something went wrong!');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
@@ -11,8 +35,8 @@ const StudioDetailsScreen = () => {
             <Ionicons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
           <Text style={styles.studioName}>Studio Name</Text>
-          <TouchableOpacity style={styles.favoriteButton}>
-            <Ionicons name="heart-outline" size={24} color="black" />
+          <TouchableOpacity style={styles.favoriteButton} onPress={toggleFavorite}>
+            <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={24} color="black" />
           </TouchableOpacity>
         </View>
         <View style={styles.imagePlaceholder}>
