@@ -1,4 +1,3 @@
-// Profile.jsx
 import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
@@ -15,6 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import * as SecureStore from "expo-secure-store";
+import Settings from "../screens/settings";
 
 const Profile = ({ navigation, signOut, userId }) => {
   const [username, setUsername] = useState("");
@@ -44,6 +44,38 @@ const Profile = ({ navigation, signOut, userId }) => {
   }, []);
 
   const logOut = async () => {
+    // Your logout logic
+  };
+
+  const pickImage = async () => {
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (permissionResult.granted === false) {
+        Alert.alert(
+          "Permission Denied",
+          "Permission to access camera roll is required!"
+        );
+        return;
+      }
+
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (!pickerResult.cancelled) {
+        uploadProfileImage(pickerResult.uri);
+      }
+    } catch (error) {
+      console.error("Error picking image:", error);
+      Alert.alert("Error", "Failed to pick an image. Please try again later.");
+    }
+  };
+
+  const uploadProfileImage = async (imageUri) => {
     try {
       const authToken = await SecureStore.getItemAsync("userToken");
       if (!authToken) {
@@ -51,44 +83,40 @@ const Profile = ({ navigation, signOut, userId }) => {
         return;
       }
 
+      const formData = new FormData();
+      formData.append("file", {
+        uri: imageUri,
+        name: "profile.jpg",
+        type: "image/jpeg",
+      });
+
       const response = await axios.post(
-        "https://studioseeker-h2vx.onrender.com/sign-out",
-        {},
+        "http://localhost:3005/upload-profile",
+        formData,
         {
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${authToken}`,
           },
         }
       );
 
       const data = response.data;
-
-      if (response.status === 200 && data.success) {
-        Alert.alert("Success", "You have signed out successfully.");
-        await SecureStore.deleteItemAsync("userToken");
-        await AsyncStorage.removeItem("username");
-        await AsyncStorage.removeItem("profile");
-        signOut(); // Dispatch SIGN_OUT action
-        navigation.navigate("SignIn"); // Navigate to SignIn screen
+      if (response.status === 201 && data.success) {
+        setProfile(data.profileImageUrl);
+        await AsyncStorage.setItem("profile", data.profileImageUrl);
+        Alert.alert("Success", "Profile image uploaded successfully.");
       } else {
-        Alert.alert("Error", data.message || "Failed to sign out.");
+        Alert.alert("Error", data.message || "Failed to upload profile image.");
       }
     } catch (error) {
-      console.error("Error signing out:", error);
-      Alert.alert(
-        "Error",
-        "An error occurred while signing out. Please try again later."
-      );
+      console.error("Error uploading profile image:", error);
+      Alert.alert("Error", "Failed to upload profile image. Please try again later.");
     }
   };
 
-  const pickImage = async () => {
-    // Image picking logic
-  };
-
   const goToSettings = () => {
-    navigation.navigate("Settings"); // Navigate to the Settings screen with userId
+    navigation.navigate (Settings);
   };
 
   return (
@@ -96,7 +124,10 @@ const Profile = ({ navigation, signOut, userId }) => {
       <SafeAreaView style={styles.safeArea}>
         <StatusBar translucent backgroundColor="transparent" />
         <View style={styles.profileContainer}>
-          <TouchableOpacity style={styles.avatarContainer} onPress={pickImage}>
+          <TouchableOpacity
+            style={styles.avatarContainer}
+            onPress={pickImage}
+          >
             <Image source={{ uri: profile }} style={styles.avatar} />
           </TouchableOpacity>
           <Text style={styles.username}>{username || "User Name"}</Text>

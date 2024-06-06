@@ -3,7 +3,6 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/userModel");
 const multer = require("multer");
-const storage = multer.diskStorage({});
 const postController = require("../controllers/postController");
 const userController = require("../controllers/userController");
 const { isAuth } = require("../middleware/generateJWT");
@@ -15,17 +14,15 @@ const {
   validateUserSignIn,
 } = require("../middleware/validation/userValidation");
 
-// Middleware to filter file types for uploads
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image")) {
-    cb(null, true); // Accept image files
-  } else {
-    cb("Invalid Image File, try again!", false);
+// Configure Multer storage
+const storage = multer.diskStorage({
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now());
   }
-};
+});
 
-// Multer configuration for file uploads
-const uploads = multer({ storage, fileFilter });
+// Initialize Multer upload
+const upload = multer({ storage: storage });
 
 // Route for adding a new post
 router.post("/user/post", isAuth, postController.addPost); // Handles adding a new post
@@ -89,11 +86,6 @@ router.post(
 router.post("/sign-out", isAuth, userController.userLogout); // Handles user sign-out
 
 // Route for uploading profile picture
-router.post(
-  "/upload-profile",
-  isAuth,
-  uploads.single("profile"),
-  userController.uploadProfileImage
-); // Handles uploading profile picture
+router.post('/upload-profile-image', isAuth, upload.single('image'), userController.uploadProfileImage);
 
 module.exports = router;
