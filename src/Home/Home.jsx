@@ -7,13 +7,11 @@ import {
   KeyboardAvoidingView,
   StatusBar,
   StyleSheet,
-  Image,
 } from "react-native";
 import { Text, Searchbar, Button } from "react-native-paper";
 import Card from "../Components/Card";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import * as ImagePicker from 'expo-image-picker';
 
 export default function Home({ navigation }) {
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -21,7 +19,6 @@ export default function Home({ navigation }) {
   const [trendingPosts, setTrendingPosts] = useState([]);
   const [instruments, setInstruments] = useState([]);
   const [algoliaPosts, setAlgoliaPosts] = useState([]);
-  const [profileImage, setProfileImage] = useState(null);
 
   const getAllPosts = async () => {
     var token = await SecureStore.getItemAsync("userToken");
@@ -71,55 +68,6 @@ export default function Home({ navigation }) {
     });
   };
 
-  const pickImage = async () => {
-    // Ask the user for the permission to access the media library
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (permissionResult.granted === false) {
-      alert("You've refused to allow this app to access your photos!");
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setProfileImage(result.uri);
-      uploadImage(result.uri);
-    }
-  };
-
-  const uploadImage = async (uri) => {
-    var token = await SecureStore.getItemAsync("userToken");
-    console.log(token);
-
-    let formData = new FormData();
-    formData.append('profileImage', {
-      uri: uri,
-      name: 'profile.jpg',
-      type: 'image/jpeg'
-    });
-
-    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-    axios.post("https://studioseeker-h2vx.onrender.com/upload-profile", formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      }
-    })
-    .then(response => {
-      console.log(response.data);
-      alert('Profile image uploaded successfully!');
-    })
-    .catch(error => {
-      console.log(error);
-      alert('Failed to upload profile image');
-    });
-  };
-
   useEffect(() => {
     getAllPosts();
     getTrendingPosts();
@@ -138,17 +86,7 @@ export default function Home({ navigation }) {
             onChangeText={setSearchQuery}
             value={searchQuery}
           />
-          <View style={styles.buttonContainer}>
-            <Button mode="outlined" style={styles.button}>
-              New
-            </Button>
-            <Button mode="outlined" style={styles.button}>
-              Trending
-            </Button>
-            <Button mode="outlined" style={styles.button}>
-              Instruments
-            </Button>
-          </View>
+         
           <ScrollView contentContainerStyle={styles.scrollViewContent}>
             {/* New Studios Section */}
             <View style={styles.section}>
@@ -222,20 +160,6 @@ export default function Home({ navigation }) {
               </View>
             </View>
 
-            {/* Upload Profile Section */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionHeaderText}>Upload Profile</Text>
-              </View>
-              <View style={styles.uploadContainer}>
-                <Button mode="contained" onPress={pickImage}>
-                  Upload Profile Image
-                </Button>
-                {profileImage && (
-                  <Image source={{ uri: profileImage }} style={styles.profileImage} />
-                )}
-              </View>
-            </View>
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -295,14 +219,5 @@ const styles = StyleSheet.create({
   cardsScrollViewContent: {
     gap: 18,
   },
-  uploadContainer: {
-    marginTop: 10,
-    alignItems: "center",
-  },
-  profileImage: {
-    width: 100,
-    height: 100,
-    marginTop: 10,
-    borderRadius: 50,
-  },
 });
+  
