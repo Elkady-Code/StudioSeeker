@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const AddStudioScreen = () => {
+const addStudio = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -112,4 +112,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddStudioScreen;
+export default addStudio;
