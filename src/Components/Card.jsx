@@ -21,7 +21,7 @@ const CardComponent = ({ desc }) => (
     <Card.Cover source={{ uri: "https://picsum.photos/700" }} />
     {/* <Card.Actions>
       <Button>Cancel</Button>
-      <Button>Ok</Button>
+      <ton>Ok</ton>
     </Card.Actions> */}
   </Card>
 );
