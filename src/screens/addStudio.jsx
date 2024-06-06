@@ -21,23 +21,7 @@ const addStudio = () => {
             <Text style={styles.buttonText}>Start</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.navBar}>
-          <TouchableOpacity>
-            <Ionicons name="home-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="book-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="scan-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="heart-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="person-outline" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
+        
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
