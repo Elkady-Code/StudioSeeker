@@ -1,3 +1,4 @@
+// Profile.jsx
 import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
@@ -14,7 +15,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import * as SecureStore from "expo-secure-store";
-import Settings from "../screens/settings";
 
 const Profile = ({ navigation, signOut, userId }) => {
   const [username, setUsername] = useState("");
@@ -44,7 +44,43 @@ const Profile = ({ navigation, signOut, userId }) => {
   }, []);
 
   const logOut = async () => {
-    // Your logout logic
+    try {
+      const authToken = await SecureStore.getItemAsync("userToken");
+      if (!authToken) {
+        Alert.alert("Error", "Access token not found. Please sign in.");
+        return;
+      }
+
+      const response = await axios.post(
+        "https://studioseeker-h2vx.onrender.com/sign-out",
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+
+      const data = response.data;
+
+      if (response.status === 200 && data.success) {
+        Alert.alert("Success", "You have signed out successfully.");
+        await SecureStore.deleteItemAsync("userToken");
+        await AsyncStorage.removeItem("username");
+        await AsyncStorage.removeItem("profile");
+        signOut(); // Dispatch SIGN_OUT action
+        navigation.navigate("SignIn"); // Navigate to SignIn screen
+      } else {
+        Alert.alert("Error", data.message || "Failed to sign out.");
+      }
+    } catch (error) {
+      console.error("Error signing out:", error);
+      Alert.alert(
+        "Error",
+        "An error occurred while signing out. Please try again later."
+      );
+    }
   };
 
   const pickImage = async () => {
@@ -82,16 +118,16 @@ const Profile = ({ navigation, signOut, userId }) => {
         Alert.alert("Error", "Access token not found. Please sign in.");
         return;
       }
-
+  
       const formData = new FormData();
       formData.append("file", {
         uri: imageUri,
         name: "profile.jpg",
         type: "image/jpeg",
       });
-
+  
       const response = await axios.post(
-        "http://localhost:3005/upload-profile",
+        "https://studioseeker-h2vx.onrender.com/upload-profile",
         formData,
         {
           headers: {
@@ -100,7 +136,7 @@ const Profile = ({ navigation, signOut, userId }) => {
           },
         }
       );
-
+  
       const data = response.data;
       if (response.status === 201 && data.success) {
         setProfile(data.profileImageUrl);
@@ -116,7 +152,7 @@ const Profile = ({ navigation, signOut, userId }) => {
   };
 
   const goToSettings = () => {
-    navigation.navigate (Settings);
+    navigation.navigate("Settings");
   };
 
   return (
@@ -124,10 +160,7 @@ const Profile = ({ navigation, signOut, userId }) => {
       <SafeAreaView style={styles.safeArea}>
         <StatusBar translucent backgroundColor="transparent" />
         <View style={styles.profileContainer}>
-          <TouchableOpacity
-            style={styles.avatarContainer}
-            onPress={pickImage}
-          >
+          <TouchableOpacity style={styles.avatarContainer} onPress={pickImage}>
             <Image source={{ uri: profile }} style={styles.avatar} />
           </TouchableOpacity>
           <Text style={styles.username}>{username || "User Name"}</Text>
