@@ -29,6 +29,7 @@ import NewStudios from "./src/screens/seeAllStudios";
 import TrendingStudios from "./src/screens/seeAllTrendingStudios";
 import Main from "./src/Home/index"; 
 
+
 const Stack = createStackNavigator();
 
 const BackButton = ({ onPress }) => {

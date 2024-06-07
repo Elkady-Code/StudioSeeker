@@ -9,6 +9,7 @@ const newInstrumentSchema = new Schema(
     type: { type: String, required: true },
     description: { type: String, required: true },
     rentPrice: {type: String, required: true},
+    Location: {type: String, required: true}, 
     images: [{ type: String, required: false }],
   },
   {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, Image, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, Image, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
@@ -8,12 +8,14 @@ import * as SecureStore from 'expo-secure-store';
 const addStudio = () => {
   const [studioName, setStudioName] = useState('');
   const [description, setDescription] = useState('');
+  const [location, setLocation] = useState('');
+  const [price, setPrice] = useState('');
   const [image, setImage] = useState(null);
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (permissionResult.granted === false) {
+    if (!permissionResult.granted) {
       alert("You've refused to allow this app to access your photos!");
       return;
     }
@@ -69,6 +71,8 @@ const addStudio = () => {
       const response = await axios.post('https://studioseeker-h2vx.onrender.com/user/post', {
         name: studioName,
         description: description,
+        location: location,
+        price: price,
         imageUrl: imageUrl,
       });
 
@@ -86,42 +90,65 @@ const addStudio = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="black" />
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+            <Text style={styles.headerText}>This will take a moment</Text>
+          </View>
+          <Text style={styles.subHeaderText}>Please fill out the following you want to add.</Text>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Studio</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Name"
+              value={studioName}
+              onChangeText={setStudioName}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Description</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Description"
+              value={description}
+              onChangeText={setDescription}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Location</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Location"
+              value={location}
+              onChangeText={setLocation}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Price (EGP)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Price"
+              value={price}
+              onChangeText={setPrice}
+              keyboardType="numeric"
+            />
+          </View>
+
+          <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
+            <Text style={styles.photoButtonText}>Add Photo for Studio</Text>
           </TouchableOpacity>
-          <Text style={styles.headerText}>This will take a moment</Text>
-        </View>
-        <Text style={styles.subHeaderText}>Please fill out the following you want to add.</Text>
+          {image && <Image source={{ uri: image }} style={styles.previewImage} />}
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Studio</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Name"
-            value={studioName}
-            onChangeText={setStudioName}
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Description</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Description"
-            value={description}
-            onChangeText={setDescription}
-          />
-        </View>
-
-        <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
-          <Text style={styles.photoButtonText}>Add Photo for Studio</Text>
-        </TouchableOpacity>
-        {image && <Image source={{ uri: image }} style={styles.previewImage} />}
-
-        <TouchableOpacity style={styles.addButton} onPress={handleAddStudio}>
-          <Text style={styles.addButtonText}>Post</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.addButton} onPress={handleAddStudio}>
+            <Text style={styles.addButtonText}>Post</Text>
+          </TouchableOpacity>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -135,6 +162,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  scrollContainer: {
     padding: 20,
   },
   header: {

@@ -104,6 +104,7 @@ exports.createNewInstrument = [
   body("rentPrice").isString().notEmpty().withMessage("rentPrice is required"),
   body("type").isString().notEmpty().withMessage("Type is required"),
   body("description").isString().notEmpty().withMessage("Description is required"),
+  body("location").isString().notEmpty().withMessage("Location is required"),
   body("images").optional().isArray().withMessage("Images should be an array of strings"),
 
   async (req, res) => {
@@ -122,6 +123,7 @@ exports.createNewInstrument = [
         rentPrice,
         type,
         description,
+        location,
         images,
       });
 
