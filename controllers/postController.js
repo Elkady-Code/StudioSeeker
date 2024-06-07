@@ -226,3 +226,15 @@ exports.deleteFavorites = async (req, res) => {
     });
   }
 };
+
+exports.getStudioById = async (req, res) => {
+  try {
+    const studio = await Studio.findById(req.params.studioId);
+    if (!studio) {
+      return res.status(404).json({ message: 'Studio not found' });
+    }
+    res.json(studio);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
