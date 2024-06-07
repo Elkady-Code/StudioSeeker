@@ -1,5 +1,3 @@
-// app.js
-
 import React from "react";
 import {
   StyleSheet,
@@ -18,18 +16,19 @@ import * as SecureStore from "expo-secure-store";
 import * as Linking from "expo-linking";
 import SignIn from "./src/screens/signin";
 import SignUp from "./src/screens/signup";
-import HomeNavigator from "./src/Home/index";
+import HomeComponent from "./src/Home/Home";
 import NewPassword from "./src/screens/NewPassword";
 import ForgotPassword from "./src/screens/forgotpassword";
-import AddInstrumentScreen from "./src/screens/addInstrument";
+import addInstrument from "./src/screens/addInstrument";
 import addStudio from "./src/screens/addStudio";
 import StudioDetailsScreen from "./src/screens/studioDetails";
 import Settings from "./src/screens/settings";
-import AuthContext from "./Utils/AuthContext"; 
-import HomeComponent from "./src/Home/Home";
-import Equipment from "./src/Home/seeallinstruments"
-import NewStudios from "./src/Home/seeallnewstudios";
-import TrendingStudios from "./src/Home/seealltrendingstudios"
+import AuthContext from "./Utils/AuthContext";
+import Equipment from "./src/screens/seeAllInstruments";
+import NewStudios from "./src/screens/seeAllStudios";
+import TrendingStudios from "./src/screens/seeAllTrendingStudios";
+import Main from "./src/Home/index"; 
+
 const Stack = createStackNavigator();
 
 const BackButton = ({ onPress }) => {
@@ -78,6 +77,8 @@ export default function App() {
             userToken: null,
             userId: null,
           };
+        default:
+          return prevState;
       }
     },
     {
@@ -125,6 +126,9 @@ export default function App() {
       addStudio: (studio) => {
         dispatch({ type: "ADD_STUDIO", studio });
       },
+      addInstrument: (instrument) => {
+        dispatch({ type: "ADD_INSTRUMENT", instrument });
+      },
     }),
     []
   );
@@ -140,48 +144,6 @@ export default function App() {
                 options={{ headerShown: false }}
                 name="GetStarted"
                 component={GetStartedScreen}
-              />
-              <Stack.Screen
-                options={{ headerShown: false }}
-                name="Home"
-                component={HomeComponent}
-              />
-              <Stack.Screen
-                name="AddInstrumentScreen"
-                component={AddInstrumentScreen}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="addStudio"
-                component={addStudio}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="StudioDetailsScreen"
-                component={StudioDetailsScreen}
-                options={{ headerShown: false }}
-              />
-               <Stack.Screen
-                name="Equipment"
-                component={Equipment}
-                options={{ headerShown: false }}
-              />
-              
-               <Stack.Screen
-                name="NewStudios"
-                component={NewStudios}
-                options={{ headerShown: false }}
-              />
-               <Stack.Screen
-                name="TrendingStudios"
-                component={TrendingStudios}
-                options={{ headerShown: false }}
-              />
-              
-              <Stack.Screen
-                name="Settings"
-                component={Settings}
-                options={{ headerShown: false }}
               />
               <Stack.Screen
                 options={{ headerShown: false }}
@@ -232,11 +194,48 @@ export default function App() {
               />
             </>
           ) : (
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="Main"
-              component={(props) => <HomeNavigator {...props} userId={state.userId} />}
-            />
+            <>
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="Main"
+                component={Main} 
+              />
+              <Stack.Screen
+                name="addInstrument"
+                component={addInstrument}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="addStudio"
+                component={addStudio}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="StudioDetailsScreen"
+                component={StudioDetailsScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Equipment"
+                component={Equipment}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="NewStudios"
+                component={NewStudios}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="TrendingStudios"
+                component={TrendingStudios}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Settings"
+                component={Settings}
+                options={{ headerShown: false }}
+              />
+            </>
           )}
         </Stack.Navigator>
       </NavigationContainer>

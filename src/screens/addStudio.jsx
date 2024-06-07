@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-const Addstudio = () => {
+const addStudio = () => {
   const [studioName, setStudioName] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState(null);
@@ -198,4 +198,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Addstudio;
+export default addStudio;
