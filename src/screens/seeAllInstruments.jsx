@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator, KeyboardAvoidingView, SafeAreaView, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
@@ -10,12 +10,12 @@ const Equipment = () => {
 
   useEffect(() => {
     const fetchInstruments = async () => {
-      const token = await SecureStore.getItemAsync("userToken");
-      axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-      
       try {
+        const token = await SecureStore.getItemAsync("userToken");
+        axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+        
         const response = await axios.get('https://studioseeker-h2vx.onrender.com/viewNewInstruments');
-        setInstruments(response.data);
+        setInstruments(response.data.data); // Adjusted to match the data structure
       } catch (error) {
         console.error('Error fetching instruments:', error);
       } finally {
@@ -40,24 +40,30 @@ const Equipment = () => {
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>EQUIPMENT</Text>
-      </View>
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <FlatList
-          data={instruments}
-          renderItem={renderInstrument}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.listContent}
-        />
-      )}
-    </View>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <TouchableOpacity style={styles.backButton}>
+                <Ionicons name="arrow-back" size={24} color="black" />
+              </TouchableOpacity>
+              <Text style={styles.headerText}>EQUIPMENT</Text>
+            </View>
+            {loading ? (
+              <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+              <FlatList
+                data={instruments}
+                renderItem={renderInstrument}
+                keyExtractor={item => item._id.toString()} // Assuming '_id' is the unique identifier
+                contentContainerStyle={styles.listContent}
+              />
+            )}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 

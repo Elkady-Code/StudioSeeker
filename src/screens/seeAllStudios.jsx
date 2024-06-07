@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator, KeyboardAvoidingView, SafeAreaView, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-const NewStudios = () => {
+const NewStudios = ({ navigation }) => {
   const [studios, setStudios] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,7 +15,7 @@ const NewStudios = () => {
       
       try {
         const response = await axios.get('https://studioseeker-h2vx.onrender.com/viewNewStudios');
-        setStudios(response.data);
+        setStudios(response.data.data);
       } catch (error) {
         console.error('Error fetching studios:', error);
       } finally {
@@ -40,24 +40,30 @@ const NewStudios = () => {
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>NEW STUDIOS</Text>
-      </View>
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <FlatList
-          data={studios}
-          renderItem={renderStudio}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.listContent}
-        />
-      )}
-    </View>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Ionicons name="arrow-back" size={24} color="black" />
+              </TouchableOpacity>
+              <Text style={styles.headerText}>NEW STUDIOS</Text>
+            </View>
+            {loading ? (
+              <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+              <FlatList
+                data={studios}
+                renderItem={renderStudio}
+                keyExtractor={item => item._id.toString()}
+                contentContainerStyle={styles.listContent}
+              />
+            )}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 
