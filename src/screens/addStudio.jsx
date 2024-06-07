@@ -5,11 +5,11 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-const addStudio = () => {
+const AddStudio = ({ userId }) => {
   const [studioName, setStudioName] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
-  const [price, setPrice] = useState('');
+  const [rentPerHour, setRentPerHour] = useState('');
   const [image, setImage] = useState(null);
 
   const pickImage = async () => {
@@ -27,7 +27,7 @@ const addStudio = () => {
       quality: 1,
     });
 
-    if (!result.canceled) {
+    if (!result.cancelled) {
       setImage(result.uri);
     }
   };
@@ -63,23 +63,24 @@ const addStudio = () => {
       imageUrl = await uploadImage();
       if (!imageUrl) return;
     }
-
+  
     const token = await SecureStore.getItemAsync("userToken");
     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-
+  
     try {
       const response = await axios.post('https://studioseeker-h2vx.onrender.com/user/post', {
+        userId: userId,
         name: studioName,
-        description: description,
         location: location,
-        price: price,
-        imageUrl: imageUrl,
+        rentPerHour: rentPerHour,
+        description: description,
+        images: imageUrl ? [imageUrl] : [],
       });
-
+  
       alert('Studio added successfully!');
-      console.log(response.data);
+      console.log('Response:', response.data);
     } catch (error) {
-      console.error(error);
+      console.error('Error:', error);
       alert('Failed to add studio');
     }
   };
@@ -134,8 +135,8 @@ const addStudio = () => {
             <TextInput
               style={styles.input}
               placeholder="Price"
-              value={price}
-              onChangeText={setPrice}
+              value={rentPerHour}
+              onChangeText={setRentPerHour}
               keyboardType="numeric"
             />
           </View>
@@ -227,4 +228,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default addStudio;
+export default AddStudio;

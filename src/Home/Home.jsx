@@ -35,6 +35,22 @@ const HomeComponent = ({ navigation }) => {
     }
   };
 
+  const fetchStudioDetails = async (id) => {
+    try {
+      const token = await SecureStore.getItemAsync("userToken");
+      axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+  
+      const response = await axios.get(
+        `https://studioseeker-h2vx.onrender.com/studios/${id}`
+      );
+  
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching studio details:", error);
+      throw error; // Throw the error instead of returning null
+    }
+  };
+
   const getAllPosts = async () => {
     try {
       const token = await SecureStore.getItemAsync("userToken");
@@ -110,9 +126,14 @@ const HomeComponent = ({ navigation }) => {
     navigation.navigate("TrendingStudios");
   };
 
-  const navigatetoStudioDetails = (studioId) => {
-    console.log(`Navigating to studio details with ID: ${studioId}`);
-    navigation.navigate("StudioDetailsScreen", { studioId });
+  const navigatetoStudioDetails = async (id) => {
+    console.log(`Navigating to studio details with ID: ${id}`);
+    const studio = await fetchStudioDetails(id);
+    if (studio) {
+      navigation.navigate("StudioDetailsScreen", { studioId: id });
+    } else {
+      console.error("Studio not found");
+    }
   };
 
   return (
@@ -135,7 +156,10 @@ const HomeComponent = ({ navigation }) => {
               <Text style={styles.buttonText}>Add Studio</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText} onPress={navigatetoaddInstrument}>
+              <Text
+                style={styles.buttonText}
+                onPress={navigatetoaddInstrument}
+              >
                 Add Instrument
               </Text>
             </TouchableOpacity>
@@ -146,7 +170,7 @@ const HomeComponent = ({ navigation }) => {
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionHeaderText}>New Studios</Text>
                 <TouchableOpacity onPress={navigatetNewStudios}>
-                <Text style={styles.seeAllText}>See all</Text>
+                  <Text style={styles.seeAllText}>See all</Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.cardsContainer}>
@@ -175,7 +199,7 @@ const HomeComponent = ({ navigation }) => {
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionHeaderText}>Trending Studios</Text>
                 <TouchableOpacity onPress={navigatetTrendingStudios}>
-                <Text style={styles.seeAllText}>See all</Text>
+                  <Text style={styles.seeAllText}>See all</Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.cardsContainer}>
@@ -204,7 +228,7 @@ const HomeComponent = ({ navigation }) => {
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionHeaderText}>Equipment</Text>
                 <TouchableOpacity onPress={navigatToEquipment}>
-                <Text style={styles.seeAllText}>See all</Text>
+                  <Text style={styles.seeAllText}>See all</Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.cardsContainer}>
@@ -298,3 +322,4 @@ const styles = StyleSheet.create({
 });
 
 export default HomeComponent;
+
