@@ -98,6 +98,18 @@ const HomeComponent = ({ navigation }) => {
     navigation.navigate("addInstrument");
   };
 
+  const navigatToEquipment = () => {
+    navigation.navigate("Equipment");
+  };
+
+  const navigatetNewStudios = () => {
+    navigation.navigate("NewStudios");
+  };
+
+  const navigatetTrendingStudios = () => {
+    navigation.navigate("TrendingStudios");
+  };
+
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <SafeAreaView style={styles.safeArea}>
@@ -128,7 +140,9 @@ const HomeComponent = ({ navigation }) => {
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionHeaderText}>New Studios</Text>
+                <TouchableOpacity onPress={navigatetNewStudios}>
                 <Text style={styles.seeAllText}>See all</Text>
+                </TouchableOpacity>
               </View>
               <View style={styles.cardsContainer}>
                 <ScrollView
@@ -148,7 +162,9 @@ const HomeComponent = ({ navigation }) => {
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionHeaderText}>Trending Studios</Text>
+                <TouchableOpacity onPress={navigatetTrendingStudios}>
                 <Text style={styles.seeAllText}>See all</Text>
+                </TouchableOpacity>
               </View>
               <View style={styles.cardsContainer}>
                 <ScrollView
@@ -168,7 +184,9 @@ const HomeComponent = ({ navigation }) => {
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionHeaderText}>Equipment</Text>
+                <TouchableOpacity onPress={navigatToEquipment}>
                 <Text style={styles.seeAllText}>See all</Text>
+                </TouchableOpacity>
               </View>
               <View style={styles.cardsContainer}>
                 <ScrollView
