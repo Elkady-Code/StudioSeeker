@@ -101,6 +101,7 @@ exports.createNewInstrument = [
   body("userId").isMongoId().withMessage("Invalid user ID"),
   body("name").isString().notEmpty().withMessage("Name is required"),
   body("brand").isString().notEmpty().withMessage("Brand is required"),
+  body("rentPrice").isString().notEmpty().withMessage("rentPrice is required"),
   body("type").isString().notEmpty().withMessage("Type is required"),
   body("description").isString().notEmpty().withMessage("Description is required"),
   body("images").optional().isArray().withMessage("Images should be an array of strings"),
@@ -111,13 +112,14 @@ exports.createNewInstrument = [
       return res.status(400).json({ success: false, errors: errors.array() });
     }
 
-    const { userId, name, brand, type, description, images } = req.body;
+    const { userId, name, brand, rentPrice, type, description, images } = req.body;
 
     try {
       const newInstrument = new NewInstrument({
         userId,
         name,
         brand,
+        rentPrice,
         type,
         description,
         images,
