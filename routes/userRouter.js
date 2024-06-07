@@ -36,6 +36,8 @@ router.get("/viewTrendingStudios", isAuth, postController.viewTrendingStudios); 
 router.get("/viewNewInstruments", isAuth, postController.viewNewInstruments); // Handles viewing all posts
 router.get("/algolia-posts", postController.algoliaViewPosts); // Handles viewing all posts
 
+router.get('/studios/:studioId', postController.getStudioById);
+
 // Route for deleting a post by ID
 router.delete("/post/:postId", isAuth, postController.deletePost); // Handles deleting a post
 

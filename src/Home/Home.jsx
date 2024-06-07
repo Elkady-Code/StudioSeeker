@@ -110,6 +110,11 @@ const HomeComponent = ({ navigation }) => {
     navigation.navigate("TrendingStudios");
   };
 
+  const navigatetoStudioDetails = (studioId) => {
+    console.log(`Navigating to studio details with ID: ${studioId}`);
+    navigation.navigate("StudioDetailsScreen", { studioId });
+  };
+
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <SafeAreaView style={styles.safeArea}>
@@ -152,7 +157,14 @@ const HomeComponent = ({ navigation }) => {
                   {posts &&
                     posts.length > 0 &&
                     posts.map((post) => {
-                      return <Card key={post._id} info={post.name} />;
+                      return (
+                        <TouchableOpacity
+                          key={post._id}
+                          onPress={() => navigatetoStudioDetails(post._id)}
+                        >
+                          <Card info={post.name} />
+                        </TouchableOpacity>
+                      );
                     })}
                 </ScrollView>
               </View>
@@ -174,7 +186,14 @@ const HomeComponent = ({ navigation }) => {
                   {trendingPosts &&
                     trendingPosts.length > 0 &&
                     trendingPosts.map((post) => {
-                      return <Card key={post._id} info={post.name} />;
+                      return (
+                        <TouchableOpacity
+                          key={post._id}
+                          onPress={() => navigatetoStudioDetails(post._id)}
+                        >
+                          <Card info={post.name} />
+                        </TouchableOpacity>
+                      );
                     })}
                 </ScrollView>
               </View>
@@ -197,7 +216,12 @@ const HomeComponent = ({ navigation }) => {
                     instruments.length > 0 &&
                     instruments.map((instrument) => {
                       return (
-                        <Card key={instrument._id} info={instrument.name} />
+                        <TouchableOpacity
+                          key={instrument._id}
+                          onPress={() => navigatetoStudioDetails(instrument._id)}
+                        >
+                          <Card info={instrument.name} />
+                        </TouchableOpacity>
                       );
                     })}
                 </ScrollView>
