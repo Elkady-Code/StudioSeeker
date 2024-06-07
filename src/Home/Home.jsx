@@ -94,6 +94,10 @@ const HomeComponent = ({ navigation }) => {
     navigation.navigate("addStudio");
   };
 
+  const navigatetoaddInstrument = () => {
+    navigation.navigate("addInstrument");
+  };
+
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <SafeAreaView style={styles.safeArea}>
@@ -114,7 +118,9 @@ const HomeComponent = ({ navigation }) => {
               <Text style={styles.buttonText}>Add Studio</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>Add Instrument</Text>
+              <Text style={styles.buttonText} onPress={navigatetoaddInstrument}>
+                Add Instrument
+              </Text>
             </TouchableOpacity>
           </View>
           <ScrollView contentContainerStyle={styles.scrollViewContent}>

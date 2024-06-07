@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-const AddInstrumentScreen = () => {
+const addInstrument = () => {
   const [instrumentName, setInstrumentName] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState(null);
@@ -199,4 +199,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddInstrumentScreen;
+export default addInstrument;
