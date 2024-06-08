@@ -140,7 +140,7 @@ exports.createNewInstrument = async (req, res) => {
     if (file) {
       const dataUrl = bufferToDataUrl("image/png", file.data);
       const upload_preset = "ml_default";
-       var uploadResult = await cloudinary.uploader.unsigned_upload(
+      var uploadResult = await cloudinary.uploader.unsigned_upload(
         dataUrl,
         upload_preset,
         {
