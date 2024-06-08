@@ -15,7 +15,7 @@ const Equipment = () => {
         axios.defaults.headers.common.Authorization = `Bearer ${token}`;
         
         const response = await axios.get('https://studioseeker-h2vx.onrender.com/viewNewInstruments');
-        setInstruments(response.data.data); // Adjusted to match the data structure
+        setInstruments(response.data.data); 
       } catch (error) {
         console.error('Error fetching instruments:', error);
       } finally {
@@ -56,7 +56,7 @@ const Equipment = () => {
               <FlatList
                 data={instruments}
                 renderItem={renderInstrument}
-                keyExtractor={item => item._id.toString()} // Assuming '_id' is the unique identifier
+                keyExtractor={item => item._id.toString()}
                 contentContainerStyle={styles.listContent}
               />
             )}
