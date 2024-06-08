@@ -59,7 +59,7 @@ const AddStudio = ({ userId }) => {
     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
     try {
       const response = await axios.post(
-        "https://studioseeker-h2vx.onrender.com/upload-profile-image",
+        "http://localhost:3005/upload-profile-image",
         formData,
         {
           headers: {
@@ -77,25 +77,36 @@ const AddStudio = ({ userId }) => {
   };
 
   const handleAddStudio = async () => {
-    let imageUrl = null;
-    if (image) {
-      console.log(image);
-      imageUrl = await uploadImage();
-      if (!imageUrl) return;
-    }
+    // let imageUrl = null;
+    // if (image) {
+    //   console.log(image);
+    //   imageUrl = await uploadImage();
+    //   if (!imageUrl) return;
+    // }
 
     const token = await SecureStore.getItemAsync("userToken");
     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 
-    console.log(imageUrl);
     try {
-      const response = await axios.post("http://localhost:3005/user/post", {
-        name: studioName,
-        location: location,
-        rentPerHour: rentPerHour,
-        desc: description,
-        images: imageUrl ? [imageUrl] : [],
+      let formData = new FormData();
+      formData.append("images", {
+        uri: image,
+        name: "profile.jpg",
+        type: "image/jpeg",
       });
+      formData.append("name", studioName);
+      formData.append("location", location);
+      formData.append("rentPerHour", rentPerHour);
+      formData.append("desc", description);
+      const response = await axios.post(
+        "http://localhost:3005/user/post",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
 
       alert("Studio added successfully!");
       setStudioName("");

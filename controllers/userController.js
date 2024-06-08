@@ -10,6 +10,7 @@ const nodemailer = require("nodemailer");
 const { v2: cloudinary } = require("cloudinary");
 const mongoose = require("mongoose");
 const Booking = require("../models/bookingModel");
+const { default: bufferToDataUrl } = require("buffer-to-data-url");
 
 // createUser function in userController.js
 exports.createUser = async (req, res) => {
@@ -99,6 +100,7 @@ exports.userSignIn = async (req, res) => {
 };
 
 exports.uploadProfileImage = async (req, res) => {
+  // console.log(req.files.image);
   const { user } = req;
   if (!user)
     return res
@@ -106,41 +108,31 @@ exports.uploadProfileImage = async (req, res) => {
       .json({ success: false, message: "Unauthorized Access!" });
 
   try {
-    console.log(req.files);
-    const file = req.file.path;
-    const upload_preset = "ml_default";
-    const uploadResult = await cloudinary.uploader
-      .unsigned_upload(file, upload_preset, {
-        public_id: `${user._id}_profile`,
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    const file = req.files.image;
+    const dataUrl = bufferToDataUrl("image/png", file.data);
 
-    console.log(uploadResult);
-    // const result = await cloudinary.uploader
-    //   .upload(file, upload_preset, {
-    //     public_id: `${user._id}_profile`,
-    //     width: 500,
-    //     height: 500,
-    //     crop: "fill",
-    //   })
-    //   .then((response) => {
-    //     console.log(response);
-    //   });
+    // console.log(dataUrl);
+    const upload_preset = "ml_default";
+    const uploadResult = await cloudinary.uploader.unsigned_upload(
+      dataUrl,
+      upload_preset,
+      {
+        public_id: new Date().toLocaleTimeString() + user._id,
+      },
+    );
 
     // Update user's avatar in MongoDB
-    await User.findByIdAndUpdate(user._id, { avatar: result.url });
+    await User.findByIdAndUpdate(user._id, { avatar: uploadResult?.url });
 
     const profileImageUrl = `/profile-images/${user._id}`;
 
     res.status(201).json({
       success: true,
       message: "Your profile image has been updated",
-      profileImageUrl: profileImageUrl,
-      result: result,
+      profileImageUrl: uploadResult?.url,
     });
   } catch (error) {
+    console.log(error);
     res
       .status(500)
       .json({ success: false, message: "Server error, try again later" });
@@ -261,7 +253,7 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
     if (!password || !confirmPassword) {
       const error = new CustomError(
         "Password and confirmPassword are required",
-        400
+        400,
       );
       return next(error);
     }

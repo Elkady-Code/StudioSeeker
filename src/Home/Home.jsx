@@ -25,7 +25,7 @@ const HomeComponent = ({ navigation }) => {
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 
       const response = await axios.get(
-        `https://studioseeker-h2vx.onrender.com/algolia-posts?query=${searchQuery}`
+        `https://studioseeker-h2vx.onrender.com/algolia-posts?query=${searchQuery}`,
       );
 
       const searchData = response.data.data;
@@ -35,15 +35,15 @@ const HomeComponent = ({ navigation }) => {
     }
   };
 
-  const fetchStudioDetails = async (id) => {
+  const fetchStudioDetails = async id => {
     try {
       const token = await SecureStore.getItemAsync("userToken");
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-  
+
       const response = await axios.get(
-        `https://studioseeker-h2vx.onrender.com/studios/${id}`
+        `https://studioseeker-h2vx.onrender.com/studios/${id}`,
       );
-  
+
       return response.data;
     } catch (error) {
       console.error("Error fetching studio details:", error);
@@ -57,9 +57,10 @@ const HomeComponent = ({ navigation }) => {
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 
       const response = await axios.get(
-        "https://studioseeker-h2vx.onrender.com/viewNewStudios"
+        "https://studioseeker-h2vx.onrender.com/viewNewStudios",
       );
 
+      console.log(response.data.data);
       setPosts(response.data.data);
     } catch (error) {
       console.error("Error fetching new posts:", error);
@@ -72,7 +73,7 @@ const HomeComponent = ({ navigation }) => {
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 
       const response = await axios.get(
-        "https://studioseeker-h2vx.onrender.com/viewTrendingStudios"
+        "https://studioseeker-h2vx.onrender.com/viewTrendingStudios",
       );
 
       setTrendingPosts(response.data.data);
@@ -87,7 +88,7 @@ const HomeComponent = ({ navigation }) => {
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 
       const response = await axios.get(
-        "https://studioseeker-h2vx.onrender.com/viewNewInstruments"
+        "https://studioseeker-h2vx.onrender.com/viewNewInstruments",
       );
 
       setInstruments(response.data.data);
@@ -126,7 +127,7 @@ const HomeComponent = ({ navigation }) => {
     navigation.navigate("TrendingStudios");
   };
 
-  const navigatetoStudioDetails = async (id) => {
+  const navigatetoStudioDetails = async id => {
     console.log(`Navigating to studio details with ID: ${id}`);
     const studio = await fetchStudioDetails(id);
     if (studio) {
@@ -156,10 +157,7 @@ const HomeComponent = ({ navigation }) => {
               <Text style={styles.buttonText}>Add Studio</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}>
-              <Text
-                style={styles.buttonText}
-                onPress={navigatetoaddInstrument}
-              >
+              <Text style={styles.buttonText} onPress={navigatetoaddInstrument}>
                 Add Instrument
               </Text>
             </TouchableOpacity>
@@ -180,13 +178,13 @@ const HomeComponent = ({ navigation }) => {
                 >
                   {posts &&
                     posts.length > 0 &&
-                    posts.map((post) => {
+                    posts.map(post => {
                       return (
                         <TouchableOpacity
                           key={post._id}
                           onPress={() => navigatetoStudioDetails(post._id)}
                         >
-                          <Card info={post.name} />
+                          <Card info={post.name} image={post.images[0]} />
                         </TouchableOpacity>
                       );
                     })}
@@ -209,13 +207,13 @@ const HomeComponent = ({ navigation }) => {
                 >
                   {trendingPosts &&
                     trendingPosts.length > 0 &&
-                    trendingPosts.map((post) => {
+                    trendingPosts.map(post => {
                       return (
                         <TouchableOpacity
                           key={post._id}
                           onPress={() => navigatetoStudioDetails(post._id)}
                         >
-                          <Card info={post.name} />
+                          <Card info={post.name} image={post.images[0]} />
                         </TouchableOpacity>
                       );
                     })}
@@ -238,13 +236,18 @@ const HomeComponent = ({ navigation }) => {
                 >
                   {instruments &&
                     instruments.length > 0 &&
-                    instruments.map((instrument) => {
+                    instruments.map(instrument => {
                       return (
                         <TouchableOpacity
                           key={instrument._id}
-                          onPress={() => navigatetoStudioDetails(instrument._id)}
+                          onPress={() =>
+                            navigatetoStudioDetails(instrument._id)
+                          }
                         >
-                          <Card info={instrument.name} />
+                          <Card
+                            info={instrument.name}
+                            image={instrument.images[0]}
+                          />
                         </TouchableOpacity>
                       );
                     })}
@@ -322,4 +325,3 @@ const styles = StyleSheet.create({
 });
 
 export default HomeComponent;
-

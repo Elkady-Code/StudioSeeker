@@ -4,6 +4,8 @@ const Post = require("../models/studioModel");
 const User = require("./userController");
 const NewInstrument = require("../models/newInstruments");
 const { body, validationResult } = require("express-validator");
+const { default: bufferToDataUrl } = require("buffer-to-data-url");
+const { v2: cloudinary } = require("cloudinary");
 
 function generateToken(userId) {
   const token = jwt.sign({ userId }, process.env.JWT_TOKEN, {
@@ -12,19 +14,51 @@ function generateToken(userId) {
   return token;
 }
 
+exports.getUser = async (req, res) => {
+  try {
+    const userId = req.user;
+
+    console.log(userId);
+
+    return res.json({
+      message: "success",
+      user: userId,
+    });
+  } catch (error) {
+    console.error("Error:", error); // Debug log
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
 exports.addPost = async (req, res) => {
   try {
     const userId = req.user._id;
+    const user = req.user;
 
     console.log("Request Body:", req.body); // Debug log
+    const file = req.files.images;
+    if (file) {
+      const dataUrl = bufferToDataUrl("image/png", file.data);
 
+      // console.log(dataUrl);
+      const upload_preset = "ml_default";
+      var uploadResult = await cloudinary.uploader.unsigned_upload(
+        dataUrl,
+        upload_preset,
+        {
+          public_id: new Date().toLocaleTimeString() + user._id,
+        },
+      );
+    }
     const newPost = new Post({
       userId: userId,
       name: req.body.name,
       location: req.body.location,
       rentPerHour: req.body.rentPerHour,
       description: req.body.desc,
-      images: req.body.img,
+      images: uploadResult.url,
       createdAt: new Date(),
     });
 
@@ -117,11 +151,25 @@ exports.createNewInstrument = [
     if (!errors.isEmpty()) {
       return res.status(400).json({ success: false, errors: errors.array() });
     }
+    const { user } = req;
 
     const { userId, name, brand, rentPrice, type, description, images } =
       req.body;
 
     try {
+      const file = req.files.image;
+      const dataUrl = bufferToDataUrl("image/png", file.data);
+
+      // console.log(dataUrl);
+      const upload_preset = "ml_default";
+      const uploadResult = await cloudinary.uploader.unsigned_upload(
+        dataUrl,
+        upload_preset,
+        {
+          public_id: new Date().toLocaleTimeString() + user._id,
+        },
+      );
+
       const newInstrument = new NewInstrument({
         userId,
         name,
@@ -130,7 +178,7 @@ exports.createNewInstrument = [
         type,
         description,
         location,
-        images,
+        images: uploadResult.url,
       });
 
       const savedInstrument = await newInstrument.save();
