@@ -8,6 +8,11 @@ const rbacMiddleware = require("./middleware/validation/rbacMiddleware");
 const { default: mongoose } = require("mongoose");
 const { v2: cloudinary } = require("cloudinary");
 
+const fileUpload = require("express-fileupload");
+
+// default options
+app.use(fileUpload());
+
 (async function () {
   // Configuration
   cloudinary.config({
@@ -22,9 +27,9 @@ const { v2: cloudinary } = require("cloudinary");
       "https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",
       {
         public_id: "shoes",
-      }
+      },
     )
-    .catch((error) => {
+    .catch(error => {
       console.log(error);
     });
 
@@ -76,7 +81,7 @@ console.log(app.get("views"));
 
 // Start the server
 const server = app.listen(3005, () =>
-  console.log("Server is up and running on " + server.address().port)
+  console.log("Server is up and running on " + server.address().port),
 );
 
 module.exports = app;

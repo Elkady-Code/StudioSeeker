@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 const User = require("../models/userModel");
-const multer = require("multer");
+// const multer = require("multer");
 const postController = require("../controllers/postController");
 const userController = require("../controllers/userController");
 const { isAuth } = require("../middleware/generateJWT");
@@ -15,17 +15,18 @@ const {
 } = require("../middleware/validation/userValidation");
 
 // Configure Multer storage
-const storage = multer.diskStorage({
-  filename: function (req, file, cb) {
-    cb(null, file.fieldname + "-" + Date.now());
-  },
-});
+// const storage = multer.diskStorage({
+//   filename: function (req, file, cb) {
+//     cb(null, file.fieldname + "-" + Date.now());
+//   },
+// });
 
 // Initialize Multer upload
-const upload = multer({ dest: "/uploads" });
+// const upload = multer({ dest: "/uploads" });
 
 // Route for adding a new post
 router.post("/user/post", isAuth, postController.addPost); // Handles adding a new post
+router.get("/user", isAuth, postController.getUser); // Handles adding a new post
 router.post("/createNewInstrument", postController.createNewInstrument);
 // route for adding a post to your favorites
 router.post("/favorites", isAuth, postController.Favorites);
@@ -73,7 +74,7 @@ router.post(
   "/create-user",
   validateUserSignUp,
   userValidation,
-  userController.createUser
+  userController.createUser,
 ); // Handles creating a new user
 
 // Route for user sign-in
@@ -81,7 +82,7 @@ router.post(
   "/sign-in",
   validateUserSignIn,
   userValidation,
-  userController.userSignIn
+  userController.userSignIn,
 ); // Handles user sign-in
 
 // Route for user sign-out
@@ -91,8 +92,8 @@ router.post("/sign-out", isAuth, userController.userLogout); // Handles user sig
 router.post(
   "/upload-profile-image",
   isAuth,
-  upload.single("image"),
-  userController.uploadProfileImage
+  // upload.single("image"),
+  userController.uploadProfileImage,
 );
 
 module.exports = router;
