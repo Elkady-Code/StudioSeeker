@@ -200,9 +200,22 @@ exports.deletePost = async (req, res) => {
   }
 };
 
-exports.algoliaViewPosts = async (req, res) => {
+exports.algoliaViewStudio = async (req, res) => {
   try {
     const posts = await Post.find({});
+
+    return res.json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+exports.algoliaViewInstrument = async (req, res) => {
+  try {
+    const posts = await NewInstrument.find({});
 
     return res.json(posts);
   } catch (error) {
