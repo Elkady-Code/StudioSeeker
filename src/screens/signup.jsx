@@ -11,8 +11,9 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
-const SignUp = () => {
+const SignUp = ({ login }) => {
   const [username, setUsername] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -24,8 +25,9 @@ const SignUp = () => {
   const navigation = useNavigation();
 
   const handleSignUp = async () => {
-    try {
-      const response = await fetch("https://studioseeker-h2vx.onrender.com/create-user", {
+    const response = await fetch(
+      "https://studioseeker-h2vx.onrender.com/create-user",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -40,25 +42,30 @@ const SignUp = () => {
           number: phonenumber,
           address,
         }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        if (data.token) {
-          await AsyncStorage.setItem("authToken", data.token); // Ensure key name consistency
-          Alert.alert("Success", "You have signed up successfully.");
-          navigation.navigate('Main');
-        } else {
-          Alert.alert("Error", "An error occurred while signing up. Please try again later.");
-        }
-      } else {
-        Alert.alert("Error", data.message || "An error occurred while signing up. Please try again later.");
-      }
-    } catch (error) {
-      Alert.alert("Error", "An error occurred while signing up. Please try again later.");
+      },
+    );
+    const data = await response.json();
+    console.log(data);
+    // if (response.ok) {
+    if (data.token) {
+      await SecureStore.setItemAsync("userToken", data.token);
+      await AsyncStorage.setItem("username", data.user.username);
+      // Alert.alert("Success", "You have signed up successfully.");
+
+      login();
+      // } else {
+      // Alert.alert(
+      // "Error",
+      // "An error occurred while signing up. Please try again later.",
+      // );
+    } else {
+      Alert.alert(
+        "Error",
+        data.message ||
+          "An error occurred while signing up. Please try again later.",
+      );
     }
   };
-  
-  
 
   return (
     <KeyboardAvoidingView
@@ -107,6 +114,7 @@ const SignUp = () => {
             value={password}
             onChangeText={setPassword}
             placeholder="Password"
+            autoComplete="password"
             secureTextEntry
           />
           <TextInput
