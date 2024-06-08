@@ -48,17 +48,18 @@ const addInstrument = () => {
   const uploadImage = async () => {
     const token = await SecureStore.getItemAsync("userToken");
 
+
     let formData = new FormData();
-    formData.append("profileImage", {
+    formData.append("images", {
       uri: image,
-      name: "instrument.jpg",
+      name: "profile.jpg",
       type: "image/jpeg",
     });
 
     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
     try {
       const response = await axios.post(
-        "https://studioseeker-h2vx.onrender.com/upload-profile",
+        "http://localhost:3005/upload-profile",
         formData,
         {
           headers: {
@@ -66,10 +67,11 @@ const addInstrument = () => {
           },
         },
       );
-      return response.data.imageUrl; // Assuming the API returns the URL of the uploaded image
+      console.log(response.data.imageUrl);
+      return response.data.imageUrl;
     } catch (error) {
-      console.error(error);
-      alert("Failed to upload instrument image");
+      console.error(error.response.data);
+      alert("Failed to upload profile image");
       return null;
     }
   };
