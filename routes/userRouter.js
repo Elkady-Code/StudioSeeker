@@ -35,8 +35,8 @@ router.post("/favorites", isAuth, postController.Favorites);
 router.get("/viewNewStudios", isAuth, postController.viewNewStudios); // Handles viewing all posts
 router.get("/viewTrendingStudios", isAuth, postController.viewTrendingStudios); // Handles viewing all posts
 router.get("/viewNewInstruments", isAuth, postController.viewNewInstruments); // Handles viewing all posts
-router.get("/algolia-posts", postController.algoliaViewPosts); // Handles viewing all posts
-
+router.get("/algoliaStudio", postController.algoliaViewStudio); // Handles viewing all posts
+router.get("/algoliaInstrument", postController.algoliaViewInstrument);
 router.get("/studios/:studioId", postController.getStudioById);
 
 // Route for deleting a post by ID
@@ -74,7 +74,7 @@ router.post(
   "/create-user",
   validateUserSignUp,
   userValidation,
-  userController.createUser,
+  userController.createUser
 ); // Handles creating a new user
 
 // Route for user sign-in
@@ -82,7 +82,7 @@ router.post(
   "/sign-in",
   validateUserSignIn,
   userValidation,
-  userController.userSignIn,
+  userController.userSignIn
 ); // Handles user sign-in
 
 // Route for user sign-out
@@ -93,7 +93,7 @@ router.post(
   "/upload-profile-image",
   isAuth,
   // upload.single("image"),
-  userController.uploadProfileImage,
+  userController.uploadProfileImage
 );
 
 module.exports = router;
