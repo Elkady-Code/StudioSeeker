@@ -20,9 +20,17 @@ export default StudioDetailsScreen = ({ route, navigation }) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   console.log(post);
+
+ const navigateToCheckOut = () => {
+  navigation.navigate ("CheckoutDetails");
+ }
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+      >
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
@@ -41,7 +49,7 @@ export default StudioDetailsScreen = ({ route, navigation }) => {
             />
           </TouchableOpacity>
         </View>
-        <Image source={{ uri: `${post?.images[0]}` }} width={300} />
+        <Image source={{ uri: `${post?.images[0]}` }} style={styles.image} />
         <View style={styles.imagePlaceholder}>
           {/* <Text style={styles.imageText}>Image Placeholder</Text> */}
         </View>
@@ -76,6 +84,9 @@ export default StudioDetailsScreen = ({ route, navigation }) => {
           </View>
         </View>
       </ScrollView>
+      <TouchableOpacity style={styles.bottomButton} onPress={navigateToCheckOut}>
+        <Text style={styles.buttonText}>Book Now</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -89,6 +100,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
+  contentContainer: {
+    paddingBottom: 80, // Ensure the button is not cut off
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -98,22 +112,18 @@ const styles = StyleSheet.create({
   backButton: {
     flex: 1,
   },
-  contentContainer: {
-    padding: 16,
-  },
   studioName: {
     flex: 5,
     fontSize: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
   },
   favoriteButton: {
     flex: 1,
     alignItems: "flex-end",
     marginBottom: 16,
+  },
+  image: {
+    width: "100%",
+    height: 200,
   },
   imagePlaceholder: {
     height: 200,
@@ -128,8 +138,7 @@ const styles = StyleSheet.create({
   descriptionSection: {
     padding: 10,
   },
-
-  description: {
+  sectionTitle: {
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -158,118 +167,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 5,
   },
-  location: {
-    fontSize: 16,
-    marginBottom: 8,
-  },
   reviewRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 5,
   },
-  rentPerHour: {
-    fontSize: 16,
-    marginBottom: 8,
+  bottomButton: {
+    backgroundColor: "#C15656",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    margin: 10,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
   },
 });
-
-// import React, { useEffect, useState } from "react";
-// import {
-//   View,
-//   Text,
-//   ScrollView,
-//   StyleSheet,
-//   TouchableOpacity,
-//   SafeAreaView,
-//   Alert,
-// } from "react-native";
-// import { Ionicons } from "@expo/vector-icons";
-// import axios from "axios";
-// import * as SecureStore from "expo-secure-store";
-
-// const StudioDetailsScreen = ({ route, navigation }) => {
-//   const { studioId, post } = route.params;
-
-//   const [postDetail, setPostDetail] = useState({});
-//   console.log(`Fetching details for studio ID: ${studioId}`);
-
-//   const [isFavorite, setIsFavorite] = useState(false);
-//   const [studioDetails, setStudioDetails] = useState({
-//     name: "",
-//     description: "",
-//     location: "",
-//     rentPerHour: "",
-//     images: [],
-//   });
-
-//   // useEffect(() => {
-//   //   const fetchStudioDetails = async () => {
-//   //     try {
-//   //       const token = await SecureStore.getItemAsync("userToken");
-//   //       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-
-//   //       setPostDetail(post);
-//   //       const response = await axios.get(
-//   //         `http://localhost:3005/studios/${studioId}`,
-//   //       );
-//   //       console.log("Response data:", response.data[0]);
-
-//   //       setStudioDetails(response.data[0]);
-//   //       if (response.data && response.data.name) {
-//   //       } else {
-//   //         Alert.alert("Error", "Studio not found");
-//   //         // navigation.goBack();
-//   //       }
-//   //     } catch (error) {
-//   //       console.error("Error fetching studio details:", error);
-//   //       // Alert.alert("Error", "Studio not found");
-//   //       // navigation.goBack();
-//   //     }
-//   //   };
-
-//   //   fetchStudioDetails();
-//   // }, [studioId]);
-
-//   console.log(post);
-//   return (
-//     <SafeAreaView style={styles.container}>
-//       <ScrollView contentContainerStyle={styles.contentContainer}>
-//         <Text style={styles.title}>{post.name}</Text>
-//         <Text style={styles.description}>{post.description}</Text>
-//         <Text style={styles.location}>{post.location}</Text>
-//         <Text style={styles.rentPerHour}>
-//           Rent per hour: ${post.rentPerHour}
-//         </Text>
-//         {/* Add other studio details here */}
-//       </ScrollView>
-//     </SafeAreaView>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//   },
-//   contentContainer: {
-//     padding: 16,
-//   },
-//   title: {
-//     fontSize: 24,
-//     fontWeight: "bold",
-//     marginBottom: 16,
-//   },
-//   description: {
-//     fontSize: 16,
-//     marginBottom: 8,
-//   },
-//   location: {
-//     fontSize: 16,
-//     marginBottom: 8,
-//   },
-//   rentPerHour: {
-//     fontSize: 16,
-//     marginBottom: 8,
-//   },
-// });
-
-// export default StudioDetailsScreen;

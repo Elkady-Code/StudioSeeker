@@ -59,7 +59,7 @@ const AddStudio = ({ userId }) => {
     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
     try {
       const response = await axios.post(
-        "http://localhost:3005/upload-profile-image",
+        "https://studioseeker-h2vx.onrender.com/upload-profile-image",
         formData,
         {
           headers: {
@@ -99,7 +99,7 @@ const AddStudio = ({ userId }) => {
       formData.append("rentPerHour", rentPerHour);
       formData.append("desc", description);
       const response = await axios.post(
-        "http://localhost:3005/user/post",
+        "https://studioseeker-h2vx.onrender.com/user/post",
         formData,
         {
           headers: {

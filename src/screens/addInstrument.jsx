@@ -58,7 +58,7 @@ const addInstrument = ({ navigation }) => {
     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
     try {
       const response = await axios.post(
-        "http://localhost:3005/upload-profile",
+        "https://studioseeker-h2vx.onrender.com/upload-profile",
         formData,
         {
           headers: {
@@ -91,7 +91,7 @@ const addInstrument = ({ navigation }) => {
       formData.append("rentPerHour", price);
       formData.append("desc", description);
       const response = await axios.post(
-        "http://localhost:3005/createNewInstrument",
+        "https://studioseeker-h2vx.onrender.com/createNewInstrument",
         formData,
         {
           headers: {
@@ -100,7 +100,7 @@ const addInstrument = ({ navigation }) => {
         },
       );
 
-      alert("Studio added successfully!");
+      alert("Instrument added successfully!");
       setInstrumentName("");
       setDescription("");
       setLocation("");
@@ -108,7 +108,7 @@ const addInstrument = ({ navigation }) => {
       console.log("Response:", response.data);
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to add studio");
+      alert("Failed to add Instrument");
     }
   };
 

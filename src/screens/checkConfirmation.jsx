@@ -1,7 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
-const CheckoutConfirmation = () => {
+const CheckoutConfirmation = ({ navigation }) => {
+  const navigateToHome = () => {
+    navigation.navigate("Main");
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Checkout details</Text>
@@ -14,7 +18,7 @@ const CheckoutConfirmation = () => {
       </Text>
       <Text style={styles.detailsLabel}>Studio/Instruments booked:</Text>
       <Text style={styles.detailsLabel}>Total Price:</Text>
-      <TouchableOpacity style={styles.confirmButton}>
+      <TouchableOpacity style={styles.confirmButton} onPress={navigateToHome}>
         <Text style={styles.confirmButtonText}>Confirm</Text>
       </TouchableOpacity>
     </View>
@@ -53,7 +57,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   confirmButton: {
-    backgroundColor: 'red',
+    backgroundColor: '#C15656',
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',

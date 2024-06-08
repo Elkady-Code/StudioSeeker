@@ -29,6 +29,8 @@ import Equipment from "./src/screens/seeAllInstruments";
 import NewStudios from "./src/screens/seeAllStudios";
 import TrendingStudios from "./src/screens/seeAllTrendingStudios";
 import Main from "./src/Home/index";
+import CheckoutConfirmation from "./src/screens/checkConfirmation"
+import CheckoutDetails from "./src/screens/checkOut";
 
 const Stack = createStackNavigator();
 
@@ -217,6 +219,16 @@ export default function App() {
               <Stack.Screen
                 name="addInstrument"
                 component={addInstrument}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="CheckoutConfirmation"
+                component={CheckoutConfirmation}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="CheckoutDetails"
+                component={CheckoutDetails}
                 options={{ headerShown: false }}
               />
               <Stack.Screen
