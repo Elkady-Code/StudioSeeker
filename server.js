@@ -22,13 +22,13 @@ const { v2: cloudinary } = require("cloudinary");
       "https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",
       {
         public_id: "shoes",
-      },
+      }
     )
-    .catch(error => {
+    .catch((error) => {
       console.log(error);
     });
 
-  console.log(uploadResult);
+  // console.log(uploadResult);
 
   // Optimize delivery by resizing and applying auto-format and auto-quality
   const optimizeUrl = cloudinary.url("shoes", {
@@ -36,7 +36,7 @@ const { v2: cloudinary } = require("cloudinary");
     quality: "auto",
   });
 
-  console.log(optimizeUrl);
+  // console.log(optimizeUrl);
 
   // Transform the image: auto-crop to square aspect_ratio
   const autoCropUrl = cloudinary.url("shoes", {
@@ -46,7 +46,7 @@ const { v2: cloudinary } = require("cloudinary");
     height: 500,
   });
 
-  console.log(autoCropUrl);
+  // console.log(autoCropUrl);
 })();
 
 require("dotenv").config();
@@ -76,7 +76,7 @@ console.log(app.get("views"));
 
 // Start the server
 const server = app.listen(3005, () =>
-  console.log("Server is up and running on " + server.address().port),
+  console.log("Server is up and running on " + server.address().port)
 );
 
 module.exports = app;

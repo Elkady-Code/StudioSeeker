@@ -17,12 +17,12 @@ const {
 // Configure Multer storage
 const storage = multer.diskStorage({
   filename: function (req, file, cb) {
-    cb(null, file.fieldname + '-' + Date.now());
-  }
+    cb(null, file.fieldname + "-" + Date.now());
+  },
 });
 
 // Initialize Multer upload
-const upload = multer({ storage: storage });
+const upload = multer({ dest: "/uploads" });
 
 // Route for adding a new post
 router.post("/user/post", isAuth, postController.addPost); // Handles adding a new post
@@ -36,7 +36,7 @@ router.get("/viewTrendingStudios", isAuth, postController.viewTrendingStudios); 
 router.get("/viewNewInstruments", isAuth, postController.viewNewInstruments); // Handles viewing all posts
 router.get("/algolia-posts", postController.algoliaViewPosts); // Handles viewing all posts
 
-router.get('/studios/:studioId', postController.getStudioById);
+router.get("/studios/:studioId", postController.getStudioById);
 
 // Route for deleting a post by ID
 router.delete("/post/:postId", isAuth, postController.deletePost); // Handles deleting a post
@@ -88,6 +88,11 @@ router.post(
 router.post("/sign-out", isAuth, userController.userLogout); // Handles user sign-out
 
 // Route for uploading profile picture
-router.post('/upload-profile-image', isAuth, upload.single('image'), userController.uploadProfileImage);
+router.post(
+  "/upload-profile-image",
+  isAuth,
+  upload.single("image"),
+  userController.uploadProfileImage
+);
 
 module.exports = router;
