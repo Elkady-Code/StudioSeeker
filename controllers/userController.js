@@ -7,8 +7,8 @@ const bcrypt = require("bcrypt");
 const UserOTPVerification = require("../models/userOTPVerification");
 const { validationResult } = require("express-validator");
 const nodemailer = require("nodemailer");
-const cloudinary = require("../helper/imageUpload");
-const mongoose = require('mongoose');
+const { v2: cloudinary } = require("cloudinary");
+const mongoose = require("mongoose");
 const Booking = require("../models/bookingModel");
 
 // createUser function in userController.js
@@ -104,14 +104,30 @@ exports.uploadProfileImage = async (req, res) => {
     return res
       .status(401)
       .json({ success: false, message: "Unauthorized Access!" });
+
   try {
-    // Upload image to Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      public_id: `${user._id}_profile`,
-      width: 500,
-      height: 500,
-      crop: "fill",
-    });
+    console.log(req.files);
+    const file = req.file.path;
+    const upload_preset = "ml_default";
+    const uploadResult = await cloudinary.uploader
+      .unsigned_upload(file, upload_preset, {
+        public_id: `${user._id}_profile`,
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    console.log(uploadResult);
+    // const result = await cloudinary.uploader
+    //   .upload(file, upload_preset, {
+    //     public_id: `${user._id}_profile`,
+    //     width: 500,
+    //     height: 500,
+    //     crop: "fill",
+    //   })
+    //   .then((response) => {
+    //     console.log(response);
+    //   });
 
     // Update user's avatar in MongoDB
     await User.findByIdAndUpdate(user._id, { avatar: result.url });
@@ -122,12 +138,13 @@ exports.uploadProfileImage = async (req, res) => {
       success: true,
       message: "Your profile image has been updated",
       profileImageUrl: profileImageUrl,
+      result: result,
     });
   } catch (error) {
     res
       .status(500)
       .json({ success: false, message: "Server error, try again later" });
-    console.log("Error uploading profile image", error.message);
+    // console.log("Error uploading profile image", error.message);
   }
 };
 
@@ -298,15 +315,19 @@ exports.createBooking = asyncErrorHandler(async (req, res, next) => {
 
     const { postId, duration } = req.body;
 
-    console.log('Received data:', { userId, postId, duration });
+    console.log("Received data:", { userId, postId, duration });
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-      console.log('Invalid userId:', userId);
-      return res.status(400).json({ success: false, message: "Invalid userId" });
+      console.log("Invalid userId:", userId);
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid userId" });
     }
     if (!mongoose.Types.ObjectId.isValid(postId)) {
-      console.log('Invalid postId:', postId);
-      return res.status(400).json({ success: false, message: "Invalid postId" });
+      console.log("Invalid postId:", postId);
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid postId" });
     }
 
     // Assuming you have User and Post models imported and defined
@@ -315,20 +336,24 @@ exports.createBooking = asyncErrorHandler(async (req, res, next) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      console.log('User not found:', userId);
-      return res.status(404).json({ success: false, message: "User not found" });
+      console.log("User not found:", userId);
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     const post = await Post.findById(postId);
     if (!post) {
-      console.log('Post not found:', postId);
-      return res.status(404).json({ success: false, message: "Post not found" });
+      console.log("Post not found:", postId);
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
     }
 
     const newBooking = new Booking({ userId, postId, duration });
     await newBooking.save();
 
-    console.log('Booking created successfully:', newBooking);
+    console.log("Booking created successfully:", newBooking);
 
     return res.status(201).json({
       success: true,
@@ -336,7 +361,7 @@ exports.createBooking = asyncErrorHandler(async (req, res, next) => {
       booking: newBooking,
     });
   } catch (error) {
-    console.error('Error creating booking:', error);
+    console.error("Error creating booking:", error);
     return res.status(500).json({
       success: false,
       message: "Error creating booking",
@@ -350,13 +375,19 @@ exports.getUserBookings = async (req, res) => {
 
   try {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ success: false, message: "Invalid userId" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid userId" });
     }
 
-    const bookings = await Booking.find({ userId }).populate('postId');
+    const bookings = await Booking.find({ userId }).populate("postId");
     res.status(200).json({ success: true, bookings });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error fetching bookings", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching bookings",
+      error: error.message,
+    });
   }
 };
 
