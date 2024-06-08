@@ -12,41 +12,44 @@ import { Text, Searchbar } from "react-native-paper";
 import Card from "../Components/Card";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
+import { FlatList } from "react-native-gesture-handler";
 
 const HomeComponent = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [posts, setPosts] = useState([]);
   const [trendingPosts, setTrendingPosts] = useState([]);
   const [instruments, setInstruments] = useState([]);
+  const [results, setResults] = useState([]);
 
-  const searchPosts = async (searchQuery) => {
+  const searchPosts = async searchQuery => {
     try {
       const token = await SecureStore.getItemAsync("userToken");
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-  
+
       const data = JSON.stringify({
-        "requests": [
+        requests: [
           {
-            "indexName": "studioseeker",
-            "params": `query=${searchQuery}`
-          }
-        ]
+            indexName: "studioseeker",
+            params: `query=${searchQuery}`,
+          },
+        ],
       });
-  
+
       const config = {
-        method: 'post',
+        method: "post",
         maxBodyLength: Infinity,
-        url: 'https://ZMBF7ETARP-dsn.algolia.net/1/indexes/*/queries',
-        headers: { 
-          'X-Algolia-API-Key': 'c3ebf897de45f642997877435d1623ea', 
-          'X-Algolia-Application-Id': 'ZMBF7ETARP'
+        url: "https://ZMBF7ETARP-dsn.algolia.net/1/indexes/*/queries",
+        headers: {
+          "X-Algolia-API-Key": "c3ebf897de45f642997877435d1623ea",
+          "X-Algolia-Application-Id": "ZMBF7ETARP",
         },
-        data : data
+        data: data,
       };
-  
+
       const response = await axios.request(config);
-      const searchData = response.data.results;
-      console.log(searchData);
+      const searchData = response.data.results[0];
+      console.log(searchData.hits);
+      setResults(searchData.hits);
       // setPosts(searchData); // Replace current posts with search results
     } catch (error) {
       console.error("Error searching posts:", error);
@@ -122,7 +125,7 @@ const HomeComponent = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    searchPosts("hello");
+    searchPosts(searchQuery);
   }, [searchQuery]);
 
   const navigateToaddStudio = () => {
@@ -167,121 +170,138 @@ const HomeComponent = ({ navigation }) => {
             value={searchQuery}
             onSubmitEditing={searchPosts}
           />
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={navigateToaddStudio}
-            >
-              <Text style={styles.buttonText}>Add Studio</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText} onPress={navigatetoaddInstrument}>
-                Add Instrument
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView contentContainerStyle={styles.scrollViewContent}>
-            {/* New Studios Section */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionHeaderText}>New Studios</Text>
-                <TouchableOpacity onPress={navigatetNewStudios}>
-                  <Text style={styles.seeAllText}>See all</Text>
+          {searchQuery.length < 3 ? (
+            <>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={navigateToaddStudio}
+                >
+                  <Text style={styles.buttonText}>Add Studio</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button}>
+                  <Text
+                    style={styles.buttonText}
+                    onPress={navigatetoaddInstrument}
+                  >
+                    Add Instrument
+                  </Text>
                 </TouchableOpacity>
               </View>
-              <View style={styles.cardsContainer}>
-                <ScrollView
-                  horizontal={true}
-                  contentContainerStyle={styles.cardsScrollViewContent}
-                >
-                  {posts &&
-                    posts.length > 0 &&
-                    posts.map(post => {
-                      return (
-                        <Card
-                          info={post.name}
-                          key={post._id}
-                          image={post.images[0]}
-                          onPress={() => {
-                            navigation.push("StudioDetailsScreen", {
-                              studioId: post._id,
-                              post: post,
-                            });
-                          }}
-                        />
-                      );
-                    })}
-                </ScrollView>
-              </View>
-            </View>
+              <ScrollView contentContainerStyle={styles.scrollViewContent}>
+                {/* New Studios Section */}
+                <View style={styles.section}>
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionHeaderText}>New Studios</Text>
+                    <TouchableOpacity onPress={navigatetNewStudios}>
+                      <Text style={styles.seeAllText}>See all</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.cardsContainer}>
+                    <ScrollView
+                      horizontal={true}
+                      contentContainerStyle={styles.cardsScrollViewContent}
+                    >
+                      {posts &&
+                        posts.length > 0 &&
+                        posts.map(post => {
+                          return (
+                            <Card
+                              info={post.name}
+                              key={post._id}
+                              image={post.images[0]}
+                              onPress={() => {
+                                navigation.push("StudioDetailsScreen", {
+                                  studioId: post._id,
+                                  post: post,
+                                });
+                              }}
+                            />
+                          );
+                        })}
+                    </ScrollView>
+                  </View>
+                </View>
 
-            {/* Trending Studios Section */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionHeaderText}>Trending Studios</Text>
-                <TouchableOpacity onPress={navigatetTrendingStudios}>
-                  <Text style={styles.seeAllText}>See all</Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.cardsContainer}>
-                <ScrollView
-                  horizontal={true}
-                  contentContainerStyle={styles.cardsScrollViewContent}
-                >
-                  {trendingPosts &&
-                    trendingPosts.length > 0 &&
-                    trendingPosts.map(post => {
-                      return (
-                        <Card
-                          info={post.name}
-                          key={post._id}
-                          image={post.images[0]}
-                          onPress={() => {
-                            navigation.push("StudioDetailsScreen", {
-                              studioId: post._id,
-                            });
-                          }}
-                        />
-                      );
-                    })}
-                </ScrollView>
-              </View>
-            </View>
+                {/* Trending Studios Section */}
+                <View style={styles.section}>
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionHeaderText}>
+                      Trending Studios
+                    </Text>
+                    <TouchableOpacity onPress={navigatetTrendingStudios}>
+                      <Text style={styles.seeAllText}>See all</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.cardsContainer}>
+                    <ScrollView
+                      horizontal={true}
+                      contentContainerStyle={styles.cardsScrollViewContent}
+                    >
+                      {trendingPosts &&
+                        trendingPosts.length > 0 &&
+                        trendingPosts.map(post => {
+                          return (
+                            <Card
+                              info={post.name}
+                              key={post._id}
+                              image={post.images[0]}
+                              onPress={() => {
+                                navigation.push("StudioDetailsScreen", {
+                                  studioId: post._id,
+                                });
+                              }}
+                            />
+                          );
+                        })}
+                    </ScrollView>
+                  </View>
+                </View>
 
-            {/* Equipment Section */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionHeaderText}>Equipment</Text>
-                <TouchableOpacity onPress={navigatToEquipment}>
-                  <Text style={styles.seeAllText}>See all</Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.cardsContainer}>
-                <ScrollView
-                  horizontal={true}
-                  contentContainerStyle={styles.cardsScrollViewContent}
-                >
-                  {instruments &&
-                    instruments.length > 0 &&
-                    instruments.map(instrument => {
-                      return (
-                        <TouchableOpacity
-                          key={instrument._id}
-                          onPress={() =>
-                            navigatetoStudioDetails(instrument._id)
-                          }
-                        >
-                          <Card
-                            info={instrument.name}
-                            image={instrument.images[0]}
-                          />
-                        </TouchableOpacity>
-                      );
-                    })}
-                </ScrollView>
-              </View>
+                {/* Equipment Section */}
+                <View style={styles.section}>
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionHeaderText}>Equipment</Text>
+                    <TouchableOpacity onPress={navigatToEquipment}>
+                      <Text style={styles.seeAllText}>See all</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.cardsContainer}>
+                    <ScrollView
+                      horizontal={true}
+                      contentContainerStyle={styles.cardsScrollViewContent}
+                    >
+                      {instruments &&
+                        instruments.length > 0 &&
+                        instruments.map(instrument => {
+                          return (
+                            <TouchableOpacity
+                              key={instrument._id}
+                              onPress={() =>
+                                navigatetoStudioDetails(instrument._id)
+                              }
+                            >
+                              <Card
+                                info={instrument.name}
+                                image={instrument.images[0]}
+                              />
+                            </TouchableOpacity>
+                          );
+                        })}
+                    </ScrollView>
+                  </View>
+                </View>
+              </ScrollView>
+            </>
+          ) : (
+            <View style={{ alignSelf: "center" }}>
+              <ScrollView>
+                {results.map(result => {
+                  return <Card info={result.name} image={result.images[0]} />;
+                })}
+              </ScrollView>
             </View>
-          </ScrollView>
+          )}
         </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
