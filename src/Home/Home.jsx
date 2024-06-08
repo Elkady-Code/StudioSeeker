@@ -19,16 +19,33 @@ const HomeComponent = ({ navigation }) => {
   const [trendingPosts, setTrendingPosts] = useState([]);
   const [instruments, setInstruments] = useState([]);
 
-  const searchPosts = async () => {
+  const searchPosts = async (searchQuery) => {
     try {
       const token = await SecureStore.getItemAsync("userToken");
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-
-      const response = await axios.get(
-        `https://studioseeker-h2vx.onrender.com/algolia-posts?query=${searchQuery}`,
-      );
-
-      const searchData = response.data.data;
+  
+      const data = JSON.stringify({
+        "requests": [
+          {
+            "indexName": "studioseeker",
+            "params": `query=${searchQuery}`
+          }
+        ]
+      });
+  
+      const config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://ZMBF7ETARP-dsn.algolia.net/1/indexes/*/queries',
+        headers: { 
+          'X-Algolia-API-Key': 'c3ebf897de45f642997877435d1623ea', 
+          'X-Algolia-Application-Id': 'ZMBF7ETARP'
+        },
+        data : data
+      };
+  
+      const response = await axios.request(config);
+      const searchData = response.data.results;
       setPosts(searchData); // Replace current posts with search results
     } catch (error) {
       console.error("Error searching posts:", error);
