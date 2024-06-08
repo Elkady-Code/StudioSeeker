@@ -180,12 +180,17 @@ const HomeComponent = ({ navigation }) => {
                     posts.length > 0 &&
                     posts.map(post => {
                       return (
-                        <TouchableOpacity
+                        <Card
+                          info={post.name}
                           key={post._id}
-                          onPress={() => navigatetoStudioDetails(post._id)}
-                        >
-                          <Card info={post.name} image={post.images[0]} />
-                        </TouchableOpacity>
+                          image={post.images[0]}
+                          onPress={() => {
+                            navigation.push("StudioDetailsScreen", {
+                              studioId: post._id,
+                              post: post,
+                            });
+                          }}
+                        />
                       );
                     })}
                 </ScrollView>
@@ -209,12 +214,16 @@ const HomeComponent = ({ navigation }) => {
                     trendingPosts.length > 0 &&
                     trendingPosts.map(post => {
                       return (
-                        <TouchableOpacity
+                        <Card
+                          info={post.name}
                           key={post._id}
-                          onPress={() => navigatetoStudioDetails(post._id)}
-                        >
-                          <Card info={post.name} image={post.images[0]} />
-                        </TouchableOpacity>
+                          image={post.images[0]}
+                          onPress={() => {
+                            navigation.push("StudioDetailsScreen", {
+                              studioId: post._id,
+                            });
+                          }}
+                        />
                       );
                     })}
                 </ScrollView>

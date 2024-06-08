@@ -49,7 +49,7 @@ exports.addPost = async (req, res) => {
         upload_preset,
         {
           public_id: new Date().toLocaleTimeString() + user._id,
-        }
+        },
       );
     }
     const newPost = new Post({
@@ -135,7 +135,7 @@ exports.createNewInstrument = async (req, res) => {
     const user = req.user;
 
     console.log("Request Body:", req.body);
-    const file = req.files.image;
+    const file = req.files.images;
 
     if (file) {
       const dataUrl = bufferToDataUrl("image/png", file.data);
@@ -145,7 +145,7 @@ exports.createNewInstrument = async (req, res) => {
         upload_preset,
         {
           public_id: new Date().toLocaleTimeString() + user._id,
-        }
+        },
       );
     }
 
@@ -265,6 +265,7 @@ exports.deleteFavorites = async (req, res) => {
 exports.getStudioById = async (req, res) => {
   try {
     const studio = await Studio.findById(req.params.studioId);
+    console.log(studio);
     if (!studio) {
       return res.status(404).json({ message: "Studio not found" });
     }
