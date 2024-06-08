@@ -7,6 +7,7 @@ import {
   Text,
   StatusBar,
   TouchableOpacity,
+  LogBox,
 } from "react-native";
 import { Button } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
@@ -27,8 +28,7 @@ import AuthContext from "./Utils/AuthContext";
 import Equipment from "./src/screens/seeAllInstruments";
 import NewStudios from "./src/screens/seeAllStudios";
 import TrendingStudios from "./src/screens/seeAllTrendingStudios";
-import Main from "./src/Home/index"; 
-
+import Main from "./src/Home/index";
 
 const Stack = createStackNavigator();
 
@@ -41,6 +41,7 @@ const BackButton = ({ onPress }) => {
 };
 
 export default function App() {
+  LogBox.ignoreAllLogs();
   const linking = {
     prefixes: [Linking.createURL("/")],
     config: {
@@ -88,7 +89,7 @@ export default function App() {
       userToken: null,
       userId: null,
       studios: [],
-    }
+    },
   );
 
   React.useEffect(() => {
@@ -110,7 +111,7 @@ export default function App() {
 
   const authContext = React.useMemo(
     () => ({
-      signIn: async (data) => {
+      signIn: async data => {
         const userId = "user-id-from-signin"; // Replace with actual userId
         await SecureStore.setItemAsync("userId", userId); // Store userId
         dispatch({ type: "SIGN_IN", token: "dummy-auth-token", userId });
@@ -119,19 +120,19 @@ export default function App() {
         SecureStore.deleteItemAsync("userId");
         dispatch({ type: "SIGN_OUT" });
       },
-      signUp: async (data) => {
+      signUp: async data => {
         const userId = "user-id-from-signup"; // Replace with actual userId
         await SecureStore.setItemAsync("userId", userId); // Store userId
         dispatch({ type: "SIGN_IN", token: "dummy-auth-token", userId });
       },
-      addStudio: (studio) => {
+      addStudio: studio => {
         dispatch({ type: "ADD_STUDIO", studio });
       },
-      addInstrument: (instrument) => {
+      addInstrument: instrument => {
         dispatch({ type: "ADD_INSTRUMENT", instrument });
       },
     }),
-    []
+    [],
   );
 
   return (
@@ -165,7 +166,19 @@ export default function App() {
               />
               <Stack.Screen
                 name="SignUp"
-                component={SignUp}
+                component={({ navigation }) => {
+                  return (
+                    <SignUp
+                      navigation={navigation}
+                      login={() => {
+                        dispatch({
+                          type: "SIGN_IN",
+                          token: "dummy-auth-token",
+                        });
+                      }}
+                    />
+                  );
+                }}
                 options={({ navigation }) => ({
                   headerLeft: () => (
                     <BackButton onPress={() => navigation.navigate("SignIn")} />
@@ -199,7 +212,7 @@ export default function App() {
               <Stack.Screen
                 options={{ headerShown: false }}
                 name="Main"
-                component={Main} 
+                component={Main}
               />
               <Stack.Screen
                 name="addInstrument"

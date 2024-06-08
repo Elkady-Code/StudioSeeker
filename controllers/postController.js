@@ -16,7 +16,7 @@ exports.addPost = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    console.log('Request Body:', req.body); // Debug log
+    console.log("Request Body:", req.body); // Debug log
 
     const newPost = new Post({
       userId: userId,
@@ -28,7 +28,7 @@ exports.addPost = async (req, res) => {
       createdAt: new Date(),
     });
 
-    console.log('New Post:', newPost); // Debug log
+    console.log("New Post:", newPost); // Debug log
 
     // Save the new post
     await newPost.save();
@@ -37,13 +37,12 @@ exports.addPost = async (req, res) => {
       message: "Post created",
     });
   } catch (error) {
-    console.error('Error:', error); // Debug log
+    console.error("Error:", error); // Debug log
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
   }
 };
-
 
 exports.viewNewStudios = async (req, res) => {
   try {
@@ -103,9 +102,15 @@ exports.createNewInstrument = [
   body("brand").isString().notEmpty().withMessage("Brand is required"),
   body("rentPrice").isString().notEmpty().withMessage("rentPrice is required"),
   body("type").isString().notEmpty().withMessage("Type is required"),
-  body("description").isString().notEmpty().withMessage("Description is required"),
+  body("description")
+    .isString()
+    .notEmpty()
+    .withMessage("Description is required"),
   body("location").isString().notEmpty().withMessage("Location is required"),
-  body("images").optional().isArray().withMessage("Images should be an array of strings"),
+  body("images")
+    .optional()
+    .isArray()
+    .withMessage("Images should be an array of strings"),
 
   async (req, res) => {
     const errors = validationResult(req);
@@ -113,7 +118,8 @@ exports.createNewInstrument = [
       return res.status(400).json({ success: false, errors: errors.array() });
     }
 
-    const { userId, name, brand, rentPrice, type, description, images } = req.body;
+    const { userId, name, brand, rentPrice, type, description, images } =
+      req.body;
 
     try {
       const newInstrument = new NewInstrument({
@@ -140,7 +146,7 @@ exports.createNewInstrument = [
         message: "Internal server error",
       });
     }
-  }
+  },
 ];
 
 exports.deletePost = async (req, res) => {
@@ -231,7 +237,7 @@ exports.getStudioById = async (req, res) => {
   try {
     const studio = await Studio.findById(req.params.studioId);
     if (!studio) {
-      return res.status(404).json({ message: 'Studio not found' });
+      return res.status(404).json({ message: "Studio not found" });
     }
     res.json(studio);
   } catch (error) {
