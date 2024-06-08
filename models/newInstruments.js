@@ -8,8 +8,8 @@ const newInstrumentSchema = new Schema(
     brand: { type: String, required: true },
     type: { type: String, required: true },
     description: { type: String, required: true },
-    rentPrice: {type: String, required: true},
-    Location: {type: String, required: true}, 
+    rentPrice: { type: String, required: true },
+    location: { type: String, required: true },
     images: [{ type: String, required: false }],
   },
   {
