@@ -46,7 +46,8 @@ const HomeComponent = ({ navigation }) => {
   
       const response = await axios.request(config);
       const searchData = response.data.results;
-      setPosts(searchData); // Replace current posts with search results
+      console.log(searchData);
+      // setPosts(searchData); // Replace current posts with search results
     } catch (error) {
       console.error("Error searching posts:", error);
     }
@@ -121,7 +122,7 @@ const HomeComponent = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    searchPosts();
+    searchPosts("hello");
   }, [searchQuery]);
 
   const navigateToaddStudio = () => {
