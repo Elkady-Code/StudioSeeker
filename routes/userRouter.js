@@ -27,7 +27,7 @@ const {
 // Route for adding a new post
 router.post("/user/post", isAuth, postController.addPost); // Handles adding a new post
 router.get("/user", isAuth, postController.getUser); // Handles adding a new post
-router.post("/createNewInstrument", postController.createNewInstrument);
+router.post("/createNewInstrument", isAuth, postController.createNewInstrument);
 // route for adding a post to your favorites
 router.post("/favorites", isAuth, postController.Favorites);
 

@@ -49,7 +49,7 @@ exports.addPost = async (req, res) => {
         upload_preset,
         {
           public_id: new Date().toLocaleTimeString() + user._id,
-        },
+        }
       );
     }
     const newPost = new Post({
@@ -129,73 +129,54 @@ exports.viewNewInstruments = async (req, res) => {
   }
 };
 
-exports.createNewInstrument = [
-  // Validate and sanitize inputs
-  body("userId").isMongoId().withMessage("Invalid user ID"),
-  body("name").isString().notEmpty().withMessage("Name is required"),
-  body("brand").isString().notEmpty().withMessage("Brand is required"),
-  body("rentPrice").isString().notEmpty().withMessage("rentPrice is required"),
-  body("type").isString().notEmpty().withMessage("Type is required"),
-  body("description")
-    .isString()
-    .notEmpty()
-    .withMessage("Description is required"),
-  body("location").isString().notEmpty().withMessage("Location is required"),
-  body("images")
-    .optional()
-    .isArray()
-    .withMessage("Images should be an array of strings"),
+exports.createNewInstrument = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = req.user;
 
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ success: false, errors: errors.array() });
-    }
-    const { user } = req;
+    console.log("Request Body:", req.body);
+    const file = req.files.image;
 
-    const { userId, name, brand, rentPrice, type, description, images } =
-      req.body;
-
-    try {
-      const file = req.files.image;
+    if (file) {
       const dataUrl = bufferToDataUrl("image/png", file.data);
-
-      // console.log(dataUrl);
       const upload_preset = "ml_default";
-      const uploadResult = await cloudinary.uploader.unsigned_upload(
+       var uploadResult = await cloudinary.uploader.unsigned_upload(
         dataUrl,
         upload_preset,
         {
           public_id: new Date().toLocaleTimeString() + user._id,
-        },
+        }
       );
-
-      const newInstrument = new NewInstrument({
-        userId,
-        name,
-        brand,
-        rentPrice,
-        type,
-        description,
-        location,
-        images: uploadResult.url,
-      });
-
-      const savedInstrument = await newInstrument.save();
-
-      return res.status(201).json({
-        success: true,
-        data: savedInstrument,
-      });
-    } catch (error) {
-      console.error("Error creating new instrument:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Internal server error",
-      });
     }
-  },
-];
+
+    const newInstrument = new NewInstrument({
+      userId: userId,
+      name: req.body.name,
+      brand: req.body.brand,
+      rentPrice: req.body.rentPrice,
+      type: req.body.type,
+      description: req.body.description,
+      location: req.body.location,
+      images: uploadResult ? uploadResult.url : null,
+      createdAt: new Date(),
+    });
+
+    console.log("New Instrument:", newInstrument); // Debug log
+
+    // Save the new instrument
+    await newInstrument.save();
+
+    return res.status(201).json({
+      message: "Instrument created",
+      data: newInstrument,
+    });
+  } catch (error) {
+    console.error("Error:", error); // Debug log
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
 
 exports.deletePost = async (req, res) => {
   const userId = req.user._id;
