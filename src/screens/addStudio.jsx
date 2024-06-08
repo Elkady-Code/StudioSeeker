@@ -113,6 +113,7 @@ const AddStudio = ({ userId }) => {
       setDescription("");
       setLocation("");
       setRentPerHour("");
+      setImage("");  
       console.log("Response:", response.data);
     } catch (error) {
       console.error("Error:", error);

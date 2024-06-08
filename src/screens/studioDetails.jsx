@@ -50,9 +50,6 @@ export default StudioDetailsScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
         <Image source={{ uri: `${post?.images[0]}` }} style={styles.image} />
-        <View style={styles.imagePlaceholder}>
-          {/* <Text style={styles.imageText}>Image Placeholder</Text> */}
-        </View>
         <View style={styles.descriptionSection}>
           <Text style={styles.sectionTitle}>Description</Text>
           <Text style={styles.descriptionText}>
@@ -60,14 +57,6 @@ export default StudioDetailsScreen = ({ route, navigation }) => {
             lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod
             malesuada.
           </Text>
-        </View>
-        <View style={styles.photosSection}>
-          <Text style={styles.sectionTitle}>Photos</Text>
-          <View style={styles.photoRow}>
-            <View style={styles.photoPlaceholder} />
-            <View style={styles.photoPlaceholder} />
-            <View style={styles.photoPlaceholder} />
-          </View>
         </View>
         <View style={styles.ratingsSection}>
           <Text style={styles.sectionTitle}>Ratings & Review</Text>

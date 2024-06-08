@@ -21,12 +21,13 @@ const addInstrument = ({ navigation }) => {
   const [instrumentName, setInstrumentName] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
-  const [price, setPrice] = useState("");
+  const [rentPrice, setRentPrice] = useState("");
+  const [brand, setBrand] = useState("");
+  const [type, setType] = useState("");
   const [image, setImage] = useState(null);
 
   const pickImage = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (permissionResult.granted === false) {
       alert("You've refused to allow this app to access your photos!");
@@ -63,8 +64,8 @@ const addInstrument = ({ navigation }) => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-          },
-        },
+          }
+        }
       );
       console.log(response.data.imageUrl);
       return response.data.imageUrl;
@@ -87,24 +88,29 @@ const addInstrument = ({ navigation }) => {
         type: "image/jpeg",
       });
       formData.append("name", instrumentName);
+      formData.append("brand", brand);
+      formData.append("type", type);
+      formData.append("description", description);
+      formData.append("rentPrice", rentPrice);
       formData.append("location", location);
-      formData.append("rentPerHour", price);
-      formData.append("desc", description);
       const response = await axios.post(
         "https://studioseeker-h2vx.onrender.com/createNewInstrument",
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-          },
-        },
+          }
+        }
       );
 
       alert("Instrument added successfully!");
       setInstrumentName("");
       setDescription("");
       setLocation("");
-      setPrice("");
+      setRentPrice("");
+      setBrand("");
+      setType("");
+      setImage(null);
       console.log("Response:", response.data);
     } catch (error) {
       console.error("Error:", error);
@@ -131,7 +137,7 @@ const addInstrument = ({ navigation }) => {
             <Text style={styles.headerText}>This will take a moment</Text>
           </View>
           <Text style={styles.subHeaderText}>
-            Please fill out the following you want to add.
+            Please fill out the following to add the instrument.
           </Text>
 
           <View style={styles.inputContainer}>
@@ -141,6 +147,26 @@ const addInstrument = ({ navigation }) => {
               placeholder="Name"
               value={instrumentName}
               onChangeText={setInstrumentName}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Brand</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Brand"
+              value={brand}
+              onChangeText={setBrand}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Type</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Type"
+              value={type}
+              onChangeText={setType}
             />
           </View>
 
@@ -165,12 +191,12 @@ const addInstrument = ({ navigation }) => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Price (EGP)</Text>
+            <Text style={styles.label}>Rent Price (EGP)</Text>
             <TextInput
               style={styles.input}
-              placeholder="Price"
-              value={price}
-              onChangeText={setPrice}
+              placeholder="Rent Price"
+              value={rentPrice}
+              onChangeText={setRentPrice}
               keyboardType="numeric"
             />
           </View>
