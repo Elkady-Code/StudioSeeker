@@ -17,7 +17,7 @@ import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
-const addInstrument = () => {
+const addInstrument = ({ navigation }) => {
   const [instrumentName, setInstrumentName] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
@@ -48,7 +48,6 @@ const addInstrument = () => {
   const uploadImage = async () => {
     const token = await SecureStore.getItemAsync("userToken");
 
-
     let formData = new FormData();
     formData.append("images", {
       uri: image,
@@ -77,33 +76,39 @@ const addInstrument = () => {
   };
 
   const handleAddInstrument = async () => {
-    let imageUrl = null;
-    if (image) {
-      imageUrl = await uploadImage();
-    }
-
-    if (!imageUrl) return;
-
     const token = await SecureStore.getItemAsync("userToken");
     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 
     try {
+      let formData = new FormData();
+      formData.append("images", {
+        uri: image,
+        name: "profile.jpg",
+        type: "image/jpeg",
+      });
+      formData.append("name", instrumentName);
+      formData.append("location", location);
+      formData.append("rentPerHour", price);
+      formData.append("desc", description);
       const response = await axios.post(
-        "https://studioseeker-h2vx.onrender.com/createNewInstrument",
+        "http://localhost:3005/createNewInstrument",
+        formData,
         {
-          name: instrumentName,
-          description: description,
-          location: location,
-          price: price,
-          imageUrl: imageUrl,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
       );
 
-      alert("Instrument added successfully!");
-      console.log(response.data);
+      alert("Studio added successfully!");
+      setInstrumentName("");
+      setDescription("");
+      setLocation("");
+      setPrice("");
+      console.log("Response:", response.data);
     } catch (error) {
-      console.error(error);
-      alert("Failed to add instrument");
+      console.error("Error:", error);
+      alert("Failed to add studio");
     }
   };
 
@@ -115,7 +120,12 @@ const addInstrument = () => {
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => {
+                navigation.goBack();
+              }}
+            >
               <Ionicons name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
             <Text style={styles.headerText}>This will take a moment</Text>
