@@ -365,7 +365,7 @@ exports.createBooking = asyncErrorHandler(async (req, res, next) => {
 });
 
 exports.getUserBookings = async (req, res) => {
-  const { userId } = req.params;
+  const { userId } = req.user;
 
   try {
     if (!mongoose.Types.ObjectId.isValid(userId)) {

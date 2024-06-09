@@ -52,7 +52,7 @@ router.post("/request-password-reset", userController.forgotPassword); // Handle
 router.patch("/reset-password/:token", userController.resetPassword); // Handles resetting password
 
 router.post("/create-booking", isAuth, userController.createBooking);
-router.get("/user-bookings/:userId", userController.getUserBookings);
+router.get("/user-bookings", userController.getUserBookings);
 
 //Settings API
 router.post("/email", settingsController.updateEmail);
@@ -74,7 +74,7 @@ router.post(
   "/create-user",
   validateUserSignUp,
   userValidation,
-  userController.createUser
+  userController.createUser,
 ); // Handles creating a new user
 
 // Route for user sign-in
@@ -82,7 +82,7 @@ router.post(
   "/sign-in",
   validateUserSignIn,
   userValidation,
-  userController.userSignIn
+  userController.userSignIn,
 ); // Handles user sign-in
 
 // Route for user sign-out
@@ -93,7 +93,7 @@ router.post(
   "/upload-profile-image",
   isAuth,
   // upload.single("image"),
-  userController.uploadProfileImage
+  userController.uploadProfileImage,
 );
 
 module.exports = router;
