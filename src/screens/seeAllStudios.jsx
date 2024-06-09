@@ -1,8 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator, KeyboardAvoidingView, SafeAreaView, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  SafeAreaView,
+  ScrollView,
+  Image,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
 
 const NewStudios = ({ navigation }) => {
   const [studios, setStudios] = useState([]);
@@ -12,12 +23,14 @@ const NewStudios = ({ navigation }) => {
     const fetchStudios = async () => {
       const token = await SecureStore.getItemAsync("userToken");
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-      
+
       try {
-        const response = await axios.get('https://studioseeker-h2vx.onrender.com/viewNewStudios');
+        const response = await axios.get(
+          "https://studioseeker-h2vx.onrender.com/viewNewStudios",
+        );
         setStudios(response.data.data);
       } catch (error) {
-        console.error('Error fetching studios:', error);
+        console.error("Error fetching studios:", error);
       } finally {
         setLoading(false);
       }
@@ -27,8 +40,19 @@ const NewStudios = ({ navigation }) => {
   }, []);
 
   const renderStudio = ({ item }) => (
-    <View style={styles.studioCard}>
-      <View style={styles.circle} />
+    <TouchableOpacity
+      style={styles.studioCard}
+      onPress={() => {
+        navigation.push("StudioDetailsScreen", {
+          studioId: item._id,
+
+          post: item,
+        });
+      }}
+    >
+      {/* <View style={styles.circle} /> */}
+      <Image style={styles.circle} source={{ uri: item.images[0] }} />
+
       <View style={styles.details}>
         <Text style={styles.studioName}>{item.name}</Text>
         <Text style={styles.studioDescription}>{item.description}</Text>
@@ -36,7 +60,7 @@ const NewStudios = ({ navigation }) => {
       <TouchableOpacity style={styles.addButton}>
         <Ionicons name="add" size={24} color="black" />
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -45,7 +69,10 @@ const NewStudios = ({ navigation }) => {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View style={styles.container}>
             <View style={styles.header}>
-              <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => navigation.goBack()}
+              >
                 <Ionicons name="arrow-back" size={24} color="black" />
               </TouchableOpacity>
               <Text style={styles.headerText}>NEW STUDIOS</Text>
@@ -56,7 +83,7 @@ const NewStudios = ({ navigation }) => {
               <FlatList
                 data={studios}
                 renderItem={renderStudio}
-                keyExtractor={item => item._id.toString()}
+                keyExtractor={item => item._id}
                 contentContainerStyle={styles.listContent}
               />
             )}
@@ -71,11 +98,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 20,
   },
   backButton: {
@@ -83,15 +110,15 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   studioCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
@@ -102,7 +129,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
     marginRight: 20,
   },
   details: {
@@ -110,12 +137,12 @@ const styles = StyleSheet.create({
   },
   studioName: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   studioDescription: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
   addButton: {
     padding: 10,

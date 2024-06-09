@@ -21,9 +21,9 @@ export default StudioDetailsScreen = ({ route, navigation }) => {
 
   console.log(post);
 
- const navigateToCheckOut = () => {
-  navigation.navigate ("CheckoutDetails");
- }
+  const navigateToCheckOut = () => {
+    navigation.navigate("CheckoutDetails", { post: post });
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -52,12 +52,19 @@ export default StudioDetailsScreen = ({ route, navigation }) => {
         <Image source={{ uri: `${post?.images[0]}` }} style={styles.image} />
         <View style={styles.descriptionSection}>
           <Text style={styles.sectionTitle}>Description</Text>
+          <Text style={styles.descriptionText}>{post.description}</Text>
+        </View>
+        <View style={styles.descriptionSection}>
+          <Text style={styles.sectionTitle}>Price</Text>
           <Text style={styles.descriptionText}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus
-            lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod
-            malesuada.
+            {post.rentPerHour ? post.rentPerHour : post.rentPrice} EGP
           </Text>
         </View>
+        <View style={styles.descriptionSection}>
+          <Text style={styles.sectionTitle}>Location</Text>
+          <Text style={styles.descriptionText}>{post.location}</Text>
+        </View>
+
         <View style={styles.ratingsSection}>
           <Text style={styles.sectionTitle}>Ratings & Review</Text>
           <View style={styles.ratingRow}>
@@ -73,7 +80,10 @@ export default StudioDetailsScreen = ({ route, navigation }) => {
           </View>
         </View>
       </ScrollView>
-      <TouchableOpacity style={styles.bottomButton} onPress={navigateToCheckOut}>
+      <TouchableOpacity
+        style={styles.bottomButton}
+        onPress={navigateToCheckOut}
+      >
         <Text style={styles.buttonText}>Book Now</Text>
       </TouchableOpacity>
     </SafeAreaView>

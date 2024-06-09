@@ -1,10 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator, KeyboardAvoidingView, SafeAreaView, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  SafeAreaView,
+  ScrollView,
+  Image,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
 
-const Equipment = () => {
+const Equipment = ({ navigation }) => {
   const [instruments, setInstruments] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -13,11 +24,13 @@ const Equipment = () => {
       try {
         const token = await SecureStore.getItemAsync("userToken");
         axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-        
-        const response = await axios.get('https://studioseeker-h2vx.onrender.com/viewNewInstruments');
-        setInstruments(response.data.data); 
+
+        const response = await axios.get(
+          "https://studioseeker-h2vx.onrender.com/viewNewInstruments",
+        );
+        setInstruments(response.data.data);
       } catch (error) {
-        console.error('Error fetching instruments:', error);
+        console.error("Error fetching instruments:", error);
       } finally {
         setLoading(false);
       }
@@ -27,8 +40,17 @@ const Equipment = () => {
   }, []);
 
   const renderInstrument = ({ item }) => (
-    <View style={styles.equipmentCard}>
-      <View style={styles.circle} />
+    <TouchableOpacity
+      style={styles.equipmentCard}
+      onPress={() => {
+        navigation.push("StudioDetailsScreen", {
+          studioId: item._id,
+
+          post: item,
+        });
+      }}
+    >
+      <Image style={styles.circle} source={{ uri: item.images[0] }} />
       <View style={styles.details}>
         <Text style={styles.instrumentName}>{item.name}</Text>
         <Text style={styles.instrumentDescription}>{item.description}</Text>
@@ -36,7 +58,7 @@ const Equipment = () => {
       <TouchableOpacity style={styles.addButton}>
         <Ionicons name="add" size={24} color="black" />
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -45,7 +67,12 @@ const Equipment = () => {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View style={styles.container}>
             <View style={styles.header}>
-              <TouchableOpacity style={styles.backButton}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => {
+                  navigation.goBack();
+                }}
+              >
                 <Ionicons name="arrow-back" size={24} color="black" />
               </TouchableOpacity>
               <Text style={styles.headerText}>EQUIPMENT</Text>
@@ -71,11 +98,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 20,
   },
   backButton: {
@@ -83,15 +110,15 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   equipmentCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
@@ -102,7 +129,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
     marginRight: 20,
   },
   details: {
@@ -110,12 +137,12 @@ const styles = StyleSheet.create({
   },
   instrumentName: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   instrumentDescription: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
   addButton: {
     padding: 10,

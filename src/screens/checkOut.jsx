@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useRoute } from "@react-navigation/native";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,48 +9,70 @@ import {
   ScrollView,
   SafeAreaView,
   KeyboardAvoidingView,
-  Platform
-} from 'react-native';
+  Platform,
+} from "react-native";
 
-const CheckoutDetails = ({navigation}) => {
-  const [selectedPayment, setSelectedPayment] = useState(null);
+const CheckoutDetails = ({ navigation }) => {
+  const [selectedPayment, setSelectedPayment] = useState("");
+  const { params } = useRoute();
 
-  const handlePaymentSelection = (method) => {
+  const handlePaymentSelection = method => {
     setSelectedPayment(method);
   };
 
   const handleProceedWithPayment = () => {
     if (selectedPayment) {
-      Alert.alert('Payment Method Selected');
+      Alert.alert("Payment Method Selected");
     } else {
-      Alert.alert('No Payment Method Selected', 'Please select a payment method');
+      Alert.alert(
+        "No Payment Method Selected",
+        "Please select a payment method",
+      );
     }
   };
 
   const navigateToCheckConfirmation = () => {
-    navigation.navigate("CheckoutConfirmation");
+    selectedPayment == ""
+      ? alert("Please select payment method")
+      : navigation.navigate("CheckoutConfirmation", { post: params.post });
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView contentContainerStyle={styles.contentContainer}>
           <Text style={styles.header}>Checkout details</Text>
-          <Text style={styles.label}>Time availability:</Text>
-          <Text style={styles.label}>Total price:</Text>
+          <Text style={styles.label}>Time availability: 24/7</Text>
+          <Text style={styles.label}>
+            Total price:{" "}
+            {params.post.rentPerHour
+              ? params.post.rentPerHour
+              : params.post.rentPrice}{" "}
+            EGP
+          </Text>
           <Text style={styles.label}>Payment method</Text>
           <View style={styles.paymentMethods}>
             <TouchableOpacity
-              style={[styles.paymentButton, selectedPayment === 'Cash' && styles.selectedPaymentButton]}
-              onPress={() => handlePaymentSelection('Cash')}
+              style={[
+                styles.paymentButton,
+                selectedPayment === "Cash" && styles.selectedPaymentButton,
+              ]}
+              onPress={() => {
+                selectedPayment == "Cash"
+                  ? handlePaymentSelection("")
+                  : handlePaymentSelection("Cash");
+              }}
             >
               <Text style={styles.paymentText}>Cash</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.proceedButton} onPress={navigateToCheckConfirmation}>
+          <TouchableOpacity
+            style={styles.proceedButton}
+            onPress={navigateToCheckConfirmation}
+          >
             <Text style={styles.proceedButtonText}>Proceed with payment</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -61,7 +84,7 @@ const CheckoutDetails = ({navigation}) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   container: {
     flex: 1,
@@ -72,7 +95,7 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
   },
   label: {
@@ -80,30 +103,30 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   paymentMethods: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginBottom: 20,
   },
   paymentButton: {
     padding: 15,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 5,
   },
   selectedPaymentButton: {
-    backgroundColor: 'green',
+    backgroundColor: "green",
   },
   paymentText: {
     fontSize: 18,
   },
   proceedButton: {
-    backgroundColor: '#C15656',
+    backgroundColor: "#C15656",
     padding: 15,
     borderRadius: 5,
-    alignItems: 'center',
+    alignItems: "center",
   },
   proceedButtonText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
   },
 });
