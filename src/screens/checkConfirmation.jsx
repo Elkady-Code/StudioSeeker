@@ -11,9 +11,12 @@ const CheckoutConfirmation = ({ navigation }) => {
     axios
       .post("https://studioseeker-h2vx.onrender.com/create-booking", {
         postId: params.post._id,
+        duration: 1,
       })
       .then(res => {
-        console.log(res.data);
+        if (res.data.booking) {
+          navigation.push("Main");
+        }
       })
       .catch(err => {
         console.log(err.response);
