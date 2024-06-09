@@ -249,6 +249,8 @@ const HomeComponent = ({ navigation }) => {
                               onPress={() => {
                                 navigation.push("StudioDetailsScreen", {
                                   studioId: post._id,
+
+                                  post: post,
                                 });
                               }}
                             />
@@ -284,6 +286,13 @@ const HomeComponent = ({ navigation }) => {
                               <Card
                                 info={instrument.name}
                                 image={instrument.images[0]}
+                                onPress={() => {
+                                  navigation.push("StudioDetailsScreen", {
+                                    studioId: instrument._id,
+
+                                    post: instrument,
+                                  });
+                                }}
                               />
                             </TouchableOpacity>
                           );
@@ -297,7 +306,19 @@ const HomeComponent = ({ navigation }) => {
             <View style={{ alignSelf: "center" }}>
               <ScrollView>
                 {results.map(result => {
-                  return <Card info={result.name} image={result.images[0]} />;
+                  return (
+                    <Card
+                      info={result.name}
+                      image={result.images[0]}
+                      onPress={() => {
+                        navigation.push("StudioDetailsScreen", {
+                          studioId: result._id,
+
+                          post: result,
+                        });
+                      }}
+                    />
+                  );
                 })}
               </ScrollView>
             </View>

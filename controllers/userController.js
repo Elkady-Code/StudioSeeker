@@ -11,6 +11,7 @@ const { v2: cloudinary } = require("cloudinary");
 const mongoose = require("mongoose");
 const Booking = require("../models/bookingModel");
 const { default: bufferToDataUrl } = require("buffer-to-data-url");
+const Post = require("../models/studioModel");
 
 // createUser function in userController.js
 exports.createUser = async (req, res) => {
@@ -303,7 +304,8 @@ exports.navigateResetPassword = asyncErrorHandler(async (req, res, next) => {
 
 exports.createBooking = asyncErrorHandler(async (req, res, next) => {
   try {
-    const userId = req.user._id; // Extract the user ID from the authenticated user
+    const userr = req.user;
+    const userId = userr._id; // Extract the user ID from the authenticated user
 
     const { postId, duration } = req.body;
 
