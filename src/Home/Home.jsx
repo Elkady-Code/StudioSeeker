@@ -12,7 +12,6 @@ import { Text, Searchbar } from "react-native-paper";
 import Card from "../Components/Card";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import { FlatList } from "react-native-gesture-handler";
 
 const HomeComponent = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,7 +49,6 @@ const HomeComponent = ({ navigation }) => {
       const searchData = response.data.results[0];
       console.log(searchData.hits);
       setResults(searchData.hits);
-      // setPosts(searchData); // Replace current posts with search results
     } catch (error) {
       console.error("Error searching posts:", error);
     }
@@ -68,7 +66,7 @@ const HomeComponent = ({ navigation }) => {
       return response.data;
     } catch (error) {
       console.error("Error fetching studio details:", error);
-      throw error; // Throw the error instead of returning null
+      throw error;
     }
   };
 
